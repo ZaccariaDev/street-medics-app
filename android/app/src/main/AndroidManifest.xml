@@ -9,6 +9,9 @@
     <!-- Suivi de la position quand l'app est fermée (medic en service). -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 
+    <!-- Lecture du numéro de téléphone (bouton « Préremplir » dans SOS). -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
     <!-- Service d'arrière-plan. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>

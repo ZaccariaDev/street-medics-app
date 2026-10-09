@@ -20,18 +20,10 @@ class AppConfig {
 
   /// URL du serveur PocketBase.
   ///
-  /// Elle est **fixée au build** et n'apparaît nulle part dans le code ni
-  /// dans les Réglages : l'IP du serveur n'est pas embarquée dans l'APK.
-  ///
-  ///   flutter build appbundle --release \
-  ///     --dart-define=STREET_MEDICS_SERVER=http://151.80.155.14:8090/pb
-  ///
-  /// Sans `--dart-define`, l'URL est vide : l'app refuse de démarrer plutôt
-  /// que de pointer vers une adresse codée en dur.
-  static const String defaultServerUrl = String.fromEnvironment(
-    'STREET_MEDICS_SERVER',
-    defaultValue: '',
-  );
+  /// Domaine Cloudflare (proxy vers ton VPS) — pas d'IP brute dans le code.
+  /// Pour changer de serveur, modifie cette constante et rebuild :
+  ///   flutter build appbundle --release
+  static const String defaultServerUrl = 'https://api.xpertise.quest';
 
   static String _serverUrl = defaultServerUrl;
   static String _deviceId = '';
@@ -45,6 +37,12 @@ class AppConfig {
   static String _myReportId = '';
 
   static String get serverUrl => _serverUrl;
+
+  /// Vrai si une URL de serveur a été fournie au build.
+  static bool get serverConfigured => _serverUrl.isNotEmpty;
+
+  /// Affiche un bandeau rouge si le serveur n'est pas configuré.
+  static bool get showServerBanner => _serverUrl.isEmpty;
   static String get deviceId => _deviceId;
   static String get medicName => _medicName;
   static double get radiusKm => _radiusKm;

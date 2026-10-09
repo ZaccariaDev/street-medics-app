@@ -93,7 +93,37 @@ class StreetMedicsApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: const MainScreen(),
+        home: const _HomeWithBanner(),
+      ),
+    );
+  }
+}
+
+class _HomeWithBanner extends StatelessWidget {
+  const _HomeWithBanner();
+  @override
+  Widget build(BuildContext context) {
+    final body = const MainScreen();
+    if (!AppConfig.showServerBanner) return body;
+    return Scaffold(
+      body: Stack(
+        children: [
+          body,
+          Positioned(
+            top: 0, left: 0, right: 0,
+            child: Material(
+              color: Colors.redAccent,
+              elevation: 4,
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: Text(
+                  'Serveur non configuré — veuillez redémarrer avec une URL.',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -427,6 +457,10 @@ class _SosTabState extends State<SosTab> {
   void initState() {
     super.initState();
     _phoneController.text = AppConfig.victimPhone;
+    // Préremplit automatiquement avec le numéro du téléphone si disponible.
+    if (AppConfig.victimPhone.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _fillPhoneNumber());
+    }
   }
 
   @override
