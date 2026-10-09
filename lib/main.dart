@@ -1,122 +1,536 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geolocator/geolocator.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'config.dart';
+import 'pb_service.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.load();
+  runApp(const StreetMedicsApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class StreetMedicsApp extends StatelessWidget {
+  const StreetMedicsApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Street Medics FR',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+        useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MainScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Street Medics FR'),
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      ),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: const [
+          SosTab(),
+          MapTab(),
+          SettingsTab(),
+        ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (i) => setState(() => _selectedIndex = i),
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.sos), label: 'SOS'),
+          NavigationDestination(icon: Icon(Icons.map), label: 'Carte'),
+          NavigationDestination(icon: Icon(Icons.settings), label: 'Réglages'),
+        ],
+      ),
+    );
+  }
+}
+
+/// ---------- Helpers géolocalisation ----------
+
+Future<Position?> obtainPosition(BuildContext context) async {
+  // Vérifie que le service de localisation est actif.
+  if (!await Geolocator.isLocationServiceEnabled()) {
+    if (context.mounted) {
+      showSnack(context, 'Activez la localisation sur l\'appareil.');
+    }
+    return null;
+  }
+  // Demande la permission via geolocator (pas de plugin externe).
+  var permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+  if (permission == LocationPermission.denied ||
+      permission == LocationPermission.deniedForever) {
+    if (context.mounted) {
+      showSnack(context, 'Permission de localisation refusée.');
+    }
+    return null;
+  }
+  try {
+    return await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+    );
+  } catch (e) {
+    if (context.mounted) {
+      showSnack(context, 'Position indisponible : $e');
+    }
+    return null;
+  }
+}
+
+void showSnack(BuildContext context, String msg) {
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+}
+
+/// ---------- Onglet SOS ----------
+
+class SosTab extends StatefulWidget {
+  const SosTab({super.key});
+
+  @override
+  State<SosTab> createState() => _SosTabState();
+}
+
+class _SosTabState extends State<SosTab> {
+  final _descController = TextEditingController();
+  Position? _lastPosition;
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _descController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendSos() async {
+    setState(() => _busy = true);
+    final pos = await obtainPosition(context);
+    if (pos == null) {
+      setState(() => _busy = false);
+      return;
+    }
+    setState(() => _lastPosition = pos);
+    try {
+      await PbService.sendReport(
+        lat: pos.latitude,
+        lng: pos.longitude,
+        description: _descController.text.trim().isEmpty
+            ? 'SOS - Position partagée'
+            : _descController.text.trim(),
+      );
+      if (mounted) showSnack(context, 'Position envoyée au serveur.');
+    } catch (e) {
+      if (mounted) showSnack(context, 'Échec envoi : $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _goOnDuty() async {
+    setState(() => _busy = true);
+    final pos = await obtainPosition(context);
+    if (pos == null) {
+      setState(() => _busy = false);
+      return;
+    }
+    setState(() => _lastPosition = pos);
+    try {
+      await PbService.setMedicOnDuty(lat: pos.latitude, lng: pos.longitude);
+      if (mounted) showSnack(context, 'Vous êtes en service.');
+    } catch (e) {
+      if (mounted) showSnack(context, 'Échec : $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.emergency, size: 72, color: Colors.red),
+          const SizedBox(height: 12),
+          const Text(
+            'Besoin d\'aide ?',
+            style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Votre position sera envoyée aux street medics à proximité.',
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _descController,
+            decoration: const InputDecoration(
+              labelText: 'Description (optionnel)',
+              border: OutlineInputBorder(),
+              hintText: 'ex : personne blessée, lieu précis…',
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              onPressed: _busy ? null : _sendSos,
+              icon: _busy
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Icon(Icons.sos),
+              label: Text(_busy ? 'Envoi…' : 'ENVOYER MA POSITION'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _busy ? null : _goOnDuty,
+              icon: const Icon(Icons.medical_services),
+              label: const Text('Je suis street medic — prendre le service'),
+            ),
+          ),
+          if (_lastPosition != null) ...[
+            const SizedBox(height: 16),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              'Dernière position : ${_lastPosition!.latitude.toStringAsFixed(5)}, '
+              '${_lastPosition!.longitude.toStringAsFixed(5)}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// ---------- Onglet Carte ----------
+
+class MapTab extends StatefulWidget {
+  const MapTab({super.key});
+
+  @override
+  State<MapTab> createState() => _MapTabState();
+}
+
+class _MapTabState extends State<MapTab> {
+  final MapController _mapController = MapController();
+  List<Map<String, dynamic>> _reports = [];
+  List<Map<String, dynamic>> _medics = [];
+  LatLng? _myPosition;
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+    _locate();
+  }
+
+  Future<void> _locate() async {
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+      if (mounted) {
+        setState(() => _myPosition = LatLng(pos.latitude, pos.longitude));
+        _mapController.move(_myPosition!, 14);
+      }
+    } catch (_) {
+      // silencieux : la carte reste centrée par défaut
+    }
+  }
+
+  Future<void> _refresh() async {
+    setState(() => _loading = true);
+    try {
+      final reports = await PbService.listReports();
+      final medics = await PbService.listMedics();
+      if (mounted) {
+        setState(() {
+          _reports = reports;
+          _medics = medics;
+        });
+      }
+    } catch (e) {
+      if (mounted) showSnack(context, 'Chargement impossible : $e');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final markers = <Marker>[
+      for (final r in _reports)
+        Marker(
+          point: LatLng(r['lat'] as double, r['lng'] as double),
+          width: 44,
+          height: 44,
+          child: const Icon(Icons.warning, color: Colors.red, size: 40),
+        ),
+      for (final m in _medics)
+        Marker(
+          point: LatLng(m['lat'] as double, m['lng'] as double),
+          width: 44,
+          height: 44,
+          child: const Icon(Icons.medical_services,
+              color: Colors.green, size: 38),
+        ),
+      if (_myPosition != null)
+        Marker(
+          point: _myPosition!,
+          width: 44,
+          height: 44,
+          child: const Icon(Icons.my_location, color: Colors.blue, size: 36),
+        ),
+    ];
+
+    return Stack(
+      children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: const MapOptions(
+            initialCenter: LatLng(46.6, 2.4),
+            initialZoom: 6,
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'fr.streetmedics.app',
+            ),
+            MarkerLayer(markers: markers),
+          ],
+        ),
+        Positioned(
+          top: 12,
+          right: 12,
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning, color: Colors.red, size: 18),
+                  Text(' ${_reports.length}  '),
+                  const Icon(Icons.medical_services,
+                      color: Colors.green, size: 18),
+                  Text(' ${_medics.length}'),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: FloatingActionButton(
+            onPressed: _loading ? null : _refresh,
+            tooltip: 'Rafraîchir',
+            child: _loading
+                ? const CircularProgressIndicator(strokeWidth: 2)
+                : const Icon(Icons.refresh),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// ---------- Onglet Réglages ----------
+
+class SettingsTab extends StatefulWidget {
+  const SettingsTab({super.key});
+
+  @override
+  State<SettingsTab> createState() => _SettingsTabState();
+}
+
+class _SettingsTabState extends State<SettingsTab> {
+  late final TextEditingController _urlController;
+  final _emailController = TextEditingController();
+  final _pwdController = TextEditingController();
+  String _status = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _urlController = TextEditingController(text: AppConfig.serverUrl);
+  }
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    _emailController.dispose();
+    _pwdController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveUrl() async {
+    await AppConfig.setServerUrl(_urlController.text);
+    setState(() => _status = 'URL enregistrée : ${AppConfig.serverUrl}');
+  }
+
+  Future<void> _testConnection() async {
+    await AppConfig.setServerUrl(_urlController.text);
+    setState(() => _status = 'Test en cours…');
+    final ok = await PbService.ping();
+    setState(() => _status = ok
+        ? 'Connexion OK — serveur joignable.'
+        : 'Serveur injoignable. Vérifiez l\'URL et que PocketBase tourne.');
+  }
+
+  Future<void> _signUp() async {
+    try {
+      await PbService.signUp(
+          _emailController.text.trim(), _pwdController.text.trim());
+      setState(() => _status = 'Compte créé et connecté.');
+    } catch (e) {
+      setState(() => _status = 'Échec création : $e');
+    }
+  }
+
+  Future<void> _signIn() async {
+    try {
+      await PbService.signIn(
+          _emailController.text.trim(), _pwdController.text.trim());
+      setState(() => _status = 'Connecté.');
+    } catch (e) {
+      setState(() => _status = 'Échec connexion : $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        const Text('Serveur PocketBase',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        const Text(
+          'URL du serveur auto-hébergé (ex : http://votre-serveur:8090).',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _urlController,
+          decoration: const InputDecoration(
+            labelText: 'URL du serveur',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: _saveUrl,
+                child: const Text('Enregistrer'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: _testConnection,
+                child: const Text('Tester'),
+              ),
             ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+        const Divider(height: 40),
+        const Text('Compte (optionnel)',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _emailController,
+          decoration: const InputDecoration(
+            labelText: 'Email',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _pwdController,
+          obscureText: true,
+          decoration: const InputDecoration(
+            labelText: 'Mot de passe',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: _signIn,
+                child: const Text('Se connecter'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton(
+                onPressed: _signUp,
+                child: const Text('Créer un compte'),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        if (PbService.isLoggedIn)
+          TextButton(
+            onPressed: () {
+              PbService.logout();
+              setState(() => _status = 'Déconnecté.');
+            },
+            child: const Text('Se déconnecter'),
+          ),
+        const Divider(height: 40),
+        if (_status.isNotEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Text(_status),
+            ),
+          ),
+        const SizedBox(height: 12),
+        const Text(
+          'Street Medics FR — Flutter + PocketBase + OpenStreetMap.',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+      ],
     );
   }
 }

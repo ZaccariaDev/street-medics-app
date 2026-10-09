@@ -1,5 +1,5 @@
 name: street_medics_app
-description: "A new Flutter project."
+description: "Street Medics FR — app d'urgence pour street medics (Flutter + PocketBase, OSM)."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -34,6 +34,11 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  pocketbase: ^0.25.2
+  flutter_map: ^8.3.2
+  geolocator: ^14.1.1
+  latlong2: ^0.10.1
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:

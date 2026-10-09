@@ -46,3 +46,11 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Données PocketBase locales (ne pas committer)
+pb_data/
+pb_migrations/
+
+# Build Flutter
+build/
+.dart_tool/
