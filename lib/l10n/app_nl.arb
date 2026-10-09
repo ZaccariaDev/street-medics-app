@@ -76,5 +76,13 @@
   "medicsOnly": "Kaart alleen voor dienstdoende street medics",
   "navigate": "Route",
   "navigateTitle": "Route openen met…",
-  "shortestRoute": "Kortste route naar de SOS"
+  "shortestRoute": "Kortste route naar de SOS",
+  "updateTitle": "Update beschikbaar",
+  "updateBody": "Er is een nieuwe versie. Werk bij voor de laatste correcties.",
+  "updateNow": "Nu bijwerken",
+  "updateLater": "Later",
+  "updateMandatory": "Deze update is verplicht om de app te blijven gebruiken.",
+  "checkUpdate": "Controleren op updates",
+  "upToDate": "Je hebt de nieuwste versie.",
+  "version": "Versie"
 }

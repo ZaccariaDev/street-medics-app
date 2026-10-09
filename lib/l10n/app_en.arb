@@ -76,5 +76,13 @@
   "medicsOnly": "Map reserved for on-duty street medics",
   "navigate": "Get directions",
   "navigateTitle": "Open the route with…",
-  "shortestRoute": "Shortest route to the SOS"
+  "shortestRoute": "Shortest route to the SOS",
+  "updateTitle": "Update available",
+  "updateBody": "A new version is available. Update to get the latest fixes.",
+  "updateNow": "Update now",
+  "updateLater": "Later",
+  "updateMandatory": "This update is required to keep using the app.",
+  "checkUpdate": "Check for updates",
+  "upToDate": "You have the latest version.",
+  "version": "Version"
 }

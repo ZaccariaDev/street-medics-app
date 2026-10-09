@@ -76,5 +76,13 @@
   "medicsOnly": "Ramani ni kwa wahudumu wa mitaani walio kazini",
   "navigate": "Njia",
   "navigateTitle": "Fungua njia kwa…",
-  "shortestRoute": "Njia fupi kwa SOS"
+  "shortestRoute": "Njia fupi kwa SOS",
+  "updateTitle": "Sasisho linapatikana",
+  "updateBody": "Toleo jipya linapatikana. Sasisha kupata marekebisho ya hivi punde.",
+  "updateNow": "Sasisha sasa",
+  "updateLater": "Baadaye",
+  "updateMandatory": "Sasisho hili linahitajika ili kuendelea kutumia programu.",
+  "checkUpdate": "Angalia sasisho",
+  "upToDate": "Una toleo la hivi punde.",
+  "version": "Toleo"
 }

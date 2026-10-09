@@ -76,5 +76,13 @@
   "medicsOnly": "Mapa tylko dla street medyków na służbie",
   "navigate": "Trasa",
   "navigateTitle": "Otwórz trasę w…",
-  "shortestRoute": "Najkrótsza trasa do SOS"
+  "shortestRoute": "Najkrótsza trasa do SOS",
+  "updateTitle": "Dostępna aktualizacja",
+  "updateBody": "Dostępna jest nowa wersja. Zaktualizuj, aby mieć najnowsze poprawki.",
+  "updateNow": "Zaktualizuj teraz",
+  "updateLater": "Później",
+  "updateMandatory": "Ta aktualizacja jest wymagana do dalszego korzystania z aplikacji.",
+  "checkUpdate": "Sprawdź aktualizacje",
+  "upToDate": "Masz najnowszą wersję.",
+  "version": "Wersja"
 }

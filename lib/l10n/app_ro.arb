@@ -76,5 +76,13 @@
   "medicsOnly": "Harta este doar pentru street medicii în tură",
   "navigate": "Indicații",
   "navigateTitle": "Deschide ruta cu…",
-  "shortestRoute": "Cea mai scurtă rută spre SOS"
+  "shortestRoute": "Cea mai scurtă rută spre SOS",
+  "updateTitle": "Actualizare disponibilă",
+  "updateBody": "Este disponibilă o versiune nouă. Actualizează pentru ultimele corecturi.",
+  "updateNow": "Actualizează acum",
+  "updateLater": "Mai târziu",
+  "updateMandatory": "Această actualizare este obligatorie pentru a continua să folosești aplicația.",
+  "checkUpdate": "Verifică actualizări",
+  "upToDate": "Ai cea mai recentă versiune.",
+  "version": "Versiune"
 }

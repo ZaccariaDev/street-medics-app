@@ -76,5 +76,13 @@
   "medicsOnly": "Mappa riservata agli street medic in servizio",
   "navigate": "Indicazioni",
   "navigateTitle": "Apri il percorso con…",
-  "shortestRoute": "Percorso più breve verso il SOS"
+  "shortestRoute": "Percorso più breve verso il SOS",
+  "updateTitle": "Aggiornamento disponibile",
+  "updateBody": "È disponibile una nuova versione. Aggiorna per avere le ultime correzioni.",
+  "updateNow": "Aggiorna ora",
+  "updateLater": "Più tardi",
+  "updateMandatory": "Questo aggiornamento è obbligatorio per continuare a usare l'app.",
+  "checkUpdate": "Controlla aggiornamenti",
+  "upToDate": "Hai l'ultima versione.",
+  "version": "Versione"
 }

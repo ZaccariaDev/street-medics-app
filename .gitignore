@@ -8,3 +8,13 @@ build/
 
 # Localisations : on committe les .arb (source) mais pas le code généré
 lib/l10n/app_localizations*.dart
+
+# ---------- Secrets de signature (NE JAMAIS COMMITER) ----------
+# Le keystore et ses mots de passe servent à signer les releases Play Store.
+# Les perdre = impossible de publier une mise à jour de l'app.
+android/key.properties
+*.jks
+*.keystore
+
+# Divers
+android/local.properties

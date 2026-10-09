@@ -9,6 +9,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'bg_service.dart';
@@ -17,6 +18,8 @@ import 'l10n/app_localizations.dart';
 import 'notifs.dart';
 import 'pb_service.dart';
 import 'perms.dart';
+import 'update_dialog.dart';
+import 'updater.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -104,6 +107,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   bool _askedPerms = false;
+  bool _checkedUpdate = false;
   bool _onDuty = false;
 
   @override
@@ -134,6 +138,13 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Vérifie une mise à jour au démarrage (silencieux si rien).
+    if (!_checkedUpdate) {
+      _checkedUpdate = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (mounted) await UpdateDialog.maybeShow(context);
+      });
+    }
     // Demande des permissions au tout premier lancement de l'app.
     if (!_askedPerms && !AppConfig.permsAsked) {
       _askedPerms = true;
@@ -214,6 +225,16 @@ Future<Position?> obtainPosition(BuildContext context) async {
 
 void showSnack(BuildContext context, String msg) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+}
+
+/// Version installée de l'app (nom + numéro de build), pour les Réglages.
+Future<String> _appVersion() async {
+  try {
+    final info = await PackageInfo.fromPlatform();
+    return '${info.version} (${info.buildNumber})';
+  } catch (_) {
+    return '';
+  }
 }
 
 /// Pays déduit de la carte SIM (dernier recours si la position échoue).
@@ -1335,6 +1356,36 @@ class _SettingsTabState extends State<SettingsTab> {
               await Perms.askDialog(context, missing: missing);
             }
           },
+        ),
+        const Divider(height: 40),
+        // Mise à jour : version installée + vérification manuelle.
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.system_update),
+                label: Text(t.checkUpdate),
+                onPressed: () async {
+                  final t2 = AppLocalizations.of(context);
+                  final latest = await Updater.check();
+                  if (!context.mounted) return;
+                  if (latest == null) {
+                    setState(() => _status = t2.upToDate);
+                  } else {
+                    await UpdateDialog.maybeShow(context);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        FutureBuilder<String>(
+          future: _appVersion(),
+          builder: (context, snap) => Text(
+            '${t.version} ${snap.data ?? '…'}',
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          ),
         ),
         const Divider(height: 40),
         TextField(

@@ -76,5 +76,13 @@
   "medicsOnly": "Harita yalnızca görevdeki street medicler için",
   "navigate": "Yol tarifi",
   "navigateTitle": "Rotayı şununla aç…",
-  "shortestRoute": "SOS'a en kısa yol"
+  "shortestRoute": "SOS'a en kısa yol",
+  "updateTitle": "Güncelleme mevcut",
+  "updateBody": "Yeni bir sürüm var. En son düzeltmeler için güncelle.",
+  "updateNow": "Şimdi güncelle",
+  "updateLater": "Sonra",
+  "updateMandatory": "Uygulamayı kullanmaya devam etmek için bu güncelleme zorunlu.",
+  "checkUpdate": "Güncellemeleri kontrol et",
+  "upToDate": "En son sürüme sahipsin.",
+  "version": "Sürüm"
 }

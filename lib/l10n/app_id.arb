@@ -76,5 +76,13 @@
   "medicsOnly": "Peta hanya untuk street medic yang bertugas",
   "navigate": "Rute",
   "navigateTitle": "Buka rute dengan…",
-  "shortestRoute": "Rute terpendek ke SOS"
+  "shortestRoute": "Rute terpendek ke SOS",
+  "updateTitle": "Pembaruan tersedia",
+  "updateBody": "Versi baru tersedia. Perbarui untuk mendapatkan perbaikan terbaru.",
+  "updateNow": "Perbarui sekarang",
+  "updateLater": "Nanti",
+  "updateMandatory": "Pembaruan ini wajib untuk terus menggunakan aplikasi.",
+  "checkUpdate": "Periksa pembaruan",
+  "upToDate": "Anda memiliki versi terbaru.",
+  "version": "Versi"
 }

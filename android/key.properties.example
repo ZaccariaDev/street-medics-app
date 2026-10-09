@@ -1,0 +1,13 @@
+# Exemple de configuration de signature. À copier en `key.properties`
+# (fichier ignoré par git) et à remplir avec tes propres valeurs.
+#
+#   cp android/key.properties.example android/key.properties
+#
+# Le keystore contient la clé qui signe les releases. Elle doit être
+# SAUVEGARDÉE : la perdre rend impossible la publication d'une mise à jour
+# de l'app sur le Play Store (Android refuse une signature différente).
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+storeFile=/chemin/absolu/vers/street-medics-upload.jks

@@ -76,5 +76,13 @@
   "medicsOnly": "Karte nur für diensthabende Street Medics",
   "navigate": "Route",
   "navigateTitle": "Route öffnen mit…",
-  "shortestRoute": "Kürzeste Route zum SOS"
+  "shortestRoute": "Kürzeste Route zum SOS",
+  "updateTitle": "Update verfügbar",
+  "updateBody": "Eine neue Version ist verfügbar. Aktualisieren Sie für die neuesten Korrekturen.",
+  "updateNow": "Jetzt aktualisieren",
+  "updateLater": "Später",
+  "updateMandatory": "Dieses Update ist erforderlich, um die App weiter zu nutzen.",
+  "checkUpdate": "Nach Updates suchen",
+  "upToDate": "Sie haben die neueste Version.",
+  "version": "Version"
 }

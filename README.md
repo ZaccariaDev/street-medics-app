@@ -39,8 +39,25 @@ Le bouton **Autoriser** déclenche les demandes système dans l'ordre
 Android 11+, la localisation « toujours » n'existe que dans les réglages de
 l'app : l'app ouvre directement l'écran concerné. Code : `lib/perms.dart`.
 
-## Itinéraire vers un SOS
+## Mise à jour de l'app
 
+L'app est **publiable sur le Play Store** et **mettable à jour** :
+
+- **Release signée** : le keystore et `android/key.properties` sont prêts
+  (jamais commités). L'AAB Play Store se construit avec
+  `flutter build appbundle --release`.
+- **Versioning** : `pubspec.yaml` porte `version: 1.0.0+1` (nom + code). Le
+  code doit **strictement augmenter** à chaque release.
+- **Détection de mise à jour** : au démarrage, l'app compare son `versionCode`
+  à celui publié dans la collection `app_release` du serveur et affiche une
+  popup (bloquante si `mandatory`). Bouton **Vérifier les mises à jour** dans
+  les Réglages.
+- **Publication en une commande** :
+  `PB_PASSWORD=... ./tools/release.sh 1.0.1 "notes"`
+
+Voir **[PUBLISHING.md](PUBLISHING.md)** pour le guide complet Play Store.
+
+## Itinéraire vers un SOS
 Quand un street medic **accepte d'aider**, l'app ouvre directement le choix de
 l'application de navigation : **Google Maps**, **Waze**, ou une autre app
 installée (Organic Maps, OSMAnd…). La destination est déjà remplie, c'est

@@ -76,5 +76,13 @@
   "medicsOnly": "המפה שמורה למגישים במשמרת",
   "navigate": "ניווט",
   "navigateTitle": "פתח מסלול עם…",
-  "shortestRoute": "המסלול הקצר ביותר ל-SOS"
+  "shortestRoute": "המסלול הקצר ביותר ל-SOS",
+  "updateTitle": "עדכון זמין",
+  "updateBody": "גרסה חדשה זמינה. עדכן כדי לקבל את התיקונים האחרונים.",
+  "updateNow": "עדכן עכשיו",
+  "updateLater": "מאוחר יותר",
+  "updateMandatory": "עדכון זה נדרש כדי להמשיך להשתמש באפליקציה.",
+  "checkUpdate": "בדוק עדכונים",
+  "upToDate": "יש לך את הגרסה האחרונה.",
+  "version": "גרסה"
 }

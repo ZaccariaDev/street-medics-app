@@ -76,5 +76,13 @@
   "medicsOnly": "지도는 근무 중 스트리트 메딕 전용",
   "navigate": "길 안내",
   "navigateTitle": "…로 경로 열기",
-  "shortestRoute": "SOS까지 최단 경로"
+  "shortestRoute": "SOS까지 최단 경로",
+  "updateTitle": "업데이트가 있습니다",
+  "updateBody": "새 버전이 있습니다. 최신 수정 사항을 위해 업데이트하세요.",
+  "updateNow": "지금 업데이트",
+  "updateLater": "나중에",
+  "updateMandatory": "앱을 계속 사용하려면 이 업데이트가 필요합니다.",
+  "checkUpdate": "업데이트 확인",
+  "upToDate": "최신 버전입니다.",
+  "version": "버전"
 }

@@ -76,5 +76,13 @@
   "medicsOnly": "Bản đồ chỉ dành cho street medic đang trực",
   "navigate": "Chỉ đường",
   "navigateTitle": "Mở chỉ đường bằng…",
-  "shortestRoute": "Đường ngắn nhất đến SOS"
+  "shortestRoute": "Đường ngắn nhất đến SOS",
+  "updateTitle": "Có bản cập nhật",
+  "updateBody": "Có phiên bản mới. Cập nhật để có các bản sửa lỗi mới nhất.",
+  "updateNow": "Cập nhật ngay",
+  "updateLater": "Để sau",
+  "updateMandatory": "Bản cập nhật này là bắt buộc để tiếp tục sử dụng ứng dụng.",
+  "checkUpdate": "Kiểm tra cập nhật",
+  "upToDate": "Bạn đang dùng phiên bản mới nhất.",
+  "version": "Phiên bản"
 }
