@@ -12,6 +12,15 @@ Future<void> main() async {
   runApp(const StreetMedicsApp());
 }
 
+/// Bornes du monde utilisées comme contrainte de caméra.
+///
+/// Empêche de dézoomer au-delà de la carte : à sa plus petite taille, la carte
+/// remplit au maximum l'interface disponible (plus de dézoom infini).
+final LatLngBounds worldBounds = LatLngBounds(
+  const LatLng(-85, -180),
+  const LatLng(85, 180),
+);
+
 class StreetMedicsApp extends StatelessWidget {
   const StreetMedicsApp({super.key});
 
@@ -325,9 +334,12 @@ class _MapTabState extends State<MapTab> {
       children: [
         FlutterMap(
           mapController: _mapController,
-          options: const MapOptions(
-            initialCenter: LatLng(46.6, 2.4),
+          options: MapOptions(
+            initialCenter: const LatLng(46.6, 2.4),
             initialZoom: 6,
+            // Empêche de dézoomer au-delà de la carte : à sa plus petite
+            // taille, la carte remplit au maximum l'interface disponible.
+            cameraConstraint: CameraConstraint.contain(bounds: worldBounds),
           ),
           children: [
             TileLayer(
