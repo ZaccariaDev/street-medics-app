@@ -768,6 +768,90 @@ class _MapTabState extends State<MapTab> {
     );
   }
 
+  /// Ouvre l'itinéraire vers un SOS dans une application de navigation.
+  ///
+  /// L'app choisie calcule elle-même le trajet le plus court et guide le
+  /// medic : la destination est déjà remplie, rien à saisir.
+  Future<void> _navigateTo(BuildContext context, Map<String, dynamic> r) async {
+    final t = AppLocalizations.of(context);
+    final lat = (r['lat'] as num).toDouble();
+    final lng = (r['lng'] as num).toDouble();
+    final coords = '$lat,$lng';
+
+    // Tente d'ouvrir une URL ; renvoie true si une app a répondu.
+    Future<bool> tryOpen(Uri uri) async {
+      try {
+        if (await canLaunchUrl(uri)) {
+          return await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(t.navigateTitle,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+            // Google Maps : navigation directe en voiture.
+            ListTile(
+              leading: const Icon(Icons.map, color: Colors.blue),
+              title: const Text('Google Maps'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                if (!await tryOpen(
+                    Uri.parse('google.navigation:q=$coords&mode=d'))) {
+                  await tryOpen(Uri.parse(
+                      'https://www.google.com/maps/dir/?api=1'
+                      '&destination=$coords&travelmode=driving'));
+                }
+              },
+            ),
+            // Waze : navigation directe.
+            ListTile(
+              leading: const Icon(Icons.navigation, color: Colors.lightBlue),
+              title: const Text('Waze'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                if (!await tryOpen(
+                    Uri.parse('waze://?ll=$coords&navigate=yes'))) {
+                  await tryOpen(Uri.parse(
+                      'https://waze.com/ul?ll=$coords&navigate=yes'));
+                }
+              },
+            ),
+            // Autre app : laisse Android proposer (Organic Maps, OSMAnd…).
+            ListTile(
+              leading: const Icon(Icons.apps, color: Colors.grey),
+              title: Text(t.navigate),
+              subtitle: const Text('Organic Maps, OSMAnd…'),
+              onTap: () async {
+                Navigator.pop(ctx);
+                await tryOpen(Uri.parse('geo:$coords?q=$coords'));
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Distance approximative entre le medic et un SOS, en mètres.
+  double? _distanceTo(Map<String, dynamic> r) {
+    final me = _myPosition;
+    if (me == null) return null;
+    final target = LatLng(r['lat'] as double, r['lng'] as double);
+    return const Distance().as(LengthUnit.Meter, me, target);
+  }
+
   void _showReportDetail(Map<String, dynamic> r) {
     final t = AppLocalizations.of(context);
     final status = r['status']?.toString() ?? 'open';
@@ -807,7 +891,28 @@ class _MapTabState extends State<MapTab> {
                 fontWeight: FontWeight.w600,
               ),
             ),
+            // Distance approximative, si la position du medic est connue.
+            if (_distanceTo(r) != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                _distanceTo(r)! < 1000
+                    ? '${_distanceTo(r)!.round()} m'
+                    : '${(_distanceTo(r)! / 1000).toStringAsFixed(1)} km',
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ],
             const SizedBox(height: 16),
+            // Trajet vers le SOS : l'app de navigation calcule le plus court.
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(backgroundColor: Colors.blue),
+                icon: const Icon(Icons.directions),
+                label: Text(t.shortestRoute),
+                onPressed: () => _navigateTo(ctx, r),
+              ),
+            ),
+            const SizedBox(height: 12),
             // Appeler la victime. Le numéro est masqué côté victime (appel
             // privé) : le medic reste protégé, la victime assume son numéro.
             if ((r['senderPhone'] ?? '').toString().isNotEmpty) ...[
@@ -843,7 +948,7 @@ class _MapTabState extends State<MapTab> {
                   onPressed: status == 'open'
                       ? () async {
                           Navigator.pop(ctx);
-                          await _claim(r['id'] as String);
+                          await _claim(r);
                         }
                       : null,
                 ),
@@ -868,13 +973,17 @@ class _MapTabState extends State<MapTab> {
     );
   }
 
-  Future<void> _claim(String reportId) async {
+  Future<void> _claim(Map<String, dynamic> r) async {
     final name =
         AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
     try {
-      await PbService.claimReport(reportId, name);
-      if (mounted) showSnack(context, AppLocalizations.of(context).takeCharge);
+      await PbService.claimReport(r['id'] as String, name);
+      if (!mounted) return;
+      showSnack(context, AppLocalizations.of(context).takeCharge);
       _refresh();
+      // Dès qu'il accepte d'aider, on propose l'itinéraire le plus court :
+      // la destination est déjà remplie, le medic n'a qu'à choisir son app.
+      await _navigateTo(context, r);
     } catch (e) {
       if (mounted) showSnack(context, '$e');
     }

@@ -73,5 +73,8 @@
   "callVictim": "부상자에게 전화",
   "privateCall": "비공개 통화(번호 숨김)",
   "noPhone": "번호 없음",
-  "medicsOnly": "지도는 근무 중 스트리트 메딕 전용"
+  "medicsOnly": "지도는 근무 중 스트리트 메딕 전용",
+  "navigate": "길 안내",
+  "navigateTitle": "…로 경로 열기",
+  "shortestRoute": "SOS까지 최단 경로"
 }

@@ -73,5 +73,8 @@
   "callVictim": "傷病者に電話",
   "privateCall": "非通知通話（番号非表示）",
   "noPhone": "番号がありません",
-  "medicsOnly": "地図は勤務中のストリートメディック専用"
+  "medicsOnly": "地図は勤務中のストリートメディック専用",
+  "navigate": "ルート案内",
+  "navigateTitle": "…でルートを開く",
+  "shortestRoute": "SOSへの最短ルート"
 }

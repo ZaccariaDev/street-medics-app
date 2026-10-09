@@ -39,6 +39,16 @@ Le bouton **Autoriser** déclenche les demandes système dans l'ordre
 Android 11+, la localisation « toujours » n'existe que dans les réglages de
 l'app : l'app ouvre directement l'écran concerné. Code : `lib/perms.dart`.
 
+## Itinéraire vers un SOS
+
+Quand un street medic **accepte d'aider**, l'app ouvre directement le choix de
+l'application de navigation : **Google Maps**, **Waze**, ou une autre app
+installée (Organic Maps, OSMAnd…). La destination est déjà remplie, c'est
+l'app choisie qui calcule le **trajet le plus court** et guide le medic.
+
+Le bouton **Trajet le plus court vers le SOS** reste accessible depuis la fiche
+du signalement. La distance approximative (à vol d'oiseau) est affichée.
+
 ## Langues
 
 **24 langues**, sélectionnées automatiquement d'après la langue du téléphone

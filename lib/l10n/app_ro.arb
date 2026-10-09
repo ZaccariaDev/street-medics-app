@@ -73,5 +73,8 @@
   "callVictim": "Sună victima",
   "privateCall": "Apel privat (număr ascuns)",
   "noPhone": "Niciun număr furnizat",
-  "medicsOnly": "Harta este doar pentru street medicii în tură"
+  "medicsOnly": "Harta este doar pentru street medicii în tură",
+  "navigate": "Indicații",
+  "navigateTitle": "Deschide ruta cu…",
+  "shortestRoute": "Cea mai scurtă rută spre SOS"
 }

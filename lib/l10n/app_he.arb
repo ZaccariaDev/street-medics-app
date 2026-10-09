@@ -73,5 +73,8 @@
   "callVictim": "התקשר לנפגע",
   "privateCall": "שיחה פרטית (מספר מוסתר)",
   "noPhone": "לא סופק מספר",
-  "medicsOnly": "המפה שמורה למגישים במשמרת"
+  "medicsOnly": "המפה שמורה למגישים במשמרת",
+  "navigate": "ניווט",
+  "navigateTitle": "פתח מסלול עם…",
+  "shortestRoute": "המסלול הקצר ביותר ל-SOS"
 }

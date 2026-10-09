@@ -73,5 +73,8 @@
   "callVictim": "Appeler la victime",
   "privateCall": "Appel privé (numéro masqué)",
   "noPhone": "Aucun numéro fourni",
-  "medicsOnly": "Carte réservée aux street medics en service"
+  "medicsOnly": "Carte réservée aux street medics en service",
+  "navigate": "Itinéraire",
+  "navigateTitle": "Ouvrir l'itinéraire avec…",
+  "shortestRoute": "Trajet le plus court vers le SOS"
 }

@@ -73,5 +73,8 @@
   "callVictim": "Gọi cho nạn nhân",
   "privateCall": "Cuộc gọi riêng tư (ẩn số)",
   "noPhone": "Không có số",
-  "medicsOnly": "Bản đồ chỉ dành cho street medic đang trực"
+  "medicsOnly": "Bản đồ chỉ dành cho street medic đang trực",
+  "navigate": "Chỉ đường",
+  "navigateTitle": "Mở chỉ đường bằng…",
+  "shortestRoute": "Đường ngắn nhất đến SOS"
 }

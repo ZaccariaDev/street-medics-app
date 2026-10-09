@@ -73,5 +73,8 @@
   "callVictim": "Telepon korban",
   "privateCall": "Panggilan pribadi (nomor disembunyikan)",
   "noPhone": "Tidak ada nomor",
-  "medicsOnly": "Peta hanya untuk street medic yang bertugas"
+  "medicsOnly": "Peta hanya untuk street medic yang bertugas",
+  "navigate": "Rute",
+  "navigateTitle": "Buka rute dengan…",
+  "shortestRoute": "Rute terpendek ke SOS"
 }

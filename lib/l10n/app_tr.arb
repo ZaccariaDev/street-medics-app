@@ -73,5 +73,8 @@
   "callVictim": "Mağduru ara",
   "privateCall": "Gizli arama (numara gizli)",
   "noPhone": "Numara verilmedi",
-  "medicsOnly": "Harita yalnızca görevdeki street medicler için"
+  "medicsOnly": "Harita yalnızca görevdeki street medicler için",
+  "navigate": "Yol tarifi",
+  "navigateTitle": "Rotayı şununla aç…",
+  "shortestRoute": "SOS'a en kısa yol"
 }

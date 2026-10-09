@@ -73,5 +73,8 @@
   "callVictim": "Bel het slachtoffer",
   "privateCall": "Privégesprek (nummer verborgen)",
   "noPhone": "Geen nummer opgegeven",
-  "medicsOnly": "Kaart alleen voor dienstdoende street medics"
+  "medicsOnly": "Kaart alleen voor dienstdoende street medics",
+  "navigate": "Route",
+  "navigateTitle": "Route openen met…",
+  "shortestRoute": "Kortste route naar de SOS"
 }

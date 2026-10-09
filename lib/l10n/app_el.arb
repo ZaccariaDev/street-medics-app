@@ -73,5 +73,8 @@
   "callVictim": "Κλήση στο θύμα",
   "privateCall": "Ιδιωτική κλήση (απόκρυψη αριθμού)",
   "noPhone": "Δεν δόθηκε αριθμός",
-  "medicsOnly": "Ο χάρτης είναι για street medics σε βάρδια"
+  "medicsOnly": "Ο χάρτης είναι για street medics σε βάρδια",
+  "navigate": "Οδηγίες",
+  "navigateTitle": "Άνοιγμα διαδρομής με…",
+  "shortestRoute": "Συντομότερη διαδρομή προς το SOS"
 }

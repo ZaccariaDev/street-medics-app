@@ -73,5 +73,8 @@
   "callVictim": "Opfer anrufen",
   "privateCall": "Privater Anruf (Nummer unterdrückt)",
   "noPhone": "Keine Nummer angegeben",
-  "medicsOnly": "Karte nur für diensthabende Street Medics"
+  "medicsOnly": "Karte nur für diensthabende Street Medics",
+  "navigate": "Route",
+  "navigateTitle": "Route öffnen mit…",
+  "shortestRoute": "Kürzeste Route zum SOS"
 }

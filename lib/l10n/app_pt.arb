@@ -73,5 +73,8 @@
   "callVictim": "Ligar à vítima",
   "privateCall": "Chamada privada (número oculto)",
   "noPhone": "Nenhum número fornecido",
-  "medicsOnly": "Mapa reservado aos street medics de serviço"
+  "medicsOnly": "Mapa reservado aos street medics de serviço",
+  "navigate": "Itinerário",
+  "navigateTitle": "Abrir o itinerário com…",
+  "shortestRoute": "Trajeto mais curto até ao SOS"
 }

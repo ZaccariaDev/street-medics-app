@@ -73,5 +73,8 @@
   "callVictim": "Zadzwoń do poszkodowanego",
   "privateCall": "Połączenie prywatne (numer ukryty)",
   "noPhone": "Nie podano numeru",
-  "medicsOnly": "Mapa tylko dla street medyków na służbie"
+  "medicsOnly": "Mapa tylko dla street medyków na służbie",
+  "navigate": "Trasa",
+  "navigateTitle": "Otwórz trasę w…",
+  "shortestRoute": "Najkrótsza trasa do SOS"
 }
