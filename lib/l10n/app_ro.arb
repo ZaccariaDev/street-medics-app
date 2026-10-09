@@ -47,5 +47,15 @@
   "password": "Parolă",
   "signIn": "Autentificare",
   "signUp": "Înregistrare",
-  "logOut": "Deconectare"
+  "logOut": "Deconectare",
+  "permTitle": "Permisiuni necesare",
+  "permBody": "Pentru a te alerta despre urgențe din apropiere și a-ți partaja poziția, aplicația are nevoie de:",
+  "permDutyBody": "Pentru a continua urmărirea poziției cu aplicația închisă, permite:",
+  "permNotif": "Notificări — pentru a te alerta despre un SOS apropiat",
+  "permLoc": "Locație — pentru a trimite SOS și a te găsi",
+  "permBack": "Locație «întotdeauna» — urmărire cu app închisă",
+  "permBattery": "Dezactivează optimizarea bateriei — ca serviciul să nu fie oprit",
+  "allow": "Permite",
+  "later": "Mai târziu",
+  "permMissing": "Lipsesc permisiuni. Permite-le pentru a intra în tură."
 }

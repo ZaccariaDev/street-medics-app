@@ -47,5 +47,15 @@
   "password": "Palavra-passe",
   "signIn": "Entrar",
   "signUp": "Registar",
-  "logOut": "Sair"
+  "logOut": "Sair",
+  "permTitle": "Permissões necessárias",
+  "permBody": "Para o alertar de emergências próximas e partilhar a sua posição, a app precisa de:",
+  "permDutyBody": "Para continuar a rastrear a sua posição com a app fechada, permita:",
+  "permNotif": "Notificações — para o alertar de um SOS próximo",
+  "permLoc": "Localização — para enviar o seu SOS e localizá-lo",
+  "permBack": "Localização «sempre» — para rastrear com a app fechada",
+  "permBattery": "Desativar a otimização de bateria — para não ser interrompido",
+  "allow": "Permitir",
+  "later": "Mais tarde",
+  "permMissing": "Faltam permissões. Permita-as para entrar de serviço."
 }

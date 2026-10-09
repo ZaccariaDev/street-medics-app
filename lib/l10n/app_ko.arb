@@ -47,5 +47,15 @@
   "password": "비밀번호",
   "signIn": "로그인",
   "signUp": "가입",
-  "logOut": "로그아웃"
+  "logOut": "로그아웃",
+  "permTitle": "필요한 권한",
+  "permBody": "근처의 긴급 상황을 알리고 위치를 공유하려면 앱에 다음이 필요합니다:",
+  "permDutyBody": "앱이 닫혀 있어도 위치 추적을 계속하려면 다음을 허용하세요:",
+  "permNotif": "알림 — 근처 SOS를 알리기 위해",
+  "permLoc": "위치 — SOS 전송 및 위치 확인을 위해",
+  "permBack": "위치 «항상» — 앱이 닫혀도 추적",
+  "permBattery": "배터리 최적화 해제 — 서비스 종료 방지",
+  "allow": "허용",
+  "later": "나중에",
+  "permMissing": "일부 권한이 없습니다. 근무를 시작하려면 허용하세요."
 }

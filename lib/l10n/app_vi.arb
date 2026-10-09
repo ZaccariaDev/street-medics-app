@@ -47,5 +47,15 @@
   "password": "Mật khẩu",
   "signIn": "Đăng nhập",
   "signUp": "Đăng ký",
-  "logOut": "Đăng xuất"
+  "logOut": "Đăng xuất",
+  "permTitle": "Cần quyền truy cập",
+  "permBody": "Để cảnh báo bạn về tình huống khẩn cấp gần đó và chia sẻ vị trí, ứng dụng cần:",
+  "permDutyBody": "Để tiếp tục theo dõi vị trí khi ứng dụng đóng, hãy cho phép:",
+  "permNotif": "Thông báo — để cảnh báo SOS gần đó",
+  "permLoc": "Vị trí — để gửi SOS và định vị bạn",
+  "permBack": "Vị trí «luôn luôn» — theo dõi khi ứng dụng đóng",
+  "permBattery": "Tắt tối ưu pin — để dịch vụ không bị dừng",
+  "allow": "Cho phép",
+  "later": "Để sau",
+  "permMissing": "Thiếu một số quyền. Hãy cho phép để vào ca."
 }

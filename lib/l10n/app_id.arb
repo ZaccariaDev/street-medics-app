@@ -47,5 +47,15 @@
   "password": "Kata sandi",
   "signIn": "Masuk",
   "signUp": "Daftar",
-  "logOut": "Keluar"
+  "logOut": "Keluar",
+  "permTitle": "Izin diperlukan",
+  "permBody": "Untuk memperingatkan Anda tentang darurat di dekat sini dan membagikan posisi Anda, aplikasi memerlukan:",
+  "permDutyBody": "Untuk terus melacak posisi Anda saat aplikasi ditutup, izinkan:",
+  "permNotif": "Notifikasi — untuk memperingatkan SOS di dekat sini",
+  "permLoc": "Lokasi — untuk mengirim SOS dan menemukan Anda",
+  "permBack": "Lokasi «selalu» — melacak saat aplikasi ditutup",
+  "permBattery": "Matikan optimasi baterai — agar layanan tidak dihentikan",
+  "allow": "Izinkan",
+  "later": "Nanti",
+  "permMissing": "Beberapa izin kurang. Izinkan untuk mulai bertugas."
 }

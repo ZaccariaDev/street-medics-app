@@ -47,5 +47,15 @@
   "password": "Şifre",
   "signIn": "Giriş yap",
   "signUp": "Kayıt ol",
-  "logOut": "Çıkış yap"
+  "logOut": "Çıkış yap",
+  "permTitle": "Gerekli izinler",
+  "permBody": "Yakındaki acil durumlar için seni uyarmak ve konumunu paylaşmak için uygulama şunlara ihtiyaç duyar:",
+  "permDutyBody": "Uygulama kapalıyken konumunu izlemeye devam etmek için şunlara izin ver:",
+  "permNotif": "Bildirimler — yakındaki SOS için seni uyarmak",
+  "permLoc": "Konum — SOS göndermek ve seni bulmak için",
+  "permBack": "Konum «her zaman» — uygulama kapalıyken izlemek için",
+  "permBattery": "Pil optimizasyonunu kapat — hizmet durdurulmasın",
+  "allow": "İzin ver",
+  "later": "Sonra",
+  "permMissing": "Bazı izinler eksik. Göreve başlamak için izin ver."
 }

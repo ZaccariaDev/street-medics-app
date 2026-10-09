@@ -47,5 +47,15 @@
   "password": "Wachtwoord",
   "signIn": "Inloggen",
   "signUp": "Registreren",
-  "logOut": "Uitloggen"
+  "logOut": "Uitloggen",
+  "permTitle": "Machtigingen nodig",
+  "permBody": "Om je te waarschuwen voor noodgevallen in de buurt en je locatie te delen, heeft de app nodig:",
+  "permDutyBody": "Om je locatie te blijven volgen als de app gesloten is, sta toe:",
+  "permNotif": "Meldingen — om je te waarschuwen voor SOS in de buurt",
+  "permLoc": "Locatie — om je SOS te sturen en je te vinden",
+  "permBack": "Locatie «altijd» — om te volgen als de app gesloten is",
+  "permBattery": "Batterij-optimalisatie uitzetten — zodat de dienst blijft draaien",
+  "allow": "Toestaan",
+  "later": "Later",
+  "permMissing": "Sommige machtigingen ontbreken. Sta ze toe om dienst te starten."
 }

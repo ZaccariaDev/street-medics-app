@@ -47,5 +47,15 @@
   "password": "Nenosiri",
   "signIn": "Ingia",
   "signUp": "Jiandikishe",
-  "logOut": "Toka"
+  "logOut": "Toka",
+  "permTitle": "Ruhusa zinahitajika",
+  "permBody": "Ili kukuarifu kuhusu dharura za karibu na kushiriki mahali pako, programu inahitaji:",
+  "permDutyBody": "Ili kuendelea kufuatilia mahali pako programu ikiwa imefungwa, ruhusu:",
+  "permNotif": "Arifa — kukuarifu kuhusu SOS karibu",
+  "permLoc": "Mahali — kutuma SOS na kukupata",
+  "permBack": "Mahali «kila wakati» — kufuatilia programu ikiwa imefungwa",
+  "permBattery": "Zima uboreshaji wa betri — huduma isikatishwe",
+  "allow": "Ruhusu",
+  "later": "Baadaye",
+  "permMissing": "Ruhusa kadhaa hazipo. Ziruhusu kuanza zamu."
 }

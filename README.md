@@ -23,6 +23,22 @@ Backend : [PocketBase](https://pocketbase.io) auto-hébergé (dépôt séparé
 | **Carte** | OpenStreetMap. Marqueurs **cliquables** : SOS (rouge = ouvert, orange = pris en charge, gris = résolu) et medics (vert). Fiche au tap avec **Prendre en charge** / **Résolu**. Bouton **Ma position** (recentre et zoome sur la rue). Rafraîchissement auto toutes les 20 s. |
 | **Réglages** | URL du serveur (persistée), test de connexion, **langue** (langue du téléphone par défaut), **rayon d'alerte**, **nom de street medic**, compte. |
 
+## Permissions
+
+L'app demande les autorisations à **deux moments** :
+
+1. **Au premier lancement** — boîte « Autorisations nécessaires » listant :
+   notifications, localisation, localisation « toujours » (arrière-plan),
+   exemption d'optimisation batterie.
+2. **À la prise de service** — si une autorisation manque (surtout la
+   localisation « toujours », indispensable au suivi app fermée), la boîte
+   réapparaît avec le texte adapté et **uniquement les éléments manquants**.
+
+Le bouton **Autoriser** déclenche les demandes système dans l'ordre
+(notifications → localisation → localisation toujours → batterie). Sur
+Android 11+, la localisation « toujours » n'existe que dans les réglages de
+l'app : l'app ouvre directement l'écran concerné. Code : `lib/perms.dart`.
+
 ## Langues
 
 **24 langues**, sélectionnées automatiquement d'après la langue du téléphone

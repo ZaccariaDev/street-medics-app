@@ -47,5 +47,15 @@
   "password": "Passwort",
   "signIn": "Anmelden",
   "signUp": "Registrieren",
-  "logOut": "Abmelden"
+  "logOut": "Abmelden",
+  "permTitle": "Erforderliche Berechtigungen",
+  "permBody": "Um Sie vor Notfällen in der Nähe zu warnen und Ihren Standort zu teilen, braucht die App:",
+  "permDutyBody": "Um Ihren Standort bei geschlossener App weiter zu verfolgen, erlauben Sie:",
+  "permNotif": "Benachrichtigungen — um Sie bei SOS in der Nähe zu warnen",
+  "permLoc": "Standort — um Ihr SOS zu senden und Sie zu finden",
+  "permBack": "Standort «immer» — um bei geschlossener App zu verfolgen",
+  "permBattery": "Akku-Optimierung deaktivieren — damit der Dienst nicht beendet wird",
+  "allow": "Erlauben",
+  "later": "Später",
+  "permMissing": "Einige Berechtigungen fehlen. Erlauben Sie sie, um Dienst anzutreten."
 }

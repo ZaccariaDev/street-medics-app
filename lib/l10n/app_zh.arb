@@ -47,5 +47,15 @@
   "password": "密码",
   "signIn": "登录",
   "signUp": "注册",
-  "logOut": "退出登录"
+  "logOut": "退出登录",
+  "permTitle": "需要授权",
+  "permBody": "为了提醒您附近的紧急情况并分享您的位置，应用需要：",
+  "permDutyBody": "为了在应用关闭后继续追踪您的位置，请允许：",
+  "permNotif": "通知 — 提醒您附近有求救",
+  "permLoc": "定位 — 用于发送求救并定位您",
+  "permBack": "「始终」定位 — 应用关闭后继续追踪",
+  "permBattery": "关闭电池优化 — 以免服务被终止",
+  "allow": "允许",
+  "later": "稍后",
+  "permMissing": "缺少部分权限。请允许以开始值班。"
 }

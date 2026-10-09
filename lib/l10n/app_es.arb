@@ -47,5 +47,15 @@
   "password": "Contraseña",
   "signIn": "Iniciar sesión",
   "signUp": "Registrarse",
-  "logOut": "Cerrar sesión"
+  "logOut": "Cerrar sesión",
+  "permTitle": "Permisos necesarios",
+  "permBody": "Para avisarte de emergencias cercanas y compartir tu posición, la app necesita:",
+  "permDutyBody": "Para seguir tu posición con la app cerrada, permite:",
+  "permNotif": "Notificaciones — para avisarte de un SOS cercano",
+  "permLoc": "Ubicación — para enviar tu SOS y localizarte",
+  "permBack": "Ubicación «siempre» — para seguir con la app cerrada",
+  "permBattery": "Desactivar la optimización de batería — para no ser detenido",
+  "allow": "Permitir",
+  "later": "Más tarde",
+  "permMissing": "Faltan permisos. Permítelos para entrar en servicio."
 }

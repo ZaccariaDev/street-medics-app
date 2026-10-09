@@ -14,6 +14,7 @@ import 'config.dart';
 import 'l10n/app_localizations.dart';
 import 'notifs.dart';
 import 'pb_service.dart';
+import 'perms.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -96,6 +97,20 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  bool _askedPerms = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Demande des permissions au tout premier lancement de l'app.
+    if (!_askedPerms && !AppConfig.permsAsked) {
+      _askedPerms = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await AppConfig.setPermsAsked();
+        if (mounted) await Perms.askDialog(context);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -305,6 +320,17 @@ class _SosTabState extends State<SosTab> {
       return;
     }
     setState(() => _lastPosition = pos);
+
+    // Vérifie les permissions nécessaires au suivi en arrière-plan : si l'une
+    // manque, on la redemande avant de prendre le service.
+    final missing = await Perms.missingForDuty();
+    if (missing.isNotEmpty && mounted) {
+      await Perms.askDialog(context, duty: true, missing: missing);
+      if (!mounted) return;
+      final still = await Perms.missingForDuty();
+      if (still.isNotEmpty && mounted) showSnack(context, t.permMissing);
+    }
+
     try {
       final name =
           AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;

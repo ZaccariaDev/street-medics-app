@@ -47,5 +47,15 @@
   "password": "Hasło",
   "signIn": "Zaloguj",
   "signUp": "Zarejestruj",
-  "logOut": "Wyloguj"
+  "logOut": "Wyloguj",
+  "permTitle": "Wymagane uprawnienia",
+  "permBody": "Aby ostrzegać o nagłych wypadkach w pobliżu i udostępniać Twoją pozycję, aplikacja potrzebuje:",
+  "permDutyBody": "Aby śledzić Twoją pozycję przy zamkniętej aplikacji, zezwól na:",
+  "permNotif": "Powiadomienia — aby ostrzec o SOS w pobliżu",
+  "permLoc": "Lokalizacja — aby wysłać SOS i Cię zlokalizować",
+  "permBack": "Lokalizacja «zawsze» — śledzenie przy zamkniętej aplikacji",
+  "permBattery": "Wyłącz optymalizację baterii — aby usługa nie została zatrzymana",
+  "allow": "Zezwól",
+  "later": "Później",
+  "permMissing": "Brakuje uprawnień. Zezwól, aby rozpocząć służbę."
 }

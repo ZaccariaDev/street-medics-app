@@ -47,5 +47,15 @@
   "password": "Password",
   "signIn": "Sign in",
   "signUp": "Sign up",
-  "logOut": "Log out"
+  "logOut": "Log out",
+  "permTitle": "Permissions needed",
+  "permBody": "To alert you about nearby emergencies and share your position, the app needs:",
+  "permDutyBody": "To keep tracking your position when the app is closed, please allow:",
+  "permNotif": "Notifications — to alert you about nearby SOS",
+  "permLoc": "Location — to send your SOS and find you",
+  "permBack": "Location \"always\" — to keep tracking when the app is closed",
+  "permBattery": "Disable battery optimization — so the service is not killed",
+  "allow": "Allow",
+  "later": "Later",
+  "permMissing": "Some permissions are missing. Allow them to go on duty."
 }
