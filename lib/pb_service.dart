@@ -7,9 +7,9 @@ import 'config.dart';
 /// Le client est recréé dès que l'URL change (écran Réglages) : il n'y a
 /// jamais de dépendance à `localhost` ni à un tunnel adb.
 ///
-/// La session est **persistée** : le medic se connecte une fois, reste
-/// connecté 30 jours. Sans compte, il ne peut plus lire la carte (les règles
-/// du serveur exigent une authentification en lecture).
+/// **Pas d'authentification** : l'accès à la carte dépend du fait d'être
+/// EN SERVICE, pas d'un compte. Envoyer un SOS rend automatiquement hors
+/// service (on est victime, pas secouriste).
 class PbService {
   static PocketBase? _client;
   static String? _clientUrl;
@@ -17,27 +17,10 @@ class PbService {
   static PocketBase get client {
     final url = AppConfig.serverUrl;
     if (_client == null || _clientUrl != url) {
-      _client = PocketBase(url, authStore: _store());
+      _client = PocketBase(url);
       _clientUrl = url;
     }
     return _client!;
-  }
-
-  /// Construit le magasin d'authentification persistant.
-  ///
-  /// La lecture du stockage est asynchrone : on amorce le magasin avec la
-  /// session déjà chargée au démarrage (`AppConfig.loadAuth`) et on réécrit
-  /// à chaque connexion / déconnexion.
-  static AsyncAuthStore _store() {
-    return AsyncAuthStore(
-      initial: AppConfig.authData,
-      save: (data) async {
-        await AppConfig.setAuthData(data);
-      },
-      clear: () async {
-        await AppConfig.setAuthData('');
-      },
-    );
   }
 
   /// Teste la connexion au serveur : renvoie true si l'API répond sainement.
@@ -201,10 +184,6 @@ class PbService {
   }
 
   static bool get isLoggedIn => client.authStore.isValid;
-
-  /// Email du compte connecté (vide si déconnecté).
-  static String get currentEmail =>
-      client.authStore.record?.get<String>('email') ?? '';
 
   static void logout() => client.authStore.clear();
 }

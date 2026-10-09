@@ -71,7 +71,6 @@
   "victimPhone": "Telefon numaran (isteğe bağlı)",
   "victimPhoneHint": "Böylece medic seni arayabilir",
   "callVictim": "Mağduru ara",
-  "privateCall": "Gizli arama (numara gizli)",
   "noPhone": "Numara verilmedi",
   "medicsOnly": "Harita yalnızca görevdeki street medicler için",
   "navigate": "Yol tarifi",
@@ -82,13 +81,9 @@
   "updateNow": "Şimdi güncelle",
   "updateLater": "Sonra",
   "updateMandatory": "Uygulamayı kullanmaya devam etmek için bu güncelleme zorunlu.",
-  "checkUpdate": "Güncellemeleri kontrol et",
   "upToDate": "En son sürüme sahipsin.",
   "version": "Sürüm",
-  "loginTitle": "Street medic hesabı",
-  "loginExplain": "Haritayı ve uyarıları görmek için giriş yap. Harita yalnızca medicler için.",
-  "loginRequired": "Haritayı görmek için önce giriş yap.",
-  "loggedInAs": "Giriş yapıldı:",
   "loginFailed": "Giriş başarısız",
-  "signUpFailed": "Kayıt başarısız"
+  "signUpFailed": "Kayıt başarısız",
+  "checkUpdate": "Güncellemeleri kontrol et"
 }

@@ -71,7 +71,6 @@
   "victimPhone": "電話番号（任意）",
   "victimPhoneHint": "メディックが折り返し電話できるように",
   "callVictim": "傷病者に電話",
-  "privateCall": "非通知通話（番号非表示）",
   "noPhone": "番号がありません",
   "medicsOnly": "地図は勤務中のストリートメディック専用",
   "navigate": "ルート案内",
@@ -82,13 +81,9 @@
   "updateNow": "今すぐ更新",
   "updateLater": "後で",
   "updateMandatory": "アプリを使い続けるにはこの更新が必要です。",
-  "checkUpdate": "更新を確認",
   "upToDate": "最新バージョンです。",
   "version": "バージョン",
-  "loginTitle": "ストリートメディックアカウント",
-  "loginExplain": "地図とアラートを見るにはサインインしてください。地図はメディック専用です。",
-  "loginRequired": "地図を見るには先にサインインしてください。",
-  "loggedInAs": "ログイン中：",
   "loginFailed": "サインインに失敗",
-  "signUpFailed": "登録に失敗"
+  "signUpFailed": "登録に失敗",
+  "checkUpdate": "更新を確認"
 }

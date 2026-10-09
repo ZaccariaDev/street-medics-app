@@ -39,26 +39,24 @@ Le bouton **Autoriser** déclenche les demandes système dans l'ordre
 Android 11+, la localisation « toujours » n'existe que dans les réglages de
 l'app : l'app ouvre directement l'écran concerné. Code : `lib/perms.dart`.
 
-## Comptes et lecture protégée
+## Accès à la carte (sans compte)
 
-La **lecture** des signalements et des medics exige un **compte** (les règles
-du serveur vérifient `@request.auth.id != ""`). Sans compte, on peut envoyer
-un SOS mais pas voir la carte.
+**Pas de compte.** L'accès à la carte dépend du fait d'être **en service** :
 
-- **Inscription / connexion** dans l'onglet Réglages, section *Compte street
-  medic*. La session est **persistée 30 jours** : on ne se reconnecte pas à
-  chaque lancement.
-- L'onglet **Plan** est grisé (cadenas) tant qu'on n'est pas **à la fois**
-  en service et connecté.
-- L'écriture d'un SOS reste **publique** : une personne en détresse ne doit
-  pas avoir à créer un compte pour appeler à l'aide.
+- **Envoyer un SOS rend automatiquement hors service** — on est victime, pas
+  secouriste. Donc pas de carte, pas d'alertes.
+- Seul un medic **en service** voit l'onglet Plan (les autres le voient grisé
+  avec un cadenas) : les SOS de son rayon d'action et les autres medics.
+- Le numéro de la victime **n'est jamais affiché**. Il sert uniquement au
+  bouton **Appeler la victime**, sur une demande que le medic a accepté de
+  traiter.
 
 ## Durcissement des règles
 
-Les règles PocketBase ont été resserrées (voir `HARDENING.md` du dépôt
-serveur) : suppression interdite, création d'un SOS limitée au statut `open`,
+Règles PocketBase resserrées (détail dans `HARDENING.md` du dépôt serveur) :
+suppression interdite, création d'un SOS limitée au statut `open`,
 modification limitée aux transitions de statut, fiche medic liée au
-`deviceId`, et **lecture réservée aux comptes**.
+`deviceId`.
 
 ## Mise à jour de l'app
 

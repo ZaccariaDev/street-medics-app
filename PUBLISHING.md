@@ -128,12 +128,12 @@ arrière-plan**. Attends-toi à des questions. Prépare :
 - [x] **Règles PocketBase durcies** — voir `HARDENING.md` du repo serveur.
       Suppression impossible, création d'un SOS limitée au statut `open`,
       modification limitée aux transitions de statut, fiche medic liée au
-      `deviceId`.
+      `deviceId`. Pas de compte : l'accès à la carte dépend du service.
 - [x] **URL du serveur configurable au build** — plus besoin de toucher au
       code :
       `flutter build appbundle --release --dart-define=STREET_MEDICS_SERVER=https://mon-serveur/pb`
 - [ ] **Héberger la politique de confidentialité** et coller son URL.
-- [ ] **Restreindre la LECTURE** (nécessite l'authentification des medics) :
-      aujourd'hui n'importe qui peut lire les signalements, donc les numéros
-      de rappel des victimes. Voir `HARDENING.md`.
+- [ ] **Décider du sort des numéros de victimes** : ils sont lisibles via
+      l'API (lecture publique nécessaire à la carte sans compte). Ils ne sont
+      jamais affichés dans l'app. Voir `HARDENING.md`.
 

@@ -109,13 +109,11 @@ class _MainScreenState extends State<MainScreen> {
   bool _askedPerms = false;
   bool _checkedUpdate = false;
   bool _onDuty = false;
-  bool _loggedIn = false;
 
   @override
   void initState() {
     super.initState();
     _onDuty = AppConfig.onDuty;
-    _loggedIn = PbService.isLoggedIn;
     dutyChanged.addListener(_syncDuty);
     settingsChanged.addListener(_syncDuty);
   }
@@ -129,19 +127,13 @@ class _MainScreenState extends State<MainScreen> {
 
   void _syncDuty() {
     if (!mounted) return;
-    setState(() {
-      _onDuty = AppConfig.onDuty;
-      _loggedIn = PbService.isLoggedIn;
-    });
-    // Si le medic quitte son service (ou se déconnecte) alors qu'il est sur
-    // la carte, on le ramène sur l'onglet SOS.
-    if (!_mapAllowed && _selectedIndex == 1) {
+    setState(() => _onDuty = AppConfig.onDuty);
+    // Si le medic quitte son service alors qu'il est sur la carte, on le
+    // ramène sur l'onglet SOS (la carte ne lui est plus accessible).
+    if (!_onDuty && _selectedIndex == 1) {
       setState(() => _selectedIndex = 0);
     }
   }
-
-  /// La carte exige les deux : être en service ET connecté.
-  bool get _mapAllowed => _onDuty && _loggedIn;
 
   @override
   void didChangeDependencies() {
@@ -182,14 +174,11 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (i) {
-          // Onglet Plan réservé aux street medics en service ET connectés.
-          if (i == 1 && !_mapAllowed) {
-            showSnack(
-              context,
-              PbService.isLoggedIn
-                  ? AppLocalizations.of(context).medicsOnly
-                  : AppLocalizations.of(context).loginRequired,
-            );
+          // Onglet Plan réservé aux street medics EN SERVICE.
+          // Envoyer un SOS rend automatiquement hors service : on est alors
+          // victime, donc pas de carte.
+          if (i == 1 && !_onDuty) {
+            showSnack(context, AppLocalizations.of(context).medicsOnly);
             return;
           }
           setState(() => _selectedIndex = i);
@@ -197,8 +186,8 @@ class _MainScreenState extends State<MainScreen> {
         destinations: [
           NavigationDestination(icon: const Icon(Icons.sos), label: t.tabSos),
           NavigationDestination(
-            icon: Icon(_mapAllowed ? Icons.map : Icons.lock_outline),
-            enabled: _mapAllowed,
+            icon: Icon(_onDuty ? Icons.map : Icons.lock_outline),
+            enabled: _onDuty,
             label: t.tabMap,
           ),
           NavigationDestination(
@@ -429,6 +418,19 @@ class _SosTabState extends State<SosTab> {
     }
     setState(() => _lastPosition = pos);
     try {
+      // Envoyer un SOS, c'est être victime : on repasse OBLIGATOIREMENT hors
+      // service (donc sans accès à la carte, ni aux alertes).
+      if (AppConfig.onDuty) {
+        try {
+          await PbService.setMedicOffDuty(AppConfig.deviceId);
+        } catch (_) {
+          // Même si la mise à jour échoue, on ne reste pas « en service ».
+        }
+        await AppConfig.setOnDuty(false);
+        await stopBackgroundService();
+        dutyChanged.value++;
+      }
+
       final phone = _phoneController.text.trim();
       await AppConfig.setVictimPhone(phone);
       await PbService.sendReport(
@@ -647,7 +649,12 @@ class _SosTabState extends State<SosTab> {
 Future<void> startBackgroundService() async {
   final cfg = jsonEncode({
     'base': AppConfig.serverUrl,
-    'deviceId': AppConfig.medicRecordId,
+    // `recordId` = id de la fiche medic (URL du PATCH).
+    // `deviceId` = identité de l'appareil (champ exigé par les règles serveur).
+    // Ne PAS confondre les deux : écrire le record id dans le champ
+    // `deviceId` casse la recherche de la fiche à la fin du service.
+    'recordId': AppConfig.medicRecordId,
+    'deviceId': AppConfig.deviceId,
     'medicName': AppConfig.medicName,
     'radiusKm': AppConfig.radiusKm,
   });
@@ -947,9 +954,10 @@ class _MapTabState extends State<MapTab> {
               ),
             ),
             const SizedBox(height: 12),
-            // Appeler la victime. Le numéro est masqué côté victime (appel
-            // privé) : le medic reste protégé, la victime assume son numéro.
-            if ((r['senderPhone'] ?? '').toString().isNotEmpty) ...[
+            // Appeler la victime : le numéro n'est JAMAIS affiché, il sert
+            // uniquement au bouton d'appel. Le medic reste protégé (numéro
+            // masqué côté victime).
+            if ((r['senderPhone'] ?? '').toString().isNotEmpty)
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
@@ -958,22 +966,16 @@ class _MapTabState extends State<MapTab> {
                   label: Text(t.callVictim),
                   onPressed: () async {
                     Navigator.pop(ctx);
-                    final uri = Uri(
-                        scheme: 'tel', path: r['senderPhone'].toString());
+                    final uri =
+                        Uri(scheme: 'tel', path: r['senderPhone'].toString());
                     if (await canLaunchUrl(uri)) await launchUrl(uri);
                   },
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(t.privateCall,
-                  style: const TextStyle(fontSize: 11, color: Colors.grey)),
-              const SizedBox(height: 12),
-            ] else
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Text(t.noPhone,
-                    style: const TextStyle(fontSize: 12, color: Colors.grey)),
-              ),
+              )
+            else
+              Text(t.noPhone,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            const SizedBox(height: 16),
             Row(children: [
               Expanded(
                 child: OutlinedButton.icon(
@@ -1270,9 +1272,7 @@ class _SettingsTabState extends State<SettingsTab> {
     try {
       await PbService.signUp(
           _emailController.text.trim(), _pwdController.text.trim());
-      setState(() => _status = '${t.loggedInAs} '
-          '${_emailController.text.trim()}');
-      settingsChanged.value++;
+      setState(() => _status = t.connectionOk);
     } catch (e) {
       setState(() => _status = '${t.signUpFailed} — ${_authError(t, e)}');
     }
@@ -1283,10 +1283,7 @@ class _SettingsTabState extends State<SettingsTab> {
     try {
       await PbService.signIn(
           _emailController.text.trim(), _pwdController.text.trim());
-      setState(() => _status = '${t.loggedInAs} '
-          '${_emailController.text.trim()}');
-      // La carte devient accessible : on notifie l'écran principal.
-      settingsChanged.value++;
+      setState(() => _status = t.connectionOk);
     } catch (e) {
       setState(() => _status = '${t.loginFailed} — ${_authError(t, e)}');
     }
@@ -1418,12 +1415,6 @@ class _SettingsTabState extends State<SettingsTab> {
           ),
         ),
         const Divider(height: 40),
-        Text(t.loginTitle,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(t.loginExplain,
-            style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        const SizedBox(height: 12),
         TextField(
           controller: _emailController,
           decoration: InputDecoration(
@@ -1446,25 +1437,14 @@ class _SettingsTabState extends State<SettingsTab> {
             child: FilledButton(onPressed: _signUp, child: Text(t.signUp)),
           ),
         ]),
-        if (PbService.isLoggedIn) ...[
-          const SizedBox(height: 8),
-          Row(children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 18),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text('${t.loggedInAs} ${PbService.currentEmail}',
-                  style: const TextStyle(color: Colors.green)),
-            ),
-          ]),
+        if (PbService.isLoggedIn)
           TextButton(
             onPressed: () {
               PbService.logout();
               setState(() => _status = '');
-              settingsChanged.value++;
             },
             child: Text(t.logOut),
           ),
-        ],
         const SizedBox(height: 20),
         if (_status.isNotEmpty)
           Card(

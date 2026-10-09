@@ -71,7 +71,6 @@
   "victimPhone": "Nomor telepon Anda (opsional)",
   "victimPhoneHint": "Agar medic dapat menelepon Anda kembali",
   "callVictim": "Telepon korban",
-  "privateCall": "Panggilan pribadi (nomor disembunyikan)",
   "noPhone": "Tidak ada nomor",
   "medicsOnly": "Peta hanya untuk street medic yang bertugas",
   "navigate": "Rute",
@@ -82,13 +81,9 @@
   "updateNow": "Perbarui sekarang",
   "updateLater": "Nanti",
   "updateMandatory": "Pembaruan ini wajib untuk terus menggunakan aplikasi.",
-  "checkUpdate": "Periksa pembaruan",
   "upToDate": "Anda memiliki versi terbaru.",
   "version": "Versi",
-  "loginTitle": "Akun street medic",
-  "loginExplain": "Masuk untuk melihat peta dan peringatan. Peta hanya untuk medic.",
-  "loginRequired": "Masuk dulu untuk melihat peta.",
-  "loggedInAs": "Masuk sebagai",
   "loginFailed": "Gagal masuk",
-  "signUpFailed": "Gagal mendaftar"
+  "signUpFailed": "Gagal mendaftar",
+  "checkUpdate": "Periksa pembaruan"
 }

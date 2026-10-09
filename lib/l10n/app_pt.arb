@@ -71,7 +71,6 @@
   "victimPhone": "O seu número de telefone (opcional)",
   "victimPhoneHint": "Para o medic poder ligar-lhe",
   "callVictim": "Ligar à vítima",
-  "privateCall": "Chamada privada (número oculto)",
   "noPhone": "Nenhum número fornecido",
   "medicsOnly": "Mapa reservado aos street medics de serviço",
   "navigate": "Itinerário",
@@ -82,13 +81,9 @@
   "updateNow": "Atualizar agora",
   "updateLater": "Mais tarde",
   "updateMandatory": "Esta atualização é obrigatória para continuar a usar a app.",
-  "checkUpdate": "Verificar atualizações",
   "upToDate": "Tem a versão mais recente.",
   "version": "Versão",
-  "loginTitle": "Conta de street medic",
-  "loginExplain": "Inicie sessão para ver o mapa e os alertas. O mapa é só para medics.",
-  "loginRequired": "Inicie sessão primeiro para ver o mapa.",
-  "loggedInAs": "Sessão iniciada como",
   "loginFailed": "Falha ao iniciar sessão",
-  "signUpFailed": "Falha no registo"
+  "signUpFailed": "Falha no registo",
+  "checkUpdate": "Verificar atualizações"
 }

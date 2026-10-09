@@ -71,7 +71,6 @@
   "victimPhone": "Your phone number (optional)",
   "victimPhoneHint": "So the medic can call you back",
   "callVictim": "Call the victim",
-  "privateCall": "Private call (hidden number)",
   "noPhone": "No number provided",
   "medicsOnly": "Map reserved for on-duty street medics",
   "navigate": "Get directions",
@@ -82,13 +81,9 @@
   "updateNow": "Update now",
   "updateLater": "Later",
   "updateMandatory": "This update is required to keep using the app.",
-  "checkUpdate": "Check for updates",
   "upToDate": "You have the latest version.",
   "version": "Version",
-  "loginTitle": "Street medic account",
-  "loginExplain": "Sign in to see the map and the alerts. The map is reserved for medics.",
-  "loginRequired": "Sign in first to see the map.",
-  "loggedInAs": "Signed in as",
   "loginFailed": "Sign in failed",
-  "signUpFailed": "Sign up failed"
+  "signUpFailed": "Sign up failed",
+  "checkUpdate": "Check for updates"
 }

@@ -71,7 +71,6 @@
   "victimPhone": "Số điện thoại của bạn (tùy chọn)",
   "victimPhoneHint": "Để medic có thể gọi lại cho bạn",
   "callVictim": "Gọi cho nạn nhân",
-  "privateCall": "Cuộc gọi riêng tư (ẩn số)",
   "noPhone": "Không có số",
   "medicsOnly": "Bản đồ chỉ dành cho street medic đang trực",
   "navigate": "Chỉ đường",
@@ -82,13 +81,9 @@
   "updateNow": "Cập nhật ngay",
   "updateLater": "Để sau",
   "updateMandatory": "Bản cập nhật này là bắt buộc để tiếp tục sử dụng ứng dụng.",
-  "checkUpdate": "Kiểm tra cập nhật",
   "upToDate": "Bạn đang dùng phiên bản mới nhất.",
   "version": "Phiên bản",
-  "loginTitle": "Tài khoản street medic",
-  "loginExplain": "Đăng nhập để xem bản đồ và cảnh báo. Bản đồ chỉ dành cho medic.",
-  "loginRequired": "Đăng nhập trước để xem bản đồ.",
-  "loggedInAs": "Đã đăng nhập với",
   "loginFailed": "Đăng nhập thất bại",
-  "signUpFailed": "Đăng ký thất bại"
+  "signUpFailed": "Đăng ký thất bại",
+  "checkUpdate": "Kiểm tra cập nhật"
 }

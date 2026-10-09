@@ -71,7 +71,6 @@
   "victimPhone": "Je telefoonnummer (optioneel)",
   "victimPhoneHint": "Zodat de medic je kan terugbellen",
   "callVictim": "Bel het slachtoffer",
-  "privateCall": "Privégesprek (nummer verborgen)",
   "noPhone": "Geen nummer opgegeven",
   "medicsOnly": "Kaart alleen voor dienstdoende street medics",
   "navigate": "Route",
@@ -82,13 +81,9 @@
   "updateNow": "Nu bijwerken",
   "updateLater": "Later",
   "updateMandatory": "Deze update is verplicht om de app te blijven gebruiken.",
-  "checkUpdate": "Controleren op updates",
   "upToDate": "Je hebt de nieuwste versie.",
   "version": "Versie",
-  "loginTitle": "Street medic-account",
-  "loginExplain": "Log in om de kaart en meldingen te zien. De kaart is voor medics.",
-  "loginRequired": "Log eerst in om de kaart te zien.",
-  "loggedInAs": "Ingelogd als",
   "loginFailed": "Inloggen mislukt",
-  "signUpFailed": "Registreren mislukt"
+  "signUpFailed": "Registreren mislukt",
+  "checkUpdate": "Controleren op updates"
 }

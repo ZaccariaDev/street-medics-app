@@ -71,7 +71,6 @@
   "victimPhone": "Namba yako ya simu (si lazima)",
   "victimPhoneHint": "Ili mhudumu aweze kukupigia",
   "callVictim": "Piga simu kwa mwathirika",
-  "privateCall": "Simu ya faragha (namba iliyofichwa)",
   "noPhone": "Hakuna namba iliyotolewa",
   "medicsOnly": "Ramani ni kwa wahudumu wa mitaani walio kazini",
   "navigate": "Njia",
@@ -82,13 +81,9 @@
   "updateNow": "Sasisha sasa",
   "updateLater": "Baadaye",
   "updateMandatory": "Sasisho hili linahitajika ili kuendelea kutumia programu.",
-  "checkUpdate": "Angalia sasisho",
   "upToDate": "Una toleo la hivi punde.",
   "version": "Toleo",
-  "loginTitle": "Akaunti ya mhudumu wa mitaani",
-  "loginExplain": "Ingia ili kuona ramani na arifa. Ramani ni ya wahudumu.",
-  "loginRequired": "Ingia kwanza ili kuona ramani.",
-  "loggedInAs": "Umeingia kama",
   "loginFailed": "Kuingia kumeshindikana",
-  "signUpFailed": "Kujisajili kumeshindikana"
+  "signUpFailed": "Kujisajili kumeshindikana",
+  "checkUpdate": "Angalia sasisho"
 }

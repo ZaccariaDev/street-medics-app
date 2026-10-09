@@ -25,6 +25,7 @@ class MedicTaskHandler extends TaskHandler {
   bool _notifsReady = false;
 
   String _base = '';
+  String _recordId = '';
   String _deviceId = '';
   double _radiusKm = 2.0;
 
@@ -57,6 +58,7 @@ class MedicTaskHandler extends TaskHandler {
       try {
         final m = jsonDecode(p) as Map<String, dynamic>;
         _base = (m['base'] ?? '').toString();
+        _recordId = (m['recordId'] ?? '').toString();
         _deviceId = (m['deviceId'] ?? '').toString();
         _radiusKm = (m['radiusKm'] as num?)?.toDouble() ?? 2.0;
       } catch (_) {}
@@ -97,13 +99,15 @@ class MedicTaskHandler extends TaskHandler {
             ),
           );
 
-      if (_deviceId.isNotEmpty && _base.isNotEmpty) {
+      if (_recordId.isNotEmpty && _base.isNotEmpty) {
         await _client!.patch(
-          Uri.parse('$_base/api/collections/medics/records/$_deviceId'),
+          // L'URL cible la FICHE (record id)…
+          Uri.parse('$_base/api/collections/medics/records/$_recordId'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'position': {'lat': pos.latitude, 'lng': pos.longitude},
-            // La règle de mise à jour du serveur exige le deviceId.
+            // …et le corps porte l'identité de l'APPAREIL, exigée par les
+            // règles serveur. Les deux valeurs sont distinctes.
             'deviceId': _deviceId,
           }),
         );

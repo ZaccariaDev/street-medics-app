@@ -71,7 +71,6 @@
   "victimPhone": "Numărul tău de telefon (opțional)",
   "victimPhoneHint": "Ca medicul să te poată suna",
   "callVictim": "Sună victima",
-  "privateCall": "Apel privat (număr ascuns)",
   "noPhone": "Niciun număr furnizat",
   "medicsOnly": "Harta este doar pentru street medicii în tură",
   "navigate": "Indicații",
@@ -82,13 +81,9 @@
   "updateNow": "Actualizează acum",
   "updateLater": "Mai târziu",
   "updateMandatory": "Această actualizare este obligatorie pentru a continua să folosești aplicația.",
-  "checkUpdate": "Verifică actualizări",
   "upToDate": "Ai cea mai recentă versiune.",
   "version": "Versiune",
-  "loginTitle": "Cont street medic",
-  "loginExplain": "Autentifică-te pentru a vedea harta și alertele. Harta este doar pentru medici.",
-  "loginRequired": "Autentifică-te mai întâi pentru a vedea harta.",
-  "loggedInAs": "Autentificat ca",
   "loginFailed": "Autentificare eșuată",
-  "signUpFailed": "Înregistrare eșuată"
+  "signUpFailed": "Înregistrare eșuată",
+  "checkUpdate": "Verifică actualizări"
 }

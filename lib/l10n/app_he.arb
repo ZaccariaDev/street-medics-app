@@ -71,7 +71,6 @@
   "victimPhone": "מספר הטלפון שלך (אופציונלי)",
   "victimPhoneHint": "כדי שהמגיש יוכל לחזור אליך",
   "callVictim": "התקשר לנפגע",
-  "privateCall": "שיחה פרטית (מספר מוסתר)",
   "noPhone": "לא סופק מספר",
   "medicsOnly": "המפה שמורה למגישים במשמרת",
   "navigate": "ניווט",
@@ -82,13 +81,9 @@
   "updateNow": "עדכן עכשיו",
   "updateLater": "מאוחר יותר",
   "updateMandatory": "עדכון זה נדרש כדי להמשיך להשתמש באפליקציה.",
-  "checkUpdate": "בדוק עדכונים",
   "upToDate": "יש לך את הגרסה האחרונה.",
   "version": "גרסה",
-  "loginTitle": "חשבון מגיש",
-  "loginExplain": "התחבר כדי לראות את המפה וההתראות. המפה שמורה למגישים.",
-  "loginRequired": "התחבר תחילה כדי לראות את המפה.",
-  "loggedInAs": "מחובר בתור",
   "loginFailed": "ההתחברות נכשלה",
-  "signUpFailed": "ההרשמה נכשלה"
+  "signUpFailed": "ההרשמה נכשלה",
+  "checkUpdate": "בדוק עדכונים"
 }

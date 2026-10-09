@@ -71,7 +71,6 @@
   "victimPhone": "Ihre Telefonnummer (optional)",
   "victimPhoneHint": "Damit der Medic Sie zurückrufen kann",
   "callVictim": "Opfer anrufen",
-  "privateCall": "Privater Anruf (Nummer unterdrückt)",
   "noPhone": "Keine Nummer angegeben",
   "medicsOnly": "Karte nur für diensthabende Street Medics",
   "navigate": "Route",
@@ -82,13 +81,9 @@
   "updateNow": "Jetzt aktualisieren",
   "updateLater": "Später",
   "updateMandatory": "Dieses Update ist erforderlich, um die App weiter zu nutzen.",
-  "checkUpdate": "Nach Updates suchen",
   "upToDate": "Sie haben die neueste Version.",
   "version": "Version",
-  "loginTitle": "Street-Medic-Konto",
-  "loginExplain": "Melden Sie sich an, um Karte und Alarme zu sehen. Die Karte ist Medics vorbehalten.",
-  "loginRequired": "Melden Sie sich zuerst an, um die Karte zu sehen.",
-  "loggedInAs": "Angemeldet als",
   "loginFailed": "Anmeldung fehlgeschlagen",
-  "signUpFailed": "Registrierung fehlgeschlagen"
+  "signUpFailed": "Registrierung fehlgeschlagen",
+  "checkUpdate": "Nach Updates suchen"
 }
