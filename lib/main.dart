@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -173,9 +175,33 @@ class _SosTabState extends State<SosTab> {
     }
     setState(() => _lastPosition = pos);
     try {
-      await PbService.setMedicOnDuty(lat: pos.latitude, lng: pos.longitude);
-      if (mounted) showSnack(context, 'Vous êtes en service.');
+      final name = AppConfig.medicName.isEmpty
+          ? 'Street Medic'
+          : AppConfig.medicName;
+      await PbService.setMedicOnDuty(
+        lat: pos.latitude,
+        lng: pos.longitude,
+        deviceId: AppConfig.deviceId,
+        name: name,
+      );
+      if (mounted) {
+        showSnack(context, 'Vous êtes en service. Bon courage !');
+      }
       mapRefresh.value++; // la carte recharge les marqueurs
+    } catch (e) {
+      if (mounted) showSnack(context, 'Échec : $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// Fin de service : la fiche de cet appareil repasse indisponible.
+  Future<void> _goOffDuty() async {
+    setState(() => _busy = true);
+    try {
+      await PbService.setMedicOffDuty(AppConfig.deviceId);
+      if (mounted) showSnack(context, 'Service terminé.');
+      mapRefresh.value++;
     } catch (e) {
       if (mounted) showSnack(context, 'Échec : $e');
     } finally {
@@ -185,7 +211,7 @@ class _SosTabState extends State<SosTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -239,6 +265,10 @@ class _SosTabState extends State<SosTab> {
               label: const Text('Je suis street medic — prendre le service'),
             ),
           ),
+          TextButton(
+            onPressed: _busy ? null : _goOffDuty,
+            child: const Text('Terminer mon service'),
+          ),
           if (_lastPosition != null) ...[
             const SizedBox(height: 16),
             Text(
@@ -268,6 +298,7 @@ class _MapTabState extends State<MapTab> {
   List<Map<String, dynamic>> _medics = [];
   LatLng? _myPosition;
   bool _loading = false;
+  Timer? _autoTimer;
 
   @override
   void initState() {
@@ -275,10 +306,14 @@ class _MapTabState extends State<MapTab> {
     _refresh();
     _locate();
     mapRefresh.addListener(_refresh);
+    // Rafraîchissement automatique : les nouveaux SOS/medics apparaissent
+    // sans action de l'utilisateur.
+    _autoTimer = Timer.periodic(const Duration(seconds: 20), (_) => _refresh());
   }
 
   @override
   void dispose() {
+    _autoTimer?.cancel();
     mapRefresh.removeListener(_refresh);
     _mapController.dispose();
     super.dispose();
@@ -317,6 +352,8 @@ class _MapTabState extends State<MapTab> {
 
   /// Détail d'un marqueur au tap.
   void _showReportDetail(Map<String, dynamic> r) {
+    final status = r['status']?.toString() ?? 'open';
+    final claimed = r['claimedBy']?.toString() ?? '';
     showModalBottomSheet<void>(
       context: context,
       builder: (ctx) => Padding(
@@ -344,12 +381,75 @@ class _MapTabState extends State<MapTab> {
               style: const TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 4),
-            Text('Statut : ${r['status'] ?? 'open'}',
-                style: const TextStyle(color: Colors.grey)),
+            Text(
+              status == 'resolved'
+                  ? 'Résolu${claimed.isNotEmpty ? ' par $claimed' : ''}'
+                  : status == 'claimed'
+                      ? 'Pris en charge${claimed.isNotEmpty ? ' par $claimed' : ''}'
+                      : 'Ouvert — personne n\'est encore dessus',
+              style: TextStyle(
+                color: status == 'open' ? Colors.orange : Colors.green,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.check),
+                    label: const Text('Prendre en charge'),
+                    onPressed: status == 'open'
+                        ? () async {
+                            Navigator.pop(ctx);
+                            await _claim(r['id'] as String);
+                          }
+                        : null,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.done_all),
+                    label: const Text('Résolu'),
+                    onPressed: status != 'resolved'
+                        ? () async {
+                            Navigator.pop(ctx);
+                            await _resolve(r['id'] as String);
+                          }
+                        : null,
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _claim(String reportId) async {
+    final name =
+        AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
+    try {
+      await PbService.claimReport(reportId, name);
+      if (mounted) showSnack(context, 'SOS pris en charge.');
+      _refresh();
+    } catch (e) {
+      if (mounted) showSnack(context, 'Échec : $e');
+    }
+  }
+
+  Future<void> _resolve(String reportId) async {
+    final name =
+        AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
+    try {
+      await PbService.closeReport(reportId, name);
+      if (mounted) showSnack(context, 'SOS marqué résolu.');
+      _refresh();
+    } catch (e) {
+      if (mounted) showSnack(context, 'Échec : $e');
+    }
   }
 
   /// Détail d'un medic au tap.
@@ -435,7 +535,14 @@ class _MapTabState extends State<MapTab> {
           height: 44,
           child: GestureDetector(
             onTap: () => _showReportDetail(r),
-            child: _badge(Icons.warning, Colors.red),
+            child: _badge(
+              r['status'] == 'resolved' ? Icons.check : Icons.warning,
+              r['status'] == 'resolved'
+                  ? Colors.grey
+                  : r['status'] == 'claimed'
+                      ? Colors.orange
+                      : Colors.red,
+            ),
           ),
         ),
       for (final m in _medics)
@@ -536,6 +643,7 @@ class SettingsTab extends StatefulWidget {
 
 class _SettingsTabState extends State<SettingsTab> {
   late final TextEditingController _urlController;
+  late final TextEditingController _nameController;
   final _emailController = TextEditingController();
   final _pwdController = TextEditingController();
   String _status = '';
@@ -544,11 +652,13 @@ class _SettingsTabState extends State<SettingsTab> {
   void initState() {
     super.initState();
     _urlController = TextEditingController(text: AppConfig.serverUrl);
+    _nameController = TextEditingController(text: AppConfig.medicName);
   }
 
   @override
   void dispose() {
     _urlController.dispose();
+    _nameController.dispose();
     _emailController.dispose();
     _pwdController.dispose();
     super.dispose();
@@ -557,6 +667,13 @@ class _SettingsTabState extends State<SettingsTab> {
   Future<void> _saveUrl() async {
     await AppConfig.setServerUrl(_urlController.text);
     setState(() => _status = 'URL enregistrée : ${AppConfig.serverUrl}');
+  }
+
+  Future<void> _saveName() async {
+    await AppConfig.setMedicName(_nameController.text);
+    setState(() => _status = AppConfig.medicName.isEmpty
+        ? 'Nom effacé.'
+        : 'Nom enregistré : ${AppConfig.medicName}');
   }
 
   Future<void> _testConnection() async {
@@ -625,6 +742,28 @@ class _SettingsTabState extends State<SettingsTab> {
               ),
             ),
           ],
+        ),
+        const Divider(height: 40),
+        const Text('Mon identité de street medic',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        const Text(
+          'Ce nom apparaît sur votre fiche quand vous prenez le service, '
+          'et sur les SOS que vous prenez en charge.',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _nameController,
+          decoration: const InputDecoration(
+            labelText: 'Nom / pseudo de medic',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton(
+          onPressed: _saveName,
+          child: const Text('Enregistrer mon nom'),
         ),
         const Divider(height: 40),
         const Text('Compte (optionnel)',

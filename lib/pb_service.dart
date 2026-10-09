@@ -29,6 +29,18 @@ class PbService {
     }
   }
 
+  static Map<String, dynamic> _pos(RecordModel r) {
+    final pos = r.data['position'];
+    double? lat, lng;
+    if (pos is Map) {
+      lat = (pos['lat'] as num?)?.toDouble();
+      lng = (pos['lng'] as num?)?.toDouble();
+    }
+    return {'id': r.id, 'lat': lat, 'lng': lng};
+  }
+
+  // ---------- SOS ----------
+
   /// Envoie un SOS (position + description) dans la collection `reports`.
   static Future<void> sendReport({
     required double lat,
@@ -44,59 +56,102 @@ class PbService {
     });
   }
 
-  /// Liste les SOS ouverts, avec leur position.
+  /// Liste les SOS, avec leur position et leur statut de prise en charge.
   static Future<List<Map<String, dynamic>>> listReports() async {
     final res = await client.collection('reports').getList(perPage: 200);
     return res.items.map((r) {
-      final pos = r.data['position'];
-      double? lat, lng;
-      if (pos is Map) {
-        lat = (pos['lat'] as num?)?.toDouble();
-        lng = (pos['lng'] as num?)?.toDouble();
-      }
+      final base = _pos(r);
       return {
-        'id': r.id,
-        'lat': lat,
-        'lng': lng,
+        ...base,
         'description': r.data['description']?.toString() ?? '',
-        'status': r.data['status']?.toString() ?? '',
+        'status': r.data['status']?.toString() ?? 'open',
+        'claimedBy': r.data['claimedBy']?.toString() ?? '',
+        'created': r.get<String>('created'),
       };
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();
   }
 
-  /// Déclare un street medic disponible dans la collection `medics`.
-  static Future<void> setMedicOnDuty({
-    required double lat,
-    required double lng,
-    String name = 'Street Medic',
-  }) async {
-    await client.collection('medics').create(body: {
-      'name': name,
-      'phone': 'phone-${DateTime.now().millisecondsSinceEpoch}',
-      'position': {'lat': lat, 'lng': lng},
-      'available': true,
+  /// Un medic prend en charge un SOS.
+  static Future<void> claimReport(String reportId, String medicName) async {
+    await client.collection('reports').update(reportId, body: {
+      'status': 'claimed',
+      'claimedBy': medicName,
+      'claimedAt': DateTime.now().toIso8601String(),
     });
   }
 
-  /// Liste les medics disponibles, avec leur position.
+  /// Un medic clôt un SOS (pris en charge terminé).
+  static Future<void> closeReport(String reportId, String medicName) async {
+    await client.collection('reports').update(reportId, body: {
+      'status': 'resolved',
+      'claimedBy': medicName,
+    });
+  }
+
+  // ---------- Medics ----------
+
+  /// Crée ou met à jour la fiche medic de CET appareil (identité persistante
+  /// via `deviceId`) : évite les doublons à chaque prise de service.
+  static Future<void> setMedicOnDuty({
+    required double lat,
+    required double lng,
+    required String deviceId,
+    String name = 'Street Medic',
+  }) async {
+    final existing = await _findMedicByDevice(deviceId);
+    final body = {
+      'name': name,
+      'phone': deviceId,
+      'position': {'lat': lat, 'lng': lng},
+      'available': true,
+      'deviceId': deviceId,
+    };
+    if (existing != null) {
+      await client.collection('medics').update(existing, body: body);
+    } else {
+      await client.collection('medics').create(body: body);
+    }
+  }
+
+  /// Repasse la fiche medic de cet appareil en indisponible.
+  static Future<void> setMedicOffDuty(String deviceId) async {
+    final existing = await _findMedicByDevice(deviceId);
+    if (existing != null) {
+      await client.collection('medics').update(existing, body: {'available': false});
+    }
+  }
+
+  /// Fiche medic de cet appareil, ou null s'il n'est pas en service.
+  static Future<Map<String, dynamic>?> myMedic(String deviceId) async {
+    final id = await _findMedicByDevice(deviceId);
+    if (id == null) return null;
+    final r = await client.collection('medics').getOne(id);
+    return {..._pos(r), 'name': r.data['name']?.toString() ?? 'Medic',
+      'available': r.data['available'] == true};
+  }
+
+  static Future<String?> _findMedicByDevice(String deviceId) async {
+    final res = await client
+        .collection('medics')
+        .getList(page: 1, perPage: 1, filter: 'deviceId = "$deviceId"');
+    if (res.items.isEmpty) return null;
+    return res.items.first.id;
+  }
+
+  /// Liste les medics, avec position et disponibilité.
   static Future<List<Map<String, dynamic>>> listMedics() async {
     final res = await client.collection('medics').getList(perPage: 200);
     return res.items.map((r) {
-      final pos = r.data['position'];
-      double? lat, lng;
-      if (pos is Map) {
-        lat = (pos['lat'] as num?)?.toDouble();
-        lng = (pos['lng'] as num?)?.toDouble();
-      }
+      final base = _pos(r);
       return {
-        'id': r.id,
-        'lat': lat,
-        'lng': lng,
+        ...base,
         'name': r.data['name']?.toString() ?? 'Medic',
         'available': r.data['available'] == true,
       };
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();
   }
+
+  // ---------- Comptes ----------
 
   static Future<void> signUp(String email, String password) async {
     await client.collection('users').create(body: {
