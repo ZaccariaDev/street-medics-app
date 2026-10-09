@@ -140,7 +140,9 @@ class _SosTabState extends State<SosTab> {
             ? 'SOS - Position partagée'
             : _descController.text.trim(),
       );
-      if (mounted) showSnack(context, 'Position envoyée au serveur.');
+      if (mounted) {
+        showSnack(context, 'Votre position a été partagée, tenez bon !');
+      }
     } catch (e) {
       if (mounted) showSnack(context, 'Échec envoi : $e');
     } finally {
