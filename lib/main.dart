@@ -1,16 +1,45 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import 'bg_service.dart';
 import 'config.dart';
+import 'l10n/app_localizations.dart';
+import 'notifs.dart';
 import 'pb_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterForegroundTask.initCommunicationPort();
   await AppConfig.load();
+  await Notifs.init();
+  // Configuration du service d'arrière-plan (obligatoire avant startService).
+  FlutterForegroundTask.init(
+    androidNotificationOptions: AndroidNotificationOptions(
+      channelId: 'foreground_service',
+      channelName: 'Street Medics',
+      channelDescription: 'Suivi de position du street medic en service',
+      onlyAlertOnce: true,
+    ),
+    iosNotificationOptions: const IOSNotificationOptions(
+      showNotification: false,
+      playSound: false,
+    ),
+    foregroundTaskOptions: ForegroundTaskOptions(
+      eventAction: ForegroundTaskEventAction.repeat(30000),
+      autoRunOnBoot: true,
+      autoRunOnMyPackageReplaced: true,
+      allowWakeLock: true,
+      allowWifiLock: true,
+    ),
+  );
   runApp(const StreetMedicsApp());
 }
 
@@ -27,18 +56,33 @@ final LatLngBounds worldBounds = LatLngBounds(
 /// pour qu'elle recharge les marqueurs sans attendre.
 final ValueNotifier<int> mapRefresh = ValueNotifier<int>(0);
 
+/// Notifie l'app qu'un changement de réglage (langue, rayon) impose un rebuild.
+final ValueNotifier<int> settingsChanged = ValueNotifier<int>(0);
+
 class StreetMedicsApp extends StatelessWidget {
   const StreetMedicsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Street Medics FR',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
-        useMaterial3: true,
+    return ValueListenableBuilder<int>(
+      valueListenable: settingsChanged,
+      builder: (context, value, child) => MaterialApp(
+        onGenerateTitle: (c) => AppLocalizations.of(c).appTitle,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+          useMaterial3: true,
+        ),
+        locale: Lang.resolve(AppConfig.langOverride),
+        supportedLocales:
+            Lang.supported.map((c) => Locale(c)).toList(growable: false),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: const MainScreen(),
       ),
-      home: const MainScreen(),
     );
   }
 }
@@ -55,9 +99,10 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Street Medics FR'),
+        title: Text(t.appTitle),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
       body: IndexedStack(
@@ -71,36 +116,32 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.sos), label: 'SOS'),
-          NavigationDestination(icon: Icon(Icons.map), label: 'Carte'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Réglages'),
+        destinations: [
+          NavigationDestination(icon: const Icon(Icons.sos), label: t.tabSos),
+          NavigationDestination(icon: const Icon(Icons.map), label: t.tabMap),
+          NavigationDestination(
+              icon: const Icon(Icons.settings), label: t.tabSettings),
         ],
       ),
     );
   }
 }
 
-/// ---------- Helpers géolocalisation ----------
+/// ---------- Helpers ----------
 
 Future<Position?> obtainPosition(BuildContext context) async {
-  // Vérifie que le service de localisation est actif.
+  final t = AppLocalizations.of(context);
   if (!await Geolocator.isLocationServiceEnabled()) {
-    if (context.mounted) {
-      showSnack(context, 'Activez la localisation sur l\'appareil.');
-    }
+    if (context.mounted) showSnack(context, t.locationOff);
     return null;
   }
-  // Demande la permission via geolocator (pas de plugin externe).
   var permission = await Geolocator.checkPermission();
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
   }
   if (permission == LocationPermission.denied ||
       permission == LocationPermission.deniedForever) {
-    if (context.mounted) {
-      showSnack(context, 'Permission de localisation refusée.');
-    }
+    if (context.mounted) showSnack(context, t.permissionDenied);
     return null;
   }
   try {
@@ -108,15 +149,105 @@ Future<Position?> obtainPosition(BuildContext context) async {
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
     );
   } catch (e) {
-    if (context.mounted) {
-      showSnack(context, 'Position indisponible : $e');
-    }
+    if (context.mounted) showSnack(context, '$e');
     return null;
   }
 }
 
 void showSnack(BuildContext context, String msg) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+}
+
+/// Bouton d'appel des urgences, adapté au pays courant (227 pays).
+class EmergencyButton extends StatelessWidget {
+  const EmergencyButton({super.key, this.compact = false});
+
+  final bool compact;
+
+  Future<void> _show(BuildContext context) async {
+    final t = AppLocalizations.of(context);
+    final country =
+        WidgetsBinding.instance.platformDispatcher.locale.countryCode;
+    final nums = Emergency.numbersFor(country);
+    String label(List<String> types) {
+      if (types.length >= 3) return t.svcAll;
+      if (types.contains('ambulance')) return t.svcAmbulance;
+      if (types.contains('police')) return t.svcPolice;
+      if (types.contains('fire')) return t.svcFire;
+      return t.svcInfo;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(ctx).size.height * 0.7,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(t.callEmergency,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    for (final e in nums)
+                      ListTile(
+                        leading: const Icon(Icons.phone, color: Colors.red),
+                        title: Text(e.key,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        subtitle: Text(label(e.value)),
+                        trailing: const Icon(Icons.call),
+                        onTap: () async {
+                          Navigator.pop(ctx);
+                          final uri = Uri(scheme: 'tel', path: e.key);
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          }
+                        },
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (compact) {
+      return IconButton(
+        tooltip: AppLocalizations.of(context).callEmergency,
+        icon: const Icon(Icons.emergency, color: Colors.red),
+        onPressed: () => _show(context),
+      );
+    }
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.red,
+          side: const BorderSide(color: Colors.red, width: 1.5),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+        ),
+        onPressed: () => _show(context),
+        icon: const Icon(Icons.phone_in_talk),
+        label: Text(AppLocalizations.of(context).callEmergency),
+      ),
+    );
+  }
 }
 
 /// ---------- Onglet SOS ----------
@@ -141,6 +272,7 @@ class _SosTabState extends State<SosTab> {
 
   Future<void> _sendSos() async {
     setState(() => _busy = true);
+    final t = AppLocalizations.of(context);
     final pos = await obtainPosition(context);
     if (pos == null) {
       setState(() => _busy = false);
@@ -152,15 +284,13 @@ class _SosTabState extends State<SosTab> {
         lat: pos.latitude,
         lng: pos.longitude,
         description: _descController.text.trim().isEmpty
-            ? 'SOS - Position partagée'
+            ? 'SOS'
             : _descController.text.trim(),
       );
-      if (mounted) {
-        showSnack(context, 'Votre position a été partagée, tenez bon !');
-      }
-      mapRefresh.value++; // la carte recharge les marqueurs
+      if (mounted) showSnack(context, t.positionShared);
+      mapRefresh.value++;
     } catch (e) {
-      if (mounted) showSnack(context, 'Échec envoi : $e');
+      if (mounted) showSnack(context, '${t.errorSend} : $e');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -168,6 +298,7 @@ class _SosTabState extends State<SosTab> {
 
   Future<void> _goOnDuty() async {
     setState(() => _busy = true);
+    final t = AppLocalizations.of(context);
     final pos = await obtainPosition(context);
     if (pos == null) {
       setState(() => _busy = false);
@@ -175,35 +306,37 @@ class _SosTabState extends State<SosTab> {
     }
     setState(() => _lastPosition = pos);
     try {
-      final name = AppConfig.medicName.isEmpty
-          ? 'Street Medic'
-          : AppConfig.medicName;
-      await PbService.setMedicOnDuty(
+      final name =
+          AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
+      final id = await PbService.setMedicOnDuty(
         lat: pos.latitude,
         lng: pos.longitude,
         deviceId: AppConfig.deviceId,
         name: name,
       );
-      if (mounted) {
-        showSnack(context, 'Vous êtes en service. Bon courage !');
-      }
-      mapRefresh.value++; // la carte recharge les marqueurs
+      await AppConfig.setMedicRecordId(id);
+      await AppConfig.setOnDuty(true);
+      await startBackgroundService();
+      if (mounted) showSnack(context, t.onDutyMsg);
+      mapRefresh.value++;
     } catch (e) {
-      if (mounted) showSnack(context, 'Échec : $e');
+      if (mounted) showSnack(context, '${t.errorSend} : $e');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
   }
 
-  /// Fin de service : la fiche de cet appareil repasse indisponible.
   Future<void> _goOffDuty() async {
     setState(() => _busy = true);
+    final t = AppLocalizations.of(context);
     try {
       await PbService.setMedicOffDuty(AppConfig.deviceId);
-      if (mounted) showSnack(context, 'Service terminé.');
+      await AppConfig.setOnDuty(false);
+      await stopBackgroundService();
+      if (mounted) showSnack(context, t.offDutyMsg);
       mapRefresh.value++;
     } catch (e) {
-      if (mounted) showSnack(context, 'Échec : $e');
+      if (mounted) showSnack(context, '${t.errorSend} : $e');
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -211,32 +344,27 @@ class _SosTabState extends State<SosTab> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.emergency, size: 72, color: Colors.red),
-          const SizedBox(height: 12),
-          const Text(
-            'Besoin d\'aide ?',
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-          ),
+          const Icon(Icons.emergency, size: 64, color: Colors.red),
+          const SizedBox(height: 10),
+          Text(t.needHelp,
+              style:
+                  const TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          const Text(
-            'Votre position sera envoyée aux street medics à proximité.',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
+          Text(t.sosExplain, textAlign: TextAlign.center),
+          const SizedBox(height: 20),
           TextField(
             controller: _descController,
-            decoration: const InputDecoration(
-              labelText: 'Description (optionnel)',
-              border: OutlineInputBorder(),
-              hintText: 'ex : personne blessée, lieu précis…',
+            decoration: InputDecoration(
+              labelText: t.descriptionOptional,
+              border: const OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
@@ -253,26 +381,33 @@ class _SosTabState extends State<SosTab> {
                           strokeWidth: 2, color: Colors.white),
                     )
                   : const Icon(Icons.sos),
-              label: Text(_busy ? 'Envoi…' : 'ENVOYER MA POSITION'),
+              label: Text(_busy ? t.sending : t.sendMyPosition),
             ),
           ),
           const SizedBox(height: 12),
+          const EmergencyButton(),
+          const SizedBox(height: 20),
+          const Divider(),
+          const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: _busy ? null : _goOnDuty,
               icon: const Icon(Icons.medical_services),
-              label: const Text('Je suis street medic — prendre le service'),
+              label: Text(t.imMedic),
             ),
           ),
           TextButton(
             onPressed: _busy ? null : _goOffDuty,
-            child: const Text('Terminer mon service'),
+            child: Text(t.endService),
           ),
+          if (AppConfig.onDuty)
+            Text(t.trackingOn,
+                style: const TextStyle(fontSize: 12, color: Colors.green)),
           if (_lastPosition != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
-              'Dernière position : ${_lastPosition!.latitude.toStringAsFixed(5)}, '
+              '${_lastPosition!.latitude.toStringAsFixed(5)}, '
               '${_lastPosition!.longitude.toStringAsFixed(5)}',
               style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
@@ -280,6 +415,45 @@ class _SosTabState extends State<SosTab> {
         ],
       ),
     );
+  }
+}
+
+/// ---------- Service d'arrière-plan ----------
+
+Future<void> startBackgroundService() async {
+  final cfg = jsonEncode({
+    'base': AppConfig.serverUrl,
+    'deviceId': AppConfig.medicRecordId,
+    'medicName': AppConfig.medicName,
+    'radiusKm': AppConfig.radiusKm,
+  });
+  await FlutterForegroundTask.saveData(key: 'cfg', value: cfg);
+
+  final notifPerm = await FlutterForegroundTask.checkNotificationPermission();
+  if (notifPerm != NotificationPermission.granted) {
+    await FlutterForegroundTask.requestNotificationPermission();
+  }
+  await Notifs.requestPermissions();
+
+  if (await FlutterForegroundTask.isRunningService) {
+    await FlutterForegroundTask.restartService();
+  } else {
+    await FlutterForegroundTask.startService(
+      serviceId: 101,
+      serviceTypes: [
+        ForegroundServiceTypes.location,
+        ForegroundServiceTypes.dataSync,
+      ],
+      notificationTitle: 'Street Medics',
+      notificationText: 'Suivi de position actif',
+      callback: startCallback,
+    );
+  }
+}
+
+Future<void> stopBackgroundService() async {
+  if (await FlutterForegroundTask.isRunningService) {
+    await FlutterForegroundTask.stopService();
   }
 }
 
@@ -306,17 +480,32 @@ class _MapTabState extends State<MapTab> {
     _refresh();
     _locate();
     mapRefresh.addListener(_refresh);
-    // Rafraîchissement automatique : les nouveaux SOS/medics apparaissent
-    // sans action de l'utilisateur.
     _autoTimer = Timer.periodic(const Duration(seconds: 20), (_) => _refresh());
+    FlutterForegroundTask.addTaskDataCallback(_onTaskData);
   }
 
   @override
   void dispose() {
     _autoTimer?.cancel();
     mapRefresh.removeListener(_refresh);
+    FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     _mapController.dispose();
     super.dispose();
+  }
+
+  /// Reçoit les alertes du service d'arrière-plan et les affiche.
+  void _onTaskData(Object data) {
+    if (data is Map && data['type'] == 'sos_alert') {
+      final dKm = (data['distanceKm'] as num?)?.toDouble() ?? 0;
+      final dist = dKm < 1
+          ? '${(dKm * 1000).round()} m'
+          : '${dKm.toStringAsFixed(1)} km';
+      if (mounted) {
+        final t = AppLocalizations.of(context);
+        showSnack(context, '${t.nearSos} ($dist)');
+      }
+      _refresh();
+    }
   }
 
   Future<void> _locate() async {
@@ -329,18 +518,14 @@ class _MapTabState extends State<MapTab> {
         setState(() => _myPosition = LatLng(pos.latitude, pos.longitude));
         _mapController.move(_myPosition!, 14);
       }
-    } catch (_) {
-      // silencieux : la carte reste centrée par défaut
-    }
+    } catch (_) {}
   }
 
-  /// Recentre et zoome sur la position de l'utilisateur (façon Google Maps).
   Future<void> _centerOnMe() async {
     if (_myPosition != null) {
       _mapController.move(_myPosition!, 17);
       return;
     }
-    // Position pas encore connue : on la demande.
     final pos = await obtainPosition(context);
     if (pos == null) return;
     final here = LatLng(pos.latitude, pos.longitude);
@@ -348,148 +533,6 @@ class _MapTabState extends State<MapTab> {
       setState(() => _myPosition = here);
       _mapController.move(here, 17);
     }
-  }
-
-  /// Détail d'un marqueur au tap.
-  void _showReportDetail(Map<String, dynamic> r) {
-    final status = r['status']?.toString() ?? 'open';
-    final claimed = r['claimedBy']?.toString() ?? '';
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.warning, color: Colors.red),
-                SizedBox(width: 8),
-                Text('SOS',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(r['description']?.toString() ?? '',
-                style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text(
-              'Position : ${(r['lat'] as double).toStringAsFixed(5)}, '
-              '${(r['lng'] as double).toStringAsFixed(5)}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              status == 'resolved'
-                  ? 'Résolu${claimed.isNotEmpty ? ' par $claimed' : ''}'
-                  : status == 'claimed'
-                      ? 'Pris en charge${claimed.isNotEmpty ? ' par $claimed' : ''}'
-                      : 'Ouvert — personne n\'est encore dessus',
-              style: TextStyle(
-                color: status == 'open' ? Colors.orange : Colors.green,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.check),
-                    label: const Text('Prendre en charge'),
-                    onPressed: status == 'open'
-                        ? () async {
-                            Navigator.pop(ctx);
-                            await _claim(r['id'] as String);
-                          }
-                        : null,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.done_all),
-                    label: const Text('Résolu'),
-                    onPressed: status != 'resolved'
-                        ? () async {
-                            Navigator.pop(ctx);
-                            await _resolve(r['id'] as String);
-                          }
-                        : null,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _claim(String reportId) async {
-    final name =
-        AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
-    try {
-      await PbService.claimReport(reportId, name);
-      if (mounted) showSnack(context, 'SOS pris en charge.');
-      _refresh();
-    } catch (e) {
-      if (mounted) showSnack(context, 'Échec : $e');
-    }
-  }
-
-  Future<void> _resolve(String reportId) async {
-    final name =
-        AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
-    try {
-      await PbService.closeReport(reportId, name);
-      if (mounted) showSnack(context, 'SOS marqué résolu.');
-      _refresh();
-    } catch (e) {
-      if (mounted) showSnack(context, 'Échec : $e');
-    }
-  }
-
-  /// Détail d'un medic au tap.
-  void _showMedicDetail(Map<String, dynamic> m) {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Row(
-              children: [
-                Icon(Icons.medical_services, color: Colors.green),
-                SizedBox(width: 8),
-                Text('Street medic',
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(m['name']?.toString() ?? 'Medic',
-                style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 8),
-            Text(
-              'Position : ${(m['lat'] as double).toStringAsFixed(5)}, '
-              '${(m['lng'] as double).toStringAsFixed(5)}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 4),
-            Text(m['available'] == true ? 'En service' : 'Indisponible',
-                style: TextStyle(
-                    color: m['available'] == true
-                        ? Colors.green
-                        : Colors.grey)),
-          ],
-        ),
-      ),
-    );
   }
 
   Future<void> _refresh() async {
@@ -504,13 +547,12 @@ class _MapTabState extends State<MapTab> {
         });
       }
     } catch (e) {
-      if (mounted) showSnack(context, 'Chargement impossible : $e');
+      if (mounted) showSnack(context, '$e');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  /// Pastille ronde colorée pour un marqueur (plus lisible qu'une icône nue).
   Widget _badge(IconData icon, Color color) {
     return Container(
       decoration: BoxDecoration(
@@ -525,8 +567,136 @@ class _MapTabState extends State<MapTab> {
     );
   }
 
+  void _showReportDetail(Map<String, dynamic> r) {
+    final t = AppLocalizations.of(context);
+    final status = r['status']?.toString() ?? 'open';
+    final claimed = r['claimedBy']?.toString() ?? '';
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(children: [
+              Icon(Icons.warning, color: Colors.red),
+              SizedBox(width: 8),
+              Text('SOS',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ]),
+            const SizedBox(height: 12),
+            Text(r['description']?.toString() ?? '',
+                style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 8),
+            Text(
+              '${(r['lat'] as double).toStringAsFixed(5)}, '
+              '${(r['lng'] as double).toStringAsFixed(5)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              status == 'resolved'
+                  ? '${t.statusResolved} $claimed'
+                  : status == 'claimed'
+                      ? '${t.statusClaimed} $claimed'
+                      : t.statusOpen,
+              style: TextStyle(
+                color: status == 'open' ? Colors.orange : Colors.green,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.check),
+                  label: Text(t.takeCharge),
+                  onPressed: status == 'open'
+                      ? () async {
+                          Navigator.pop(ctx);
+                          await _claim(r['id'] as String);
+                        }
+                      : null,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.done_all),
+                  label: Text(t.resolvedBtn),
+                  onPressed: status != 'resolved'
+                      ? () async {
+                          Navigator.pop(ctx);
+                          await _resolve(r['id'] as String);
+                        }
+                      : null,
+                ),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _claim(String reportId) async {
+    final name =
+        AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
+    try {
+      await PbService.claimReport(reportId, name);
+      if (mounted) showSnack(context, AppLocalizations.of(context).takeCharge);
+      _refresh();
+    } catch (e) {
+      if (mounted) showSnack(context, '$e');
+    }
+  }
+
+  Future<void> _resolve(String reportId) async {
+    final name =
+        AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
+    try {
+      await PbService.closeReport(reportId, name);
+      if (mounted) showSnack(context, AppLocalizations.of(context).resolvedBtn);
+      _refresh();
+    } catch (e) {
+      if (mounted) showSnack(context, '$e');
+    }
+  }
+
+  void _showMedicDetail(Map<String, dynamic> m) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(children: [
+              Icon(Icons.medical_services, color: Colors.green),
+              SizedBox(width: 8),
+              Text('Street medic',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ]),
+            const SizedBox(height: 12),
+            Text(m['name']?.toString() ?? 'Medic',
+                style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 8),
+            Text(
+              '${(m['lat'] as double).toStringAsFixed(5)}, '
+              '${(m['lng'] as double).toStringAsFixed(5)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final markers = <Marker>[
       for (final r in _reports)
         Marker(
@@ -571,8 +741,6 @@ class _MapTabState extends State<MapTab> {
           options: MapOptions(
             initialCenter: const LatLng(46.6, 2.4),
             initialZoom: 6,
-            // Empêche de dézoomer au-delà de la carte : à sa plus petite
-            // taille, la carte remplit au maximum l'interface disponible.
             cameraConstraint: CameraConstraint.contain(bounds: worldBounds),
           ),
           children: [
@@ -585,21 +753,24 @@ class _MapTabState extends State<MapTab> {
         ),
         Positioned(
           top: 12,
-          right: 12,
+          left: 12,
           child: Card(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              child: Row(
-                children: [
-                  const Icon(Icons.warning, color: Colors.red, size: 18),
-                  Text(' ${_reports.length}  '),
-                  const Icon(Icons.medical_services,
-                      color: Colors.green, size: 18),
-                  Text(' ${_medics.length}'),
-                ],
-              ),
+              child: Row(children: [
+                const Icon(Icons.warning, color: Colors.red, size: 18),
+                Text(' ${_reports.length}  '),
+                const Icon(Icons.medical_services,
+                    color: Colors.green, size: 18),
+                Text(' ${_medics.length}'),
+              ]),
             ),
           ),
+        ),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: const Card(child: EmergencyButton(compact: true)),
         ),
         Positioned(
           bottom: 16,
@@ -610,18 +781,16 @@ class _MapTabState extends State<MapTab> {
               FloatingActionButton.small(
                 heroTag: 'refresh',
                 onPressed: _loading ? null : _refresh,
-                tooltip: 'Rafraîchir',
+                tooltip: t.refresh,
                 child: _loading
                     ? const CircularProgressIndicator(strokeWidth: 2)
                     : const Icon(Icons.refresh),
               ),
               const SizedBox(height: 12),
-              // Bouton « ma position » (façon Google Maps) : recentre et
-              // zoome sur la rue où se trouve l'utilisateur.
               FloatingActionButton(
                 heroTag: 'locate',
                 onPressed: _centerOnMe,
-                tooltip: 'Ma position',
+                tooltip: t.myPosition,
                 child: const Icon(Icons.my_location),
               ),
             ],
@@ -647,12 +816,14 @@ class _SettingsTabState extends State<SettingsTab> {
   final _emailController = TextEditingController();
   final _pwdController = TextEditingController();
   String _status = '';
+  late double _radius;
 
   @override
   void initState() {
     super.initState();
     _urlController = TextEditingController(text: AppConfig.serverUrl);
     _nameController = TextEditingController(text: AppConfig.medicName);
+    _radius = AppConfig.radiusKm;
   }
 
   @override
@@ -666,153 +837,154 @@ class _SettingsTabState extends State<SettingsTab> {
 
   Future<void> _saveUrl() async {
     await AppConfig.setServerUrl(_urlController.text);
-    setState(() => _status = 'URL enregistrée : ${AppConfig.serverUrl}');
+    setState(() => _status = AppConfig.serverUrl);
+  }
+
+  Future<void> _testConnection() async {
+    final t = AppLocalizations.of(context);
+    await AppConfig.setServerUrl(_urlController.text);
+    if (!mounted) return;
+    setState(() => _status = t.test);
+    final ok = await PbService.ping();
+    if (!mounted) return;
+    setState(() => _status = ok ? t.connectionOk : t.serverUnreachable);
   }
 
   Future<void> _saveName() async {
     await AppConfig.setMedicName(_nameController.text);
-    setState(() => _status = AppConfig.medicName.isEmpty
-        ? 'Nom effacé.'
-        : 'Nom enregistré : ${AppConfig.medicName}');
-  }
-
-  Future<void> _testConnection() async {
-    await AppConfig.setServerUrl(_urlController.text);
-    setState(() => _status = 'Test en cours…');
-    final ok = await PbService.ping();
-    setState(() => _status = ok
-        ? 'Connexion OK — serveur joignable.'
-        : 'Serveur injoignable. Vérifiez l\'URL et que PocketBase tourne.');
+    setState(() => _status = AppConfig.medicName);
   }
 
   Future<void> _signUp() async {
+    final t = AppLocalizations.of(context);
     try {
       await PbService.signUp(
           _emailController.text.trim(), _pwdController.text.trim());
-      setState(() => _status = 'Compte créé et connecté.');
+      setState(() => _status = t.connectionOk);
     } catch (e) {
-      setState(() => _status = 'Échec création : $e');
+      setState(() => _status = '$e');
     }
   }
 
   Future<void> _signIn() async {
+    final t = AppLocalizations.of(context);
     try {
       await PbService.signIn(
           _emailController.text.trim(), _pwdController.text.trim());
-      setState(() => _status = 'Connecté.');
+      setState(() => _status = t.connectionOk);
     } catch (e) {
-      setState(() => _status = 'Échec connexion : $e');
+      setState(() => _status = '$e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        const Text('Serveur PocketBase',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        const Text(
-          'URL du serveur auto-hébergé (ex : http://votre-serveur:8090).',
-          style: TextStyle(fontSize: 12, color: Colors.grey),
+        Text(t.language,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          initialValue: AppConfig.langOverride,
+          decoration: const InputDecoration(border: OutlineInputBorder()),
+          items: [
+            DropdownMenuItem(value: '', child: Text(t.languageSystem)),
+            for (final c in Lang.supported)
+              DropdownMenuItem(value: c, child: Text(Lang.name(c))),
+          ],
+          onChanged: (v) async {
+            await AppConfig.setLang(v ?? '');
+            settingsChanged.value++;
+          },
         ),
+        const Divider(height: 40),
+        Text(t.serverUrl,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         TextField(
           controller: _urlController,
-          decoration: const InputDecoration(
-            labelText: 'URL du serveur',
-            border: OutlineInputBorder(),
-          ),
+          decoration: InputDecoration(
+              labelText: t.serverUrl, border: const OutlineInputBorder()),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _saveUrl,
-                child: const Text('Enregistrer'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton(
-                onPressed: _testConnection,
-                child: const Text('Tester'),
-              ),
-            ),
-          ],
-        ),
+        Row(children: [
+          Expanded(
+            child: OutlinedButton(
+                onPressed: _saveUrl, child: Text(t.save)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: FilledButton(
+                onPressed: _testConnection, child: Text(t.test)),
+          ),
+        ]),
         const Divider(height: 40),
-        const Text('Mon identité de street medic',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(t.alertRadius,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        const Text(
-          'Ce nom apparaît sur votre fiche quand vous prenez le service, '
-          'et sur les SOS que vous prenez en charge.',
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-        ),
+        Text(t.alertRadiusHelp,
+            style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Row(children: [
+          Expanded(
+            child: Slider(
+              value: _radius,
+              min: 0.5,
+              max: 50,
+              divisions: 99,
+              label: '${_radius.toStringAsFixed(1)} km',
+              onChanged: (v) => setState(() => _radius = v),
+              onChangeEnd: (v) async {
+                await AppConfig.setRadiusKm(v);
+              },
+            ),
+          ),
+          Text('${_radius.toStringAsFixed(1)} km'),
+        ]),
+        const Divider(height: 40),
+        Text(t.medicIdentity,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         TextField(
           controller: _nameController,
-          decoration: const InputDecoration(
-            labelText: 'Nom / pseudo de medic',
-            border: OutlineInputBorder(),
-          ),
+          decoration: InputDecoration(
+              labelText: t.medicName, border: const OutlineInputBorder()),
         ),
         const SizedBox(height: 12),
-        OutlinedButton(
-          onPressed: _saveName,
-          child: const Text('Enregistrer mon nom'),
-        ),
+        OutlinedButton(onPressed: _saveName, child: Text(t.save)),
         const Divider(height: 40),
-        const Text('Compte (optionnel)',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
         TextField(
           controller: _emailController,
-          decoration: const InputDecoration(
-            labelText: 'Email',
-            border: OutlineInputBorder(),
-          ),
+          decoration: InputDecoration(
+              labelText: t.email, border: const OutlineInputBorder()),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _pwdController,
           obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Mot de passe',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+              labelText: t.password, border: const OutlineInputBorder()),
+        ),
+        const SizedBox(height: 12),
+        Row(children: [
+          Expanded(
+            child: OutlinedButton(onPressed: _signIn, child: Text(t.signIn)),
           ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: _signIn,
-                child: const Text('Se connecter'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton(
-                onPressed: _signUp,
-                child: const Text('Créer un compte'),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(width: 12),
+          Expanded(
+            child: FilledButton(onPressed: _signUp, child: Text(t.signUp)),
+          ),
+        ]),
         if (PbService.isLoggedIn)
           TextButton(
             onPressed: () {
               PbService.logout();
-              setState(() => _status = 'Déconnecté.');
+              setState(() => _status = '');
             },
-            child: const Text('Se déconnecter'),
+            child: Text(t.logOut),
           ),
-        const Divider(height: 40),
+        const SizedBox(height: 20),
         if (_status.isNotEmpty)
           Card(
             child: Padding(
@@ -820,11 +992,6 @@ class _SettingsTabState extends State<SettingsTab> {
               child: Text(_status),
             ),
           ),
-        const SizedBox(height: 12),
-        const Text(
-          'Street Medics FR — Flutter + PocketBase + OpenStreetMap.',
-          style: TextStyle(fontSize: 12, color: Colors.grey),
-        ),
       ],
     );
   }

@@ -1,5 +1,5 @@
 // Test : l'onglet Carte expose le bouton « Ma position » (recentrage) et le
-// bouton rafraîchir, et les marqueurs sont cliquables.
+// bouton rafraîchir.
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,11 +19,9 @@ void main() {
     await tester.tap(find.byIcon(Icons.map));
     await tester.pumpAndSettle();
 
-    // La carte est bien montée.
     expect(find.byType(FlutterMap), findsOneWidget);
-
-    // Bouton « Ma position » (façon Google Maps) + bouton rafraîchir.
-    expect(find.byTooltip('Ma position'), findsOneWidget);
-    expect(find.byTooltip('Rafraîchir'), findsOneWidget);
+    // Locale de test = anglais.
+    expect(find.byTooltip('My position'), findsOneWidget);
+    expect(find.byTooltip('Refresh'), findsOneWidget);
   });
 }

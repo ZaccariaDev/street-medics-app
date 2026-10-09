@@ -92,7 +92,8 @@ class PbService {
 
   /// Crée ou met à jour la fiche medic de CET appareil (identité persistante
   /// via `deviceId`) : évite les doublons à chaque prise de service.
-  static Future<void> setMedicOnDuty({
+  /// Renvoie l'id du record créé/mis à jour.
+  static Future<String> setMedicOnDuty({
     required double lat,
     required double lng,
     required String deviceId,
@@ -108,9 +109,10 @@ class PbService {
     };
     if (existing != null) {
       await client.collection('medics').update(existing, body: body);
-    } else {
-      await client.collection('medics').create(body: body);
+      return existing;
     }
+    final rec = await client.collection('medics').create(body: body);
+    return rec.id;
   }
 
   /// Repasse la fiche medic de cet appareil en indisponible.
