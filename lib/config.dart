@@ -16,6 +16,7 @@ class AppConfig {
   static const String _kMedicRecordId = 'medic_record_id';
   static const String _kPermsAsked = 'perms_asked';
   static const String _kVictimPhone = 'victim_phone';
+  static const String _kMyReportId = 'my_report_id';
 
   /// URL du serveur PocketBase par défaut.
   ///
@@ -39,6 +40,7 @@ class AppConfig {
   static String _medicRecordId = '';
   static bool _permsAsked = false;
   static String _victimPhone = '';
+  static String _myReportId = '';
 
   static String get serverUrl => _serverUrl;
   static String get deviceId => _deviceId;
@@ -59,6 +61,10 @@ class AppConfig {
   /// Numéro de rappel de la personne qui demande de l'aide (optionnel).
   static String get victimPhone => _victimPhone;
 
+  /// Id du SOS envoyé par CET appareil (vide si aucun). Sert à suivre le
+  /// medecin qui arrive : tant que ce SOS est pris en charge, la carte
+  /// reste accessible au patient.
+  static String get myReportId => _myReportId;
 
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -75,6 +81,7 @@ class AppConfig {
     _medicRecordId = prefs.getString(_kMedicRecordId) ?? '';
     _permsAsked = prefs.getBool(_kPermsAsked) ?? false;
     _victimPhone = prefs.getString(_kVictimPhone) ?? '';
+    _myReportId = prefs.getString(_kMyReportId) ?? '';
   }
 
   static Future<void> setServerUrl(String url) async {
@@ -117,6 +124,12 @@ class AppConfig {
   static Future<void> setVictimPhone(String v) async {
     _victimPhone = v;
     (await SharedPreferences.getInstance()).setString(_kVictimPhone, v);
+  }
+
+  /// Mémorise l'id du SOS envoyé par cet appareil.
+  static Future<void> setMyReportId(String v) async {
+    _myReportId = v;
+    (await SharedPreferences.getInstance()).setString(_kMyReportId, v);
   }
 
 }

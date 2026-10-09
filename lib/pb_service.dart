@@ -46,18 +46,23 @@ class PbService {
   // ---------- SOS ----------
 
   /// Envoie un SOS (position + description) dans la collection `reports`.
-  static Future<void> sendReport({
+  ///
+  /// Renvoie l'id du signalement créé : le patient le conserve pour suivre le
+  /// medecin qui arrive (tant que le SOS est pris en charge, la carte reste
+  /// accessible au patient).
+  static Future<String> sendReport({
     required double lat,
     required double lng,
     required String description,
     String senderPhone = '',
   }) async {
-    await client.collection('reports').create(body: {
+    final res = await client.collection('reports').create(body: {
       'senderPhone': senderPhone,
       'position': {'lat': lat, 'lng': lng},
       'description': description,
       'status': 'open',
     });
+    return res.id;
   }
 
   /// Liste les SOS **actifs** (ouverts ou pris en charge) avec position,
@@ -81,11 +86,35 @@ class PbService {
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();
   }
 
+  /// Récupère un signalement par son id.
+  static Future<Map<String, dynamic>?> getReport(String id) async {
+    final r = await client.collection('reports').getOne(id);
+    final base = _pos(r);
+    return {
+      ...base,
+      'description': r.data['description']?.toString() ?? '',
+      'status': r.data['status']?.toString() ?? 'open',
+      'claimedBy': r.data['claimedBy']?.toString() ?? '',
+      'claimedByName': r.data['claimedByName']?.toString() ?? '',
+      'senderPhone': r.data['senderPhone']?.toString() ?? '',
+      'created': r.get<String>('created'),
+    };
+  }
+
   /// Un medic prend en charge un SOS.
-  static Future<void> claimReport(String reportId, String medicName) async {
+  ///
+  /// `medicId` = id de la fiche medic : le patient l'utilise pour retrouver la
+  /// position du medecin qui arrive (mise à jour toutes les 30 s côté serveur).
+  /// `medicName` = nom affiché (stocké dans `claimedByName`).
+  static Future<void> claimReport(
+    String reportId,
+    String medicName,
+    String medicId,
+  ) async {
     await client.collection('reports').update(reportId, body: {
       'status': 'claimed',
-      'claimedBy': medicName,
+      'claimedBy': medicId,
+      'claimedByName': medicName,
       'claimedAt': DateTime.now().toIso8601String(),
     });
   }
@@ -94,7 +123,8 @@ class PbService {
   static Future<void> closeReport(String reportId, String medicName) async {
     await client.collection('reports').update(reportId, body: {
       'status': 'resolved',
-      'claimedBy': medicName,
+      'claimedBy': '',
+      'claimedByName': medicName,
     });
   }
 

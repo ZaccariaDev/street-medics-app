@@ -64,7 +64,7 @@
   "permMissingShort": "缺少部分权限",
   "becomeMedic": "成为街头医护",
   "certTitle": "街头医护承诺",
-  "certBody": "我以名誉保证：我有能力提供急救；尊重他人及街头医护的规则；不让自己陷入危险；如果被救助者尚未联系急救服务（112），我会尽快联系。",
+  "certBody": "开始值班时，我承诺尽我所能提供急救，尊重他人和良好行为准则，不冒不必要的风险，并在情况需要时立即拨打紧急电话（112）。",
   "certCheck": "我已阅读并承诺。",
   "certAccept": "承诺并开始值班",
   "cancel": "取消",
@@ -85,5 +85,6 @@
   "version": "版本",
   "loginFailed": "登录失败",
   "signUpFailed": "注册失败",
-  "checkUpdate": "检查更新"
+  "checkUpdate": "检查更新",
+  "medicOnTheWay": "有医护已接受您的求救，正在赶来。"
 }

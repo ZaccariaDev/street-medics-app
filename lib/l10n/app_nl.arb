@@ -63,9 +63,9 @@
   "permOk": "Alle machtigingen verleend",
   "permMissingShort": "Sommige machtigingen ontbreken",
   "becomeMedic": "Street medic worden",
-  "certTitle": "Verplichting van de street medic",
-  "certBody": "Ik verklaar op mijn eer: in staat te zijn eerste hulp te verlenen; mensen en de regels van street medics te respecteren; mezelf niet in gevaar te brengen; en zo snel mogelijk de hulpdiensten (112) te bellen als de geholpen persoon dit nog niet heeft gedaan.",
-  "certCheck": "Ik heb gelezen en ik verbind me.",
+  "certTitle": "Engagement van de street medic",
+  "certBody": "Door in dienst te gaan, verplicht ik me tot het verlenen van eerste hulp naar beste vermogen, het respecteren van mensen en de regels van goed gedrag, het nemen van onnodige risico's te voorkomen en de hulpdiensten (112) zonder uitstel te waarschuwen als de situatie dat vereist.",
+  "certCheck": "Ik heb gelezen en verplicht me.",
   "certAccept": "Verbinden en dienst starten",
   "cancel": "Annuleren",
   "victimPhone": "Je telefoonnummer (optioneel)",
@@ -85,5 +85,6 @@
   "version": "Versie",
   "loginFailed": "Inloggen mislukt",
   "signUpFailed": "Registreren mislukt",
-  "checkUpdate": "Controleren op updates"
+  "checkUpdate": "Controleren op updates",
+  "medicOnTheWay": "Een medic heeft uw SOS aangenomen en is onderweg."
 }

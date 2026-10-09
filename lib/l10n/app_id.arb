@@ -64,7 +64,7 @@
   "permMissingShort": "Beberapa izin kurang",
   "becomeMedic": "Jadi street medic",
   "certTitle": "Komitmen street medic",
-  "certBody": "Saya menyatakan dengan hormat: mampu memberikan pertolongan pertama; menghormati orang dan aturan street medic; tidak membahayakan diri sendiri; dan menghubungi layanan darurat (112) sesegera mungkin jika orang yang ditolong belum melakukannya.",
+  "certBody": "Dengan bertugas, saya berkomitmen untuk memberikan pertolongan pertama sesuai kemampuan, menghormati orang dan aturan perilaku yang baik, tidak mengambil risiko yang tidak perlu, dan menghubungi layanan darurat (112) tanpa penundaan jika situasi memerlukannya.",
   "certCheck": "Saya telah membaca dan berkomitmen.",
   "certAccept": "Berkomitmen dan mulai bertugas",
   "cancel": "Batal",
@@ -85,5 +85,6 @@
   "version": "Versi",
   "loginFailed": "Gagal masuk",
   "signUpFailed": "Gagal mendaftar",
-  "checkUpdate": "Periksa pembaruan"
+  "checkUpdate": "Periksa pembaruan",
+  "medicOnTheWay": "Seorang medic telah menerima SOS Anda dan sedang dalam perjalanan."
 }

@@ -64,8 +64,8 @@
   "permMissingShort": "Ruhusa kadhaa hazipo",
   "becomeMedic": "Kuwa mhudumu wa mitaani",
   "certTitle": "Ahadi ya mhudumu wa mitaani",
-  "certBody": "Nathibitisha kwa heshima: kwamba ninaweza kutoa huduma ya kwanza; kuheshimu watu na kanuni za wahudumu wa mitaani; kutojitweka hatarini; na kuwasiliana na huduma za dharura (112) haraka iwezekanavyo ikiwa mtu anayesaidika hajafanya hivyo.",
-  "certCheck": "Nimesoma na naahidi.",
+  "certBody": "Kwa kuchukua zamu, ninakubali kutoa huduma ya kwanza kwa kadiri ya uwezo wangu, kuwahi heshima watu na kanuni za tabia njema, kutokupanga hatari zisizo na maana, na kuwahudumia huduma za dharura (112) bila kuchelewa ikiwa hali inahitaji.",
+  "certCheck": "Nimesoma na ninakubali.",
   "certAccept": "Ahidi na anza zamu",
   "cancel": "Ghairi",
   "victimPhone": "Namba yako ya simu (si lazima)",
@@ -85,5 +85,6 @@
   "version": "Toleo",
   "loginFailed": "Kuingia kumeshindikana",
   "signUpFailed": "Kujisajili kumeshindikana",
-  "checkUpdate": "Angalia sasisho"
+  "checkUpdate": "Angalia sasisho",
+  "medicOnTheWay": "Mhudumu amechukua SOS yako na anakwenda."
 }

@@ -64,7 +64,7 @@
   "permMissingShort": "Lipsesc unele permisiuni",
   "becomeMedic": "Devino street medic",
   "certTitle": "Angajamentul street medic",
-  "certBody": "Certific pe onoare: că pot acorda primul ajutor; că voi respecta oamenii și regulile street medic; că nu mă voi pune în pericol; și că voi contacta serviciile de urgență (112) cât mai curând dacă persoana ajutată nu a făcut-o deja.",
+  "certBody": "Prin intrare în serviciu, mă angajez să acord primul ajutor în măsura posibilităților mele, să respect persoanele și regulile de bună conduită, să nu mă expun la riscuri inutile și să apelez serviciile de urgență (112) fără întârziere dacă situația o cere.",
   "certCheck": "Am citit și mă angajez.",
   "certAccept": "Mă angajez și intru în tură",
   "cancel": "Anulează",
@@ -85,5 +85,6 @@
   "version": "Versiune",
   "loginFailed": "Autentificare eșuată",
   "signUpFailed": "Înregistrare eșuată",
-  "checkUpdate": "Verifică actualizări"
+  "checkUpdate": "Verifică actualizări",
+  "medicOnTheWay": "Un medic a preluat SOS-ul tău și este pe drum."
 }

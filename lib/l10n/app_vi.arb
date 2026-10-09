@@ -64,7 +64,7 @@
   "permMissingShort": "Thiếu một số quyền",
   "becomeMedic": "Trở thành street medic",
   "certTitle": "Cam kết của street medic",
-  "certBody": "Tôi lấy danh dự cam kết: có khả năng sơ cứu; tôn trọng mọi người và các quy tắc của street medic; không đặt bản thân vào nguy hiểm; và liên hệ dịch vụ khẩn cấp (112) sớm nhất có thể nếu người được giúp chưa làm điều đó.",
+  "certBody": "Khi nhận ca trực, tôi cam kết cấp sơ cứu trong phạm vi năng lực của mình, tôn trọng mọi người và quy tắc ứng xử tốt, không liều lĩnh gây nguy hiểm không cần thiết, và gọi dịch vụ khẩn cấp (112) ngay khi tình huống đòi hỏi.",
   "certCheck": "Tôi đã đọc và cam kết.",
   "certAccept": "Cam kết và vào ca",
   "cancel": "Hủy",
@@ -85,5 +85,6 @@
   "version": "Phiên bản",
   "loginFailed": "Đăng nhập thất bại",
   "signUpFailed": "Đăng ký thất bại",
-  "checkUpdate": "Kiểm tra cập nhật"
+  "checkUpdate": "Kiểm tra cập nhật",
+  "medicOnTheWay": "Một medecin đã nhận SOS của bạn và đang trên đường đến."
 }

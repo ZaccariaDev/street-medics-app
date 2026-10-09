@@ -109,31 +109,58 @@ class _MainScreenState extends State<MainScreen> {
   bool _askedPerms = false;
   bool _checkedUpdate = false;
   bool _onDuty = false;
+  bool _patientTracking = false;
 
   @override
   void initState() {
     super.initState();
     _onDuty = AppConfig.onDuty;
+    // Le patient suit le medecin qui arrive uniquement quand son SOS est
+    // pris en charge (pas quand il est encore ouvert).
+    _patientTracking = false;
     dutyChanged.addListener(_syncDuty);
     settingsChanged.addListener(_syncDuty);
+    // Le patient suit le medecin qui arrive : dès la prise en charge, la
+    // carte se déverrouille.
+    FlutterForegroundTask.addTaskDataCallback(_onMedicOnTheWay);
+  }
+
+  void _onMedicOnTheWay(Object data) {
+    if (data is Map && data['type'] == 'medic_on_the_way') {
+      setState(() => _patientTracking = true);
+      // Déclenche un rafraîchissement de la carte pour afficher le medecin.
+      mapRefresh.value++;
+    }
   }
 
   @override
   void dispose() {
     dutyChanged.removeListener(_syncDuty);
     settingsChanged.removeListener(_syncDuty);
+    FlutterForegroundTask.removeTaskDataCallback(_onMedicOnTheWay);
     super.dispose();
   }
 
   void _syncDuty() {
     if (!mounted) return;
-    setState(() => _onDuty = AppConfig.onDuty);
-    // Si le medic quitte son service alors qu'il est sur la carte, on le
-    // ramène sur l'onglet SOS (la carte ne lui est plus accessible).
-    if (!_onDuty && _selectedIndex == 1) {
+    setState(() {
+      _onDuty = AppConfig.onDuty;
+      // Le patient suit le medecin qui arrive uniquement quand son SOS est
+      // pris en charge (pas quand il est encore ouvert).
+      _patientTracking = AppConfig.myReportId.isNotEmpty &&
+          !AppConfig.onDuty &&
+          _patientTracking;
+    });
+    // Si on n'a plus accès à la carte alors qu'on est dessus, on revient
+    // sur l'onglet SOS.
+    if (!_mapAllowed && _selectedIndex == 1) {
       setState(() => _selectedIndex = 0);
     }
   }
+
+  /// La carte est accessible si on est en service OU si on est patient
+  /// dont le SOS est pris en charge (on suit le medecin qui arrive).
+  bool get _mapAllowed => _onDuty || _patientTracking;
 
   @override
   void didChangeDependencies() {
@@ -174,10 +201,9 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (i) {
-          // Onglet Plan réservé aux street medics EN SERVICE.
-          // Envoyer un SOS rend automatiquement hors service : on est alors
-          // victime, donc pas de carte.
-          if (i == 1 && !_onDuty) {
+          // Onglet Plan réservé aux street medics en service ET aux patients
+          // dont le SOS est pris en charge.
+          if (i == 1 && !_mapAllowed) {
             showSnack(context, AppLocalizations.of(context).medicsOnly);
             return;
           }
@@ -186,8 +212,8 @@ class _MainScreenState extends State<MainScreen> {
         destinations: [
           NavigationDestination(icon: const Icon(Icons.sos), label: t.tabSos),
           NavigationDestination(
-            icon: Icon(_onDuty ? Icons.map : Icons.lock_outline),
-            enabled: _onDuty,
+            icon: Icon(_mapAllowed ? Icons.map : Icons.lock_outline),
+            enabled: _mapAllowed,
             label: t.tabMap,
           ),
           NavigationDestination(
@@ -433,7 +459,7 @@ class _SosTabState extends State<SosTab> {
 
       final phone = _phoneController.text.trim();
       await AppConfig.setVictimPhone(phone);
-      await PbService.sendReport(
+      final id = await PbService.sendReport(
         lat: pos.latitude,
         lng: pos.longitude,
         description: _descController.text.trim().isEmpty
@@ -441,6 +467,11 @@ class _SosTabState extends State<SosTab> {
             : _descController.text.trim(),
         senderPhone: phone,
       );
+      // Le patient suit son SOS : la carte reste accessible tant qu'un
+      // medecin l'a pris en charge (et jusqu'à ce qu'il soit résolu).
+      await AppConfig.setMyReportId(id);
+      // Lance le service en mode patient : alerte dès la prise en charge.
+      await startBackgroundService();
       if (mounted) showSnack(context, t.positionShared);
       mapRefresh.value++;
     } catch (e) {
@@ -492,8 +523,8 @@ class _SosTabState extends State<SosTab> {
     }
   }
 
-  /// Affiche l'engagement du street medic : certificat sur l'honneur avant
-  /// de prendre le service. Le bouton n'est actif qu'après lecture confirmée.
+  /// Affiche l'engagement du street medic avant la prise de service.
+  /// Le bouton n'est actif qu'après lecture confirmée (case cochée).
   Future<void> _confirmAndGoOnDuty() async {
     final t = AppLocalizations.of(context);
     var accepted = false;
@@ -657,6 +688,10 @@ Future<void> startBackgroundService() async {
     'deviceId': AppConfig.deviceId,
     'medicName': AppConfig.medicName,
     'radiusKm': AppConfig.radiusKm,
+    // `patientReportId` : mode patient — surveille la prise en charge de SON SOS.
+    // Présent = mode patient, absent = mode medic.
+    if (AppConfig.myReportId.isNotEmpty)
+      'patientReportId': AppConfig.myReportId,
   });
   await FlutterForegroundTask.saveData(key: 'cfg', value: cfg);
 
@@ -702,6 +737,7 @@ class _MapTabState extends State<MapTab> {
   List<Map<String, dynamic>> _reports = [];
   List<Map<String, dynamic>> _medics = [];
   LatLng? _myPosition;
+  LatLng? _medicPosition;
   bool _loading = false;
   Timer? _autoTimer;
 
@@ -737,7 +773,9 @@ class _MapTabState extends State<MapTab> {
 
   /// Reçoit les alertes du service d'arrière-plan et les affiche.
   void _onTaskData(Object data) {
-    if (data is Map && data['type'] == 'sos_alert') {
+    if (data is! Map) return;
+    final type = data['type']?.toString() ?? '';
+    if (type == 'sos_alert') {
       final dKm = (data['distanceKm'] as num?)?.toDouble() ?? 0;
       final dist = dKm < 1
           ? '${(dKm * 1000).round()} m'
@@ -747,6 +785,18 @@ class _MapTabState extends State<MapTab> {
         showSnack(context, '${t.nearSos} ($dist)');
       }
       _refresh();
+    } else if (type == 'medic_on_the_way') {
+      if (mounted) {
+        final t = AppLocalizations.of(context);
+        showSnack(context, t.medicOnTheWay);
+      }
+      _refresh();
+    } else if (type == 'medic_position') {
+      final lat = (data['lat'] as num?)?.toDouble();
+      final lng = (data['lng'] as num?)?.toDouble();
+      if (lat != null && lng != null) {
+        setState(() => _medicPosition = LatLng(lat, lng));
+      }
     }
   }
 
@@ -1013,7 +1063,11 @@ class _MapTabState extends State<MapTab> {
     final name =
         AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
     try {
-      await PbService.claimReport(r['id'] as String, name);
+      await PbService.claimReport(
+        r['id'] as String,
+        name,
+        AppConfig.medicRecordId,
+      );
       if (!mounted) return;
       showSnack(context, AppLocalizations.of(context).takeCharge);
       _refresh();
@@ -1051,6 +1105,11 @@ class _MapTabState extends State<MapTab> {
       await PbService.closeReport(reportId, name);
       if (mounted) showSnack(context, AppLocalizations.of(context).resolvedBtn);
       _fadeOut(reportId);
+      // Si c'était le SOS de cet appareil, on n'a plus à le suivre.
+      if (reportId == AppConfig.myReportId) {
+        await AppConfig.setMyReportId('');
+        dutyChanged.value++;
+      }
     } catch (e) {
       if (mounted) showSnack(context, '$e');
     }
@@ -1122,6 +1181,21 @@ class _MapTabState extends State<MapTab> {
           height: 44,
           child: GestureDetector(
             onTap: () => _showMedicDetail(m),
+            child: _badge(Icons.medical_services, Colors.green),
+          ),
+        ),
+      // Marker spécial : le medecin qui arrive (mode patient).
+      if (_medicPosition != null)
+        Marker(
+          point: _medicPosition!,
+          width: 44,
+          height: 44,
+          child: GestureDetector(
+            onTap: () => _showMedicDetail({
+              'name': t.medicOnTheWay,
+              'lat': _medicPosition!.latitude,
+              'lng': _medicPosition!.longitude,
+            }),
             child: _badge(Icons.medical_services, Colors.green),
           ),
         ),

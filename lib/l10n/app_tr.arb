@@ -64,8 +64,8 @@
   "permMissingShort": "Bazı izinler eksik",
   "becomeMedic": "Street medic ol",
   "certTitle": "Street medic taahhüdü",
-  "certBody": "Onurum üzerine beyan ederim: ilk yardım verebileceğimi; insanlara ve street medic kurallarına saygı göstereceğimi; kendimi tehlikeye atmayacağımı; ve yardım edilen kişi yapmadıysa en kısa sürede acil servislere (112) başvuracağımı.",
-  "certCheck": "Okudum ve taahhüt ediyorum.",
+  "certBody": "Nöbette bulunduğumda, elimden geldiğince ilk yardım yapmayı, insanları ve iyi davranış kurallarına saygı göstermeyi, gereksiz risk almamayı ve durum gerektiyorsa acil servisleri (112) gecikmeden bilgilendirmeyi taahhüt ederim.",
+  "certCheck": "Okudum ve taahhüt ederim.",
   "certAccept": "Taahhüt et ve göreve başla",
   "cancel": "İptal",
   "victimPhone": "Telefon numaran (isteğe bağlı)",
@@ -85,5 +85,6 @@
   "version": "Sürüm",
   "loginFailed": "Giriş başarısız",
   "signUpFailed": "Kayıt başarısız",
-  "checkUpdate": "Güncellemeleri kontrol et"
+  "checkUpdate": "Güncellemeleri kontrol et",
+  "medicOnTheWay": "Bir medic SOS'unuzu üstlendi ve yolda."
 }

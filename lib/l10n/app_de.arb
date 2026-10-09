@@ -64,7 +64,7 @@
   "permMissingShort": "Einige Berechtigungen fehlen",
   "becomeMedic": "Street Medic werden",
   "certTitle": "Verpflichtung des Street Medics",
-  "certBody": "Ich versichere auf Ehre: Erste Hilfe leisten zu können; Menschen und die Regeln der Street Medics zu respektieren; mich nicht in Gefahr zu bringen; und die Notdienste (112) so bald wie möglich zu verständigen, falls die betreute Person dies nicht bereits getan hat.",
+  "certBody": "Mit dem Dienstbeginn verpflichte ich mich, nach bestem Wissen Erste Hilfe zu leisten, die Menschen und die Regeln guten Verhaltens zu respektieren, keine unnötigen Risiken einzugehen und im Notfall die Notrufnummer (112) ohne Verzögerung zu informieren.",
   "certCheck": "Ich habe gelesen und verpflichte mich.",
   "certAccept": "Verpflichten und Dienst antreten",
   "cancel": "Abbrechen",
@@ -85,5 +85,6 @@
   "version": "Version",
   "loginFailed": "Anmeldung fehlgeschlagen",
   "signUpFailed": "Registrierung fehlgeschlagen",
-  "checkUpdate": "Nach Updates suchen"
+  "checkUpdate": "Nach Updates suchen",
+  "medicOnTheWay": "Ein Medic hat Ihr SOS angenommen und ist unterwegs."
 }

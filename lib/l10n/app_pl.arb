@@ -64,7 +64,7 @@
   "permMissingShort": "Brakuje niektórych uprawnień",
   "becomeMedic": "Zostań street medykiem",
   "certTitle": "Zobowiązanie street medyka",
-  "certBody": "Oświadczam na honor: potrafię udzielać pierwszej pomocy; będę szanować ludzi i zasady street medyków; nie narazę się na niebezpieczeństwo; i skontaktuję się ze służbami ratunkowymi (112) tak szybko, jak to możliwe, jeśli poszkodowany jeszcze tego nie zrobił.",
+  "certBody": "Przejmując dyżur, zobowiązuję się do udzielania pierwszej pomocy w miarę swoich możliwości, do szacunku dla ludzi i zasad dobrego zachowania, do unikania niepotrzebnego ryzyka oraz do niezwłocznego wezwania służb ratunkowych (112), jeśli sytuacja tego wymaga.",
   "certCheck": "Przeczytałem i zobowiązuję się.",
   "certAccept": "Zobowiązuję się i zaczynam służbę",
   "cancel": "Anuluj",
@@ -85,5 +85,6 @@
   "version": "Wersja",
   "loginFailed": "Logowanie nie powiodło się",
   "signUpFailed": "Rejestracja nie powiodła się",
-  "checkUpdate": "Sprawdź aktualizacje"
+  "checkUpdate": "Sprawdź aktualizacje",
+  "medicOnTheWay": "Medyk przyjął twoje SOS i jest w drodze."
 }

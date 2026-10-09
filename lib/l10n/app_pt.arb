@@ -64,7 +64,7 @@
   "permMissingShort": "Faltam algumas permissões",
   "becomeMedic": "Tornar-se street medic",
   "certTitle": "Compromisso do street medic",
-  "certBody": "Certifico sob minha honra: ser capaz de prestar primeiros socorros; respeitar as pessoas e as regras do street medic; não me colocar em perigo; e contactar os serviços de emergência (112) o mais rápido possível se a pessoa assistida ainda não o fez.",
+  "certBody": "Ao entrar em serviço, comprometo-me a prestar primeiros socorros na medida das minhas possibilidades, a respeitar as pessoas e as normas de boa conduta, a não correr riscos desnecessários e a alertar os serviços de emergência (112) sem demora se a situação o exigir.",
   "certCheck": "Li e comprometo-me.",
   "certAccept": "Comprometer-me e entrar de serviço",
   "cancel": "Cancelar",
@@ -85,5 +85,6 @@
   "version": "Versão",
   "loginFailed": "Falha ao iniciar sessão",
   "signUpFailed": "Falha no registo",
-  "checkUpdate": "Verificar atualizações"
+  "checkUpdate": "Verificar atualizações",
+  "medicOnTheWay": "Um medecin atendeu o seu SOS e está a caminho."
 }

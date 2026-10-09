@@ -64,7 +64,7 @@
   "permMissingShort": "Some permissions are missing",
   "becomeMedic": "Become a street medic",
   "certTitle": "Street medic commitment",
-  "certBody": "I certify on my honour: that I am able to provide first aid; that I will respect people and the rules of street medics; that I will not put myself in danger; and that I will contact the emergency services (112) as soon as possible if the person being helped has not already done so.",
+  "certBody": "By going on duty, I commit to providing first aid to the best of my ability, to respecting people and the rules of good conduct, to not taking unnecessary risks, and to alerting the emergency services (112) without delay if the situation requires it.",
   "certCheck": "I have read and I commit.",
   "certAccept": "Commit and go on duty",
   "cancel": "Cancel",
@@ -85,5 +85,6 @@
   "version": "Version",
   "loginFailed": "Sign in failed",
   "signUpFailed": "Sign up failed",
-  "checkUpdate": "Check for updates"
+  "checkUpdate": "Check for updates",
+  "medicOnTheWay": "A medic has taken your SOS and is on the way."
 }
