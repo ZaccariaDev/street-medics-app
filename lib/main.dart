@@ -109,11 +109,13 @@ class _MainScreenState extends State<MainScreen> {
   bool _askedPerms = false;
   bool _checkedUpdate = false;
   bool _onDuty = false;
+  bool _loggedIn = false;
 
   @override
   void initState() {
     super.initState();
     _onDuty = AppConfig.onDuty;
+    _loggedIn = PbService.isLoggedIn;
     dutyChanged.addListener(_syncDuty);
     settingsChanged.addListener(_syncDuty);
   }
@@ -127,13 +129,19 @@ class _MainScreenState extends State<MainScreen> {
 
   void _syncDuty() {
     if (!mounted) return;
-    setState(() => _onDuty = AppConfig.onDuty);
-    // Si le medic quitte son service alors qu'il est sur la carte, on le
-    // ramène sur l'onglet SOS (la carte ne lui est plus accessible).
-    if (!_onDuty && _selectedIndex == 1) {
+    setState(() {
+      _onDuty = AppConfig.onDuty;
+      _loggedIn = PbService.isLoggedIn;
+    });
+    // Si le medic quitte son service (ou se déconnecte) alors qu'il est sur
+    // la carte, on le ramène sur l'onglet SOS.
+    if (!_mapAllowed && _selectedIndex == 1) {
       setState(() => _selectedIndex = 0);
     }
   }
+
+  /// La carte exige les deux : être en service ET connecté.
+  bool get _mapAllowed => _onDuty && _loggedIn;
 
   @override
   void didChangeDependencies() {
@@ -174,9 +182,14 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (i) {
-          // Onglet Plan réservé aux street medics en service.
-          if (i == 1 && !_onDuty) {
-            showSnack(context, AppLocalizations.of(context).medicsOnly);
+          // Onglet Plan réservé aux street medics en service ET connectés.
+          if (i == 1 && !_mapAllowed) {
+            showSnack(
+              context,
+              PbService.isLoggedIn
+                  ? AppLocalizations.of(context).medicsOnly
+                  : AppLocalizations.of(context).loginRequired,
+            );
             return;
           }
           setState(() => _selectedIndex = i);
@@ -184,8 +197,8 @@ class _MainScreenState extends State<MainScreen> {
         destinations: [
           NavigationDestination(icon: const Icon(Icons.sos), label: t.tabSos),
           NavigationDestination(
-            icon: Icon(_onDuty ? Icons.map : Icons.lock_outline),
-            enabled: _onDuty,
+            icon: Icon(_mapAllowed ? Icons.map : Icons.lock_outline),
+            enabled: _mapAllowed,
             label: t.tabMap,
           ),
           NavigationDestination(
@@ -1240,14 +1253,28 @@ class _SettingsTabState extends State<SettingsTab> {
     setState(() => _status = AppConfig.medicName);
   }
 
+  /// Extrait un message lisible d'une erreur PocketBase.
+  String _authError(AppLocalizations t, Object e) {
+    final s = e.toString();
+    if (s.contains('Failed to authenticate') ||
+        s.contains('Invalid login credentials') ||
+        s.contains('400')) {
+      return t.loginFailed;
+    }
+    if (s.contains('already exists')) return t.signUpFailed;
+    return s.length > 160 ? s.substring(0, 160) : s;
+  }
+
   Future<void> _signUp() async {
     final t = AppLocalizations.of(context);
     try {
       await PbService.signUp(
           _emailController.text.trim(), _pwdController.text.trim());
-      setState(() => _status = t.connectionOk);
+      setState(() => _status = '${t.loggedInAs} '
+          '${_emailController.text.trim()}');
+      settingsChanged.value++;
     } catch (e) {
-      setState(() => _status = '$e');
+      setState(() => _status = '${t.signUpFailed} — ${_authError(t, e)}');
     }
   }
 
@@ -1256,9 +1283,12 @@ class _SettingsTabState extends State<SettingsTab> {
     try {
       await PbService.signIn(
           _emailController.text.trim(), _pwdController.text.trim());
-      setState(() => _status = t.connectionOk);
+      setState(() => _status = '${t.loggedInAs} '
+          '${_emailController.text.trim()}');
+      // La carte devient accessible : on notifie l'écran principal.
+      settingsChanged.value++;
     } catch (e) {
-      setState(() => _status = '$e');
+      setState(() => _status = '${t.loginFailed} — ${_authError(t, e)}');
     }
   }
 
@@ -1388,6 +1418,12 @@ class _SettingsTabState extends State<SettingsTab> {
           ),
         ),
         const Divider(height: 40),
+        Text(t.loginTitle,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        Text(t.loginExplain,
+            style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        const SizedBox(height: 12),
         TextField(
           controller: _emailController,
           decoration: InputDecoration(
@@ -1410,14 +1446,25 @@ class _SettingsTabState extends State<SettingsTab> {
             child: FilledButton(onPressed: _signUp, child: Text(t.signUp)),
           ),
         ]),
-        if (PbService.isLoggedIn)
+        if (PbService.isLoggedIn) ...[
+          const SizedBox(height: 8),
+          Row(children: [
+            const Icon(Icons.check_circle, color: Colors.green, size: 18),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text('${t.loggedInAs} ${PbService.currentEmail}',
+                  style: const TextStyle(color: Colors.green)),
+            ),
+          ]),
           TextButton(
             onPressed: () {
               PbService.logout();
               setState(() => _status = '');
+              settingsChanged.value++;
             },
             child: Text(t.logOut),
           ),
+        ],
         const SizedBox(height: 20),
         if (_status.isNotEmpty)
           Card(

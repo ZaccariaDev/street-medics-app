@@ -84,5 +84,11 @@
   "updateMandatory": "Cette mise à jour est obligatoire pour continuer à utiliser l'app.",
   "checkUpdate": "Vérifier les mises à jour",
   "upToDate": "Vous avez la dernière version.",
-  "version": "Version"
+  "version": "Version",
+  "loginTitle": "Compte street medic",
+  "loginExplain": "Connectez-vous pour voir la carte et les alertes. La carte est réservée aux medics.",
+  "loginRequired": "Connectez-vous d'abord pour voir la carte.",
+  "loggedInAs": "Connecté en tant que",
+  "loginFailed": "Échec de la connexion",
+  "signUpFailed": "Échec de l'inscription"
 }

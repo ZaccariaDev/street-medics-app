@@ -84,5 +84,11 @@
   "updateMandatory": "必须更新才能继续使用应用。",
   "checkUpdate": "检查更新",
   "upToDate": "您已是最新版本。",
-  "version": "版本"
+  "version": "版本",
+  "loginTitle": "街头医护账号",
+  "loginExplain": "登录后查看地图和警报。地图仅限医护使用。",
+  "loginRequired": "请先登录以查看地图。",
+  "loggedInAs": "已登录为",
+  "loginFailed": "登录失败",
+  "signUpFailed": "注册失败"
 }

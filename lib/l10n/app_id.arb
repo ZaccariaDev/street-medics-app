@@ -84,5 +84,11 @@
   "updateMandatory": "Pembaruan ini wajib untuk terus menggunakan aplikasi.",
   "checkUpdate": "Periksa pembaruan",
   "upToDate": "Anda memiliki versi terbaru.",
-  "version": "Versi"
+  "version": "Versi",
+  "loginTitle": "Akun street medic",
+  "loginExplain": "Masuk untuk melihat peta dan peringatan. Peta hanya untuk medic.",
+  "loginRequired": "Masuk dulu untuk melihat peta.",
+  "loggedInAs": "Masuk sebagai",
+  "loginFailed": "Gagal masuk",
+  "signUpFailed": "Gagal mendaftar"
 }

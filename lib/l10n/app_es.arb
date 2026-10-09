@@ -84,5 +84,11 @@
   "updateMandatory": "Esta actualización es obligatoria para seguir usando la app.",
   "checkUpdate": "Buscar actualizaciones",
   "upToDate": "Tienes la última versión.",
-  "version": "Versión"
+  "version": "Versión",
+  "loginTitle": "Cuenta de street medic",
+  "loginExplain": "Inicia sesión para ver el mapa y las alertas. El mapa es solo para medics.",
+  "loginRequired": "Inicia sesión primero para ver el mapa.",
+  "loggedInAs": "Sesión iniciada como",
+  "loginFailed": "Error al iniciar sesión",
+  "signUpFailed": "Error al registrarse"
 }

@@ -84,5 +84,11 @@
   "updateMandatory": "Această actualizare este obligatorie pentru a continua să folosești aplicația.",
   "checkUpdate": "Verifică actualizări",
   "upToDate": "Ai cea mai recentă versiune.",
-  "version": "Versiune"
+  "version": "Versiune",
+  "loginTitle": "Cont street medic",
+  "loginExplain": "Autentifică-te pentru a vedea harta și alertele. Harta este doar pentru medici.",
+  "loginRequired": "Autentifică-te mai întâi pentru a vedea harta.",
+  "loggedInAs": "Autentificat ca",
+  "loginFailed": "Autentificare eșuată",
+  "signUpFailed": "Înregistrare eșuată"
 }

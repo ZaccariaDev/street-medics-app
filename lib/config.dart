@@ -16,6 +16,7 @@ class AppConfig {
   static const String _kMedicRecordId = 'medic_record_id';
   static const String _kPermsAsked = 'perms_asked';
   static const String _kVictimPhone = 'victim_phone';
+  static const String _kAuthData = 'pb_auth_data';
 
   /// URL du serveur PocketBase par défaut.
   ///
@@ -39,6 +40,7 @@ class AppConfig {
   static String _medicRecordId = '';
   static bool _permsAsked = false;
   static String _victimPhone = '';
+  static String _authData = '';
 
   static String get serverUrl => _serverUrl;
   static String get deviceId => _deviceId;
@@ -59,6 +61,10 @@ class AppConfig {
   /// Numéro de rappel de la personne qui demande de l'aide (optionnel).
   static String get victimPhone => _victimPhone;
 
+  /// Session PocketBase sérialisée (jeton + profil), persistée entre les
+  /// lancements. Vide = pas connecté.
+  static String get authData => _authData;
+
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _serverUrl = prefs.getString(_kServerUrl) ?? defaultServerUrl;
@@ -74,6 +80,7 @@ class AppConfig {
     _medicRecordId = prefs.getString(_kMedicRecordId) ?? '';
     _permsAsked = prefs.getBool(_kPermsAsked) ?? false;
     _victimPhone = prefs.getString(_kVictimPhone) ?? '';
+    _authData = prefs.getString(_kAuthData) ?? '';
   }
 
   static Future<void> setServerUrl(String url) async {
@@ -116,5 +123,10 @@ class AppConfig {
   static Future<void> setVictimPhone(String v) async {
     _victimPhone = v;
     (await SharedPreferences.getInstance()).setString(_kVictimPhone, v);
+  }
+
+  static Future<void> setAuthData(String v) async {
+    _authData = v;
+    (await SharedPreferences.getInstance()).setString(_kAuthData, v);
   }
 }

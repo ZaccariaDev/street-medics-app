@@ -84,5 +84,11 @@
   "updateMandatory": "Questo aggiornamento è obbligatorio per continuare a usare l'app.",
   "checkUpdate": "Controlla aggiornamenti",
   "upToDate": "Hai l'ultima versione.",
-  "version": "Versione"
+  "version": "Versione",
+  "loginTitle": "Account street medic",
+  "loginExplain": "Accedi per vedere la mappa e gli avvisi. La mappa è riservata ai medic.",
+  "loginRequired": "Accedi prima per vedere la mappa.",
+  "loggedInAs": "Connesso come",
+  "loginFailed": "Accesso non riuscito",
+  "signUpFailed": "Registrazione non riuscita"
 }

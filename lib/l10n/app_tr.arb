@@ -84,5 +84,11 @@
   "updateMandatory": "Uygulamayı kullanmaya devam etmek için bu güncelleme zorunlu.",
   "checkUpdate": "Güncellemeleri kontrol et",
   "upToDate": "En son sürüme sahipsin.",
-  "version": "Sürüm"
+  "version": "Sürüm",
+  "loginTitle": "Street medic hesabı",
+  "loginExplain": "Haritayı ve uyarıları görmek için giriş yap. Harita yalnızca medicler için.",
+  "loginRequired": "Haritayı görmek için önce giriş yap.",
+  "loggedInAs": "Giriş yapıldı:",
+  "loginFailed": "Giriş başarısız",
+  "signUpFailed": "Kayıt başarısız"
 }

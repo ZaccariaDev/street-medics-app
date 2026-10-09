@@ -84,5 +84,11 @@
   "updateMandatory": "アプリを使い続けるにはこの更新が必要です。",
   "checkUpdate": "更新を確認",
   "upToDate": "最新バージョンです。",
-  "version": "バージョン"
+  "version": "バージョン",
+  "loginTitle": "ストリートメディックアカウント",
+  "loginExplain": "地図とアラートを見るにはサインインしてください。地図はメディック専用です。",
+  "loginRequired": "地図を見るには先にサインインしてください。",
+  "loggedInAs": "ログイン中：",
+  "loginFailed": "サインインに失敗",
+  "signUpFailed": "登録に失敗"
 }

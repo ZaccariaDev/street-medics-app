@@ -84,5 +84,11 @@
   "updateMandatory": "This update is required to keep using the app.",
   "checkUpdate": "Check for updates",
   "upToDate": "You have the latest version.",
-  "version": "Version"
+  "version": "Version",
+  "loginTitle": "Street medic account",
+  "loginExplain": "Sign in to see the map and the alerts. The map is reserved for medics.",
+  "loginRequired": "Sign in first to see the map.",
+  "loggedInAs": "Signed in as",
+  "loginFailed": "Sign in failed",
+  "signUpFailed": "Sign up failed"
 }

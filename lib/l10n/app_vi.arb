@@ -84,5 +84,11 @@
   "updateMandatory": "Bản cập nhật này là bắt buộc để tiếp tục sử dụng ứng dụng.",
   "checkUpdate": "Kiểm tra cập nhật",
   "upToDate": "Bạn đang dùng phiên bản mới nhất.",
-  "version": "Phiên bản"
+  "version": "Phiên bản",
+  "loginTitle": "Tài khoản street medic",
+  "loginExplain": "Đăng nhập để xem bản đồ và cảnh báo. Bản đồ chỉ dành cho medic.",
+  "loginRequired": "Đăng nhập trước để xem bản đồ.",
+  "loggedInAs": "Đã đăng nhập với",
+  "loginFailed": "Đăng nhập thất bại",
+  "signUpFailed": "Đăng ký thất bại"
 }

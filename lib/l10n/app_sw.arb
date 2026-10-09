@@ -84,5 +84,11 @@
   "updateMandatory": "Sasisho hili linahitajika ili kuendelea kutumia programu.",
   "checkUpdate": "Angalia sasisho",
   "upToDate": "Una toleo la hivi punde.",
-  "version": "Toleo"
+  "version": "Toleo",
+  "loginTitle": "Akaunti ya mhudumu wa mitaani",
+  "loginExplain": "Ingia ili kuona ramani na arifa. Ramani ni ya wahudumu.",
+  "loginRequired": "Ingia kwanza ili kuona ramani.",
+  "loggedInAs": "Umeingia kama",
+  "loginFailed": "Kuingia kumeshindikana",
+  "signUpFailed": "Kujisajili kumeshindikana"
 }

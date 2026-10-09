@@ -84,5 +84,11 @@
   "updateMandatory": "Deze update is verplicht om de app te blijven gebruiken.",
   "checkUpdate": "Controleren op updates",
   "upToDate": "Je hebt de nieuwste versie.",
-  "version": "Versie"
+  "version": "Versie",
+  "loginTitle": "Street medic-account",
+  "loginExplain": "Log in om de kaart en meldingen te zien. De kaart is voor medics.",
+  "loginRequired": "Log eerst in om de kaart te zien.",
+  "loggedInAs": "Ingelogd als",
+  "loginFailed": "Inloggen mislukt",
+  "signUpFailed": "Registreren mislukt"
 }

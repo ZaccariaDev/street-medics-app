@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:street_medics_app/config.dart';
 import 'package:street_medics_app/main.dart';
+import 'package:street_medics_app/pb_service.dart';
 
 void main() {
   testWidgets('La carte borne le dézoom (pas de dézoom infini)',
@@ -15,9 +17,19 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
-    // L'onglet Plan n'est accessible qu'aux medics en service.
+    // L'onglet Plan n'est accessible qu'aux medics EN SERVICE et CONNECTÉS.
     SharedPreferences.setMockInitialValues({'flutter.on_duty': true});
     await AppConfig.load();
+    // Jeton JWT factice mais bien formé (isValid vérifie l'expiration).
+    PbService.client.authStore.save(
+      'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJleHAiOiAxNzkxNjU5Mzg1LCAiaWQiOiAidTEiLCAiY29sbGVjdGlvbklkIjogInVzZXJzIiwgInR5cGUiOiAiYXV0aCJ9.sig',
+      RecordModel.fromJson({
+        'id': 'u1',
+        'collectionId': 'users',
+        'collectionName': 'users',
+        'email': 'medic@test.local',
+      }),
+    );
 
     await tester.pumpWidget(const StreetMedicsApp());
     await tester.pump(const Duration(milliseconds: 100));

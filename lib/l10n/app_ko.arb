@@ -84,5 +84,11 @@
   "updateMandatory": "앱을 계속 사용하려면 이 업데이트가 필요합니다.",
   "checkUpdate": "업데이트 확인",
   "upToDate": "최신 버전입니다.",
-  "version": "버전"
+  "version": "버전",
+  "loginTitle": "스트리트 메딕 계정",
+  "loginExplain": "지도와 알림을 보려면 로그인하세요. 지도는 메딕 전용입니다.",
+  "loginRequired": "지도를 보려면 먼저 로그인하세요.",
+  "loggedInAs": "로그인됨:",
+  "loginFailed": "로그인 실패",
+  "signUpFailed": "가입 실패"
 }

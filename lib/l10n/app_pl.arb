@@ -84,5 +84,11 @@
   "updateMandatory": "Ta aktualizacja jest wymagana do dalszego korzystania z aplikacji.",
   "checkUpdate": "Sprawdź aktualizacje",
   "upToDate": "Masz najnowszą wersję.",
-  "version": "Wersja"
+  "version": "Wersja",
+  "loginTitle": "Konto street medyka",
+  "loginExplain": "Zaloguj się, aby zobaczyć mapę i alerty. Mapa jest dla medyków.",
+  "loginRequired": "Najpierw zaloguj się, aby zobaczyć mapę.",
+  "loggedInAs": "Zalogowano jako",
+  "loginFailed": "Logowanie nie powiodło się",
+  "signUpFailed": "Rejestracja nie powiodła się"
 }
