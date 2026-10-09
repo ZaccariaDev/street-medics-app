@@ -21,6 +21,10 @@ final LatLngBounds worldBounds = LatLngBounds(
   const LatLng(85, 180),
 );
 
+/// Notifie la carte qu'un SOS ou une prise de service vient d'être envoyé,
+/// pour qu'elle recharge les marqueurs sans attendre.
+final ValueNotifier<int> mapRefresh = ValueNotifier<int>(0);
+
 class StreetMedicsApp extends StatelessWidget {
   const StreetMedicsApp({super.key});
 
@@ -152,6 +156,7 @@ class _SosTabState extends State<SosTab> {
       if (mounted) {
         showSnack(context, 'Votre position a été partagée, tenez bon !');
       }
+      mapRefresh.value++; // la carte recharge les marqueurs
     } catch (e) {
       if (mounted) showSnack(context, 'Échec envoi : $e');
     } finally {
@@ -170,6 +175,7 @@ class _SosTabState extends State<SosTab> {
     try {
       await PbService.setMedicOnDuty(lat: pos.latitude, lng: pos.longitude);
       if (mounted) showSnack(context, 'Vous êtes en service.');
+      mapRefresh.value++; // la carte recharge les marqueurs
     } catch (e) {
       if (mounted) showSnack(context, 'Échec : $e');
     } finally {
@@ -268,6 +274,14 @@ class _MapTabState extends State<MapTab> {
     super.initState();
     _refresh();
     _locate();
+    mapRefresh.addListener(_refresh);
+  }
+
+  @override
+  void dispose() {
+    mapRefresh.removeListener(_refresh);
+    _mapController.dispose();
+    super.dispose();
   }
 
   Future<void> _locate() async {
@@ -283,6 +297,99 @@ class _MapTabState extends State<MapTab> {
     } catch (_) {
       // silencieux : la carte reste centrée par défaut
     }
+  }
+
+  /// Recentre et zoome sur la position de l'utilisateur (façon Google Maps).
+  Future<void> _centerOnMe() async {
+    if (_myPosition != null) {
+      _mapController.move(_myPosition!, 17);
+      return;
+    }
+    // Position pas encore connue : on la demande.
+    final pos = await obtainPosition(context);
+    if (pos == null) return;
+    final here = LatLng(pos.latitude, pos.longitude);
+    if (mounted) {
+      setState(() => _myPosition = here);
+      _mapController.move(here, 17);
+    }
+  }
+
+  /// Détail d'un marqueur au tap.
+  void _showReportDetail(Map<String, dynamic> r) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.warning, color: Colors.red),
+                SizedBox(width: 8),
+                Text('SOS',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(r['description']?.toString() ?? '',
+                style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 8),
+            Text(
+              'Position : ${(r['lat'] as double).toStringAsFixed(5)}, '
+              '${(r['lng'] as double).toStringAsFixed(5)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+            Text('Statut : ${r['status'] ?? 'open'}',
+                style: const TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Détail d'un medic au tap.
+  void _showMedicDetail(Map<String, dynamic> m) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.medical_services, color: Colors.green),
+                SizedBox(width: 8),
+                Text('Street medic',
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(m['name']?.toString() ?? 'Medic',
+                style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 8),
+            Text(
+              'Position : ${(m['lat'] as double).toStringAsFixed(5)}, '
+              '${(m['lng'] as double).toStringAsFixed(5)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+            Text(m['available'] == true ? 'En service' : 'Indisponible',
+                style: TextStyle(
+                    color: m['available'] == true
+                        ? Colors.green
+                        : Colors.grey)),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _refresh() async {
@@ -303,6 +410,21 @@ class _MapTabState extends State<MapTab> {
     }
   }
 
+  /// Pastille ronde colorée pour un marqueur (plus lisible qu'une icône nue).
+  Widget _badge(IconData icon, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: color, width: 2),
+        boxShadow: const [
+          BoxShadow(color: Colors.black26, blurRadius: 3, offset: Offset(0, 1)),
+        ],
+      ),
+      child: Icon(icon, color: color, size: 26),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final markers = <Marker>[
@@ -311,22 +433,27 @@ class _MapTabState extends State<MapTab> {
           point: LatLng(r['lat'] as double, r['lng'] as double),
           width: 44,
           height: 44,
-          child: const Icon(Icons.warning, color: Colors.red, size: 40),
+          child: GestureDetector(
+            onTap: () => _showReportDetail(r),
+            child: _badge(Icons.warning, Colors.red),
+          ),
         ),
       for (final m in _medics)
         Marker(
           point: LatLng(m['lat'] as double, m['lng'] as double),
           width: 44,
           height: 44,
-          child: const Icon(Icons.medical_services,
-              color: Colors.green, size: 38),
+          child: GestureDetector(
+            onTap: () => _showMedicDetail(m),
+            child: _badge(Icons.medical_services, Colors.green),
+          ),
         ),
       if (_myPosition != null)
         Marker(
           point: _myPosition!,
           width: 44,
           height: 44,
-          child: const Icon(Icons.my_location, color: Colors.blue, size: 36),
+          child: _badge(Icons.my_location, Colors.blue),
         ),
     ];
 
@@ -370,12 +497,27 @@ class _MapTabState extends State<MapTab> {
         Positioned(
           bottom: 16,
           right: 16,
-          child: FloatingActionButton(
-            onPressed: _loading ? null : _refresh,
-            tooltip: 'Rafraîchir',
-            child: _loading
-                ? const CircularProgressIndicator(strokeWidth: 2)
-                : const Icon(Icons.refresh),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FloatingActionButton.small(
+                heroTag: 'refresh',
+                onPressed: _loading ? null : _refresh,
+                tooltip: 'Rafraîchir',
+                child: _loading
+                    ? const CircularProgressIndicator(strokeWidth: 2)
+                    : const Icon(Icons.refresh),
+              ),
+              const SizedBox(height: 12),
+              // Bouton « ma position » (façon Google Maps) : recentre et
+              // zoome sur la rue où se trouve l'utilisateur.
+              FloatingActionButton(
+                heroTag: 'locate',
+                onPressed: _centerOnMe,
+                tooltip: 'Ma position',
+                child: const Icon(Icons.my_location),
+              ),
+            ],
           ),
         ),
       ],
