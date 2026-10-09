@@ -86,5 +86,7 @@
   "loginFailed": "サインインに失敗",
   "signUpFailed": "登録に失敗",
   "checkUpdate": "更新を確認",
-  "medicOnTheWay": "メディックがあなたのSOSを受け付け、向かっています。"
+  "medicOnTheWay": "メディックがあなたのSOSを受け付け、向かっています。",
+  "fillPhone": "番号を入力",
+  "phonePrefilled": "番号が入力されました"
 }

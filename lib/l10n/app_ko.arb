@@ -86,5 +86,7 @@
   "loginFailed": "로그인 실패",
   "signUpFailed": "가입 실패",
   "checkUpdate": "업데이트 확인",
-  "medicOnTheWay": "메딕이 귀하의 SOS를 접수하고 가는 중입니다."
+  "medicOnTheWay": "메딕이 귀하의 SOS를 접수하고 가는 중입니다.",
+  "fillPhone": "내 번호 입력",
+  "phonePrefilled": "번호가 입력됨"
 }

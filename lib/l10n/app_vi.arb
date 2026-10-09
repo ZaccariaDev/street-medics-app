@@ -86,5 +86,7 @@
   "loginFailed": "Đăng nhập thất bại",
   "signUpFailed": "Đăng ký thất bại",
   "checkUpdate": "Kiểm tra cập nhật",
-  "medicOnTheWay": "Một medecin đã nhận SOS của bạn và đang trên đường đến."
+  "medicOnTheWay": "Một medecin đã nhận SOS của bạn và đang trên đường đến.",
+  "fillPhone": "Điền số của tôi",
+  "phonePrefilled": "Số đã được điền"
 }

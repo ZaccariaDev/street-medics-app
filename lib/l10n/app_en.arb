@@ -86,5 +86,7 @@
   "loginFailed": "Sign in failed",
   "signUpFailed": "Sign up failed",
   "checkUpdate": "Check for updates",
-  "medicOnTheWay": "A medic has taken your SOS and is on the way."
+  "medicOnTheWay": "A medic has taken your SOS and is on the way.",
+  "fillPhone": "Fill in my number",
+  "phonePrefilled": "Number filled in"
 }

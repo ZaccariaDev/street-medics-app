@@ -86,5 +86,7 @@
   "loginFailed": "Falha ao iniciar sessão",
   "signUpFailed": "Falha no registo",
   "checkUpdate": "Verificar atualizações",
-  "medicOnTheWay": "Um medecin atendeu o seu SOS e está a caminho."
+  "medicOnTheWay": "Um medecin atendeu o seu SOS e está a caminho.",
+  "fillPhone": "Preencher meu número",
+  "phonePrefilled": "Número preenchido"
 }

@@ -197,23 +197,4 @@ class PbService {
       };
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();
   }
-
-  // ---------- Comptes ----------
-
-  static Future<void> signUp(String email, String password) async {
-    await client.collection('users').create(body: {
-      'email': email,
-      'password': password,
-      'passwordConfirm': password,
-    });
-    await client.collection('users').authWithPassword(email, password);
-  }
-
-  static Future<void> signIn(String email, String password) async {
-    await client.collection('users').authWithPassword(email, password);
-  }
-
-  static bool get isLoggedIn => client.authStore.isValid;
-
-  static void logout() => client.authStore.clear();
 }

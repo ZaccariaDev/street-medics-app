@@ -86,5 +86,7 @@
   "loginFailed": "Kuingia kumeshindikana",
   "signUpFailed": "Kujisajili kumeshindikana",
   "checkUpdate": "Angalia sasisho",
-  "medicOnTheWay": "Mhudumu amechukua SOS yako na anakwenda."
+  "medicOnTheWay": "Mhudumu amechukua SOS yako na anakwenda.",
+  "fillPhone": "Jaza nambari yangu",
+  "phonePrefilled": "Nambari imejazwa"
 }

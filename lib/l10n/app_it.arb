@@ -86,5 +86,7 @@
   "loginFailed": "Accesso non riuscito",
   "signUpFailed": "Registrazione non riuscita",
   "checkUpdate": "Controlla aggiornamenti",
-  "medicOnTheWay": "Un medecin ha preso in carico il tuo SOS e sta arrivando."
+  "medicOnTheWay": "Un medecin ha preso in carico il tuo SOS e sta arrivando.",
+  "fillPhone": "Inserisci il mio numero",
+  "phonePrefilled": "Numero inserito"
 }

@@ -86,5 +86,7 @@
   "loginFailed": "Anmeldung fehlgeschlagen",
   "signUpFailed": "Registrierung fehlgeschlagen",
   "checkUpdate": "Nach Updates suchen",
-  "medicOnTheWay": "Ein Medic hat Ihr SOS angenommen und ist unterwegs."
+  "medicOnTheWay": "Ein Medic hat Ihr SOS angenommen und ist unterwegs.",
+  "fillPhone": "Meine Nummer einfügen",
+  "phonePrefilled": "Nummer eingefügt"
 }

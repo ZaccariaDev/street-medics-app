@@ -86,5 +86,7 @@
   "loginFailed": "Inloggen mislukt",
   "signUpFailed": "Registreren mislukt",
   "checkUpdate": "Controleren op updates",
-  "medicOnTheWay": "Een medic heeft uw SOS aangenomen en is onderweg."
+  "medicOnTheWay": "Een medic heeft uw SOS aangenomen en is onderweg.",
+  "fillPhone": "Mijn nummer invullen",
+  "phonePrefilled": "Nummer ingevuld"
 }

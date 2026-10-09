@@ -18,17 +18,19 @@ class AppConfig {
   static const String _kVictimPhone = 'victim_phone';
   static const String _kMyReportId = 'my_report_id';
 
-  /// URL du serveur PocketBase par défaut.
+  /// URL du serveur PocketBase.
   ///
-  /// Surchargeable **au build** sans toucher au code :
+  /// Elle est **fixée au build** et n'apparaît nulle part dans le code ni
+  /// dans les Réglages : l'IP du serveur n'est pas embarquée dans l'APK.
+  ///
   ///   flutter build appbundle --release \
-  ///     --dart-define=STREET_MEDICS_SERVER=https://mon-serveur.example/pb
+  ///     --dart-define=STREET_MEDICS_SERVER=http://151.80.155.14:8090/pb
   ///
-  /// La valeur ci-dessous est le repli quand aucun `--dart-define` n'est
-  /// fourni. L'utilisateur peut de toute façon la changer dans les Réglages.
+  /// Sans `--dart-define`, l'URL est vide : l'app refuse de démarrer plutôt
+  /// que de pointer vers une adresse codée en dur.
   static const String defaultServerUrl = String.fromEnvironment(
     'STREET_MEDICS_SERVER',
-    defaultValue: 'http://90.93.168.208:48020/pb',
+    defaultValue: '',
   );
 
   static String _serverUrl = defaultServerUrl;
@@ -82,11 +84,6 @@ class AppConfig {
     _permsAsked = prefs.getBool(_kPermsAsked) ?? false;
     _victimPhone = prefs.getString(_kVictimPhone) ?? '';
     _myReportId = prefs.getString(_kMyReportId) ?? '';
-  }
-
-  static Future<void> setServerUrl(String url) async {
-    _serverUrl = url.trim();
-    (await SharedPreferences.getInstance()).setString(_kServerUrl, _serverUrl);
   }
 
   static Future<void> setMedicName(String name) async {

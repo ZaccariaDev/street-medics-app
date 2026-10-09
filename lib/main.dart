@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:mobile_number/mobile_number.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'bg_service.dart';
@@ -77,6 +78,7 @@ class StreetMedicsApp extends StatelessWidget {
     return ValueListenableBuilder<int>(
       valueListenable: settingsChanged,
       builder: (context, value, child) => MaterialApp(
+        debugShowCheckedModeBanner: false,
         onGenerateTitle: (c) => AppLocalizations.of(c).appTitle,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
@@ -434,6 +436,18 @@ class _SosTabState extends State<SosTab> {
     super.dispose();
   }
 
+  /// Préremplit le champ numéro avec le numéro de téléphone de l'appareil.
+  Future<void> _fillPhoneNumber() async {
+    try {
+      final number = await MobileNumber.mobileNumber;
+      if (number != null && number.isNotEmpty) {
+        _phoneController.text = number;
+      }
+    } catch (_) {
+      // Permission refusée ou non disponible : l'utilisateur saisit manuellement.
+    }
+  }
+
   Future<void> _sendSos() async {
     setState(() => _busy = true);
     final t = AppLocalizations.of(context);
@@ -619,6 +633,15 @@ class _SosTabState extends State<SosTab> {
               helperText: t.victimPhoneHint,
               prefixIcon: const Icon(Icons.phone),
               border: const OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              icon: const Icon(Icons.contact_phone, size: 18),
+              label: Text(t.fillPhone),
+              onPressed: _busy ? null : _fillPhoneNumber,
             ),
           ),
           const SizedBox(height: 16),
@@ -1285,82 +1308,26 @@ class SettingsTab extends StatefulWidget {
 }
 
 class _SettingsTabState extends State<SettingsTab> {
-  late final TextEditingController _urlController;
   late final TextEditingController _nameController;
-  final _emailController = TextEditingController();
-  final _pwdController = TextEditingController();
   String _status = '';
   late double _radius;
 
   @override
   void initState() {
     super.initState();
-    _urlController = TextEditingController(text: AppConfig.serverUrl);
     _nameController = TextEditingController(text: AppConfig.medicName);
     _radius = AppConfig.radiusKm;
   }
 
   @override
   void dispose() {
-    _urlController.dispose();
     _nameController.dispose();
-    _emailController.dispose();
-    _pwdController.dispose();
     super.dispose();
-  }
-
-  Future<void> _saveUrl() async {
-    await AppConfig.setServerUrl(_urlController.text);
-    setState(() => _status = AppConfig.serverUrl);
-  }
-
-  Future<void> _testConnection() async {
-    final t = AppLocalizations.of(context);
-    await AppConfig.setServerUrl(_urlController.text);
-    if (!mounted) return;
-    setState(() => _status = t.test);
-    final ok = await PbService.ping();
-    if (!mounted) return;
-    setState(() => _status = ok ? t.connectionOk : t.serverUnreachable);
   }
 
   Future<void> _saveName() async {
     await AppConfig.setMedicName(_nameController.text);
     setState(() => _status = AppConfig.medicName);
-  }
-
-  /// Extrait un message lisible d'une erreur PocketBase.
-  String _authError(AppLocalizations t, Object e) {
-    final s = e.toString();
-    if (s.contains('Failed to authenticate') ||
-        s.contains('Invalid login credentials') ||
-        s.contains('400')) {
-      return t.loginFailed;
-    }
-    if (s.contains('already exists')) return t.signUpFailed;
-    return s.length > 160 ? s.substring(0, 160) : s;
-  }
-
-  Future<void> _signUp() async {
-    final t = AppLocalizations.of(context);
-    try {
-      await PbService.signUp(
-          _emailController.text.trim(), _pwdController.text.trim());
-      setState(() => _status = t.connectionOk);
-    } catch (e) {
-      setState(() => _status = '${t.signUpFailed} — ${_authError(t, e)}');
-    }
-  }
-
-  Future<void> _signIn() async {
-    final t = AppLocalizations.of(context);
-    try {
-      await PbService.signIn(
-          _emailController.text.trim(), _pwdController.text.trim());
-      setState(() => _status = t.connectionOk);
-    } catch (e) {
-      setState(() => _status = '${t.loginFailed} — ${_authError(t, e)}');
-    }
   }
 
   @override
@@ -1385,27 +1352,6 @@ class _SettingsTabState extends State<SettingsTab> {
             settingsChanged.value++;
           },
         ),
-        const Divider(height: 40),
-        Text(t.serverUrl,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _urlController,
-          decoration: InputDecoration(
-              labelText: t.serverUrl, border: const OutlineInputBorder()),
-        ),
-        const SizedBox(height: 12),
-        Row(children: [
-          Expanded(
-            child: OutlinedButton(
-                onPressed: _saveUrl, child: Text(t.save)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(
-                onPressed: _testConnection, child: Text(t.test)),
-          ),
-        ]),
         const Divider(height: 40),
         Text(t.alertRadius,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -1488,37 +1434,6 @@ class _SettingsTabState extends State<SettingsTab> {
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ),
-        const Divider(height: 40),
-        TextField(
-          controller: _emailController,
-          decoration: InputDecoration(
-              labelText: t.email, border: const OutlineInputBorder()),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _pwdController,
-          obscureText: true,
-          decoration: InputDecoration(
-              labelText: t.password, border: const OutlineInputBorder()),
-        ),
-        const SizedBox(height: 12),
-        Row(children: [
-          Expanded(
-            child: OutlinedButton(onPressed: _signIn, child: Text(t.signIn)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: FilledButton(onPressed: _signUp, child: Text(t.signUp)),
-          ),
-        ]),
-        if (PbService.isLoggedIn)
-          TextButton(
-            onPressed: () {
-              PbService.logout();
-              setState(() => _status = '');
-            },
-            child: Text(t.logOut),
-          ),
         const SizedBox(height: 20),
         if (_status.isNotEmpty)
           Card(

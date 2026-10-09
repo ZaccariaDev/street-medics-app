@@ -86,5 +86,7 @@
   "loginFailed": "Αποτυχία σύνδεσης",
   "signUpFailed": "Αποτυχία εγγραφής",
   "checkUpdate": "Έλεγχος ενημερώσεων",
-  "medicOnTheWay": "Ένας medecin πήρε το SOS σας και είναι καθ' οδόν."
+  "medicOnTheWay": "Ένας medecin πήρε το SOS σας και είναι καθ' οδόν.",
+  "fillPhone": "Συμπλήρωσε τον αριθμό μου",
+  "phonePrefilled": "Ο αριθμός συμπληρώθηκε"
 }

@@ -86,5 +86,7 @@
   "loginFailed": "সাইন ইন ব্যর্থ",
   "signUpFailed": "সাইন আপ ব্যর্থ",
   "checkUpdate": "আপডেট দেখুন",
-  "medicOnTheWay": "একজন মেডিক আপনার SOS নিয়েছেন এবং পথে আছেন।"
+  "medicOnTheWay": "একজন মেডিক আপনার SOS নিয়েছেন এবং পথে আছেন।",
+  "fillPhone": "আমার নম্বর পূরণ করুন",
+  "phonePrefilled": "নম্বর পূরণ হয়েছে"
 }

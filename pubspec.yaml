@@ -52,6 +52,8 @@ dependencies:
   http: ^1.2.2
   # Lit la version installée de l'app (pour détecter les mises à jour).
   package_info_plus: ^10.2.2
+  # Lit le numéro de téléphone de l'appareil (bouton « préremplir »).
+  mobile_number: ^3.0.0
 
 dev_dependencies:
   flutter_test:

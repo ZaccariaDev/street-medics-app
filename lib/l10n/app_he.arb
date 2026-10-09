@@ -86,5 +86,7 @@
   "loginFailed": "ההתחברות נכשלה",
   "signUpFailed": "ההרשמה נכשלה",
   "checkUpdate": "בדוק עדכונים",
-  "medicOnTheWay": "מגיש לקח את ה-SOS שלך ובדרך."
+  "medicOnTheWay": "מגיש לקח את ה-SOS שלך ובדרך.",
+  "fillPhone": "מלא את המספר שלי",
+  "phonePrefilled": "המספר מולא"
 }

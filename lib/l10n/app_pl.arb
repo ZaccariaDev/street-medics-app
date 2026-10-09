@@ -86,5 +86,7 @@
   "loginFailed": "Logowanie nie powiodło się",
   "signUpFailed": "Rejestracja nie powiodła się",
   "checkUpdate": "Sprawdź aktualizacje",
-  "medicOnTheWay": "Medyk przyjął twoje SOS i jest w drodze."
+  "medicOnTheWay": "Medyk przyjął twoje SOS i jest w drodze.",
+  "fillPhone": "Wypełnij mój numer",
+  "phonePrefilled": "Numer wypełniony"
 }

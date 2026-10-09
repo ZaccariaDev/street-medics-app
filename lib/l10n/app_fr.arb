@@ -86,5 +86,7 @@
   "loginFailed": "Échec de la connexion",
   "signUpFailed": "Échec de l'inscription",
   "checkUpdate": "Vérifier les mises à jour",
-  "medicOnTheWay": "Un medecin a pris votre SOS en charge et arrive."
+  "medicOnTheWay": "Un medecin a pris votre SOS en charge et arrive.",
+  "fillPhone": "Préremplir mon numéro",
+  "phonePrefilled": "Numéro prérempli"
 }

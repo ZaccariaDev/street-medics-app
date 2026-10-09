@@ -86,5 +86,7 @@
   "loginFailed": "Не вдалося увійти",
   "signUpFailed": "Не вдалося зареєструватися",
   "checkUpdate": "Перевірити оновлення",
-  "medicOnTheWay": "Медик прийняв ваш SOS і вже в дорозі."
+  "medicOnTheWay": "Медик прийняв ваш SOS і вже в дорозі.",
+  "fillPhone": "Заповнити мій номер",
+  "phonePrefilled": "Номер заповнено"
 }

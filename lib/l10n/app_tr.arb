@@ -86,5 +86,7 @@
   "loginFailed": "Giriş başarısız",
   "signUpFailed": "Kayıt başarısız",
   "checkUpdate": "Güncellemeleri kontrol et",
-  "medicOnTheWay": "Bir medic SOS'unuzu üstlendi ve yolda."
+  "medicOnTheWay": "Bir medic SOS'unuzu üstlendi ve yolda.",
+  "fillPhone": "Numaramı doldur",
+  "phonePrefilled": "Numara dolduruldu"
 }

@@ -86,5 +86,7 @@
   "loginFailed": "登录失败",
   "signUpFailed": "注册失败",
   "checkUpdate": "检查更新",
-  "medicOnTheWay": "有医护已接受您的求救，正在赶来。"
+  "medicOnTheWay": "有医护已接受您的求救，正在赶来。",
+  "fillPhone": "填入我的号码",
+  "phonePrefilled": "号码已填入"
 }

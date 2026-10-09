@@ -445,6 +445,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.0"
+  mobile_number:
+    dependency: "direct main"
+    description:
+      name: mobile_number
+      sha256: "8dc5b7a19193f7a41fa07aa933c8db8085033e6201b20323f20e4d283ea2a9a8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   objective_c:
     dependency: transitive
     description:

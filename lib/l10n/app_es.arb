@@ -86,5 +86,7 @@
   "loginFailed": "Error al iniciar sesión",
   "signUpFailed": "Error al registrarse",
   "checkUpdate": "Buscar actualizaciones",
-  "medicOnTheWay": "Un medecin ha tomado tu SOS y está en camino."
+  "medicOnTheWay": "Un medecin ha tomado tu SOS y está en camino.",
+  "fillPhone": "Rellenar mi número",
+  "phonePrefilled": "Número rellenado"
 }
