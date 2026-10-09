@@ -103,6 +103,8 @@ class MedicTaskHandler extends TaskHandler {
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'position': {'lat': pos.latitude, 'lng': pos.longitude},
+            // La règle de mise à jour du serveur exige le deviceId.
+            'deviceId': _deviceId,
           }),
         );
       }

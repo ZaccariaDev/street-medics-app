@@ -122,11 +122,18 @@ arrière-plan**. Attends-toi à des questions. Prépare :
 
 ## 8. Avant de publier : à faire
 
-- [ ] **Durcir les règles PocketBase** — actuellement `reports` et `medics`
-      sont en lecture **et écriture** publiques : n'importe qui peut modifier
-      ou supprimer les signalements. À restreindre avant toute vraie mise en
-      ligne.
-- [ ] Remplacer l'icône Flutter par une vraie icône.
-- [ ] Héberger la politique de confidentialité et coller son URL.
-- [ ] Vérifier le nom du serveur par défaut dans `lib/config.dart` (c'est
-      actuellement l'adresse de **test**).
+- [x] **Icône** — le logo Street Medics est en place (toutes densités +
+      icône adaptative). Fichiers Play Store prêts dans `assets/branding/` :
+      `play_store_icon_512.png` et `play_store_feature_1024x500.png`.
+- [x] **Règles PocketBase durcies** — voir `HARDENING.md` du repo serveur.
+      Suppression impossible, création d'un SOS limitée au statut `open`,
+      modification limitée aux transitions de statut, fiche medic liée au
+      `deviceId`.
+- [x] **URL du serveur configurable au build** — plus besoin de toucher au
+      code :
+      `flutter build appbundle --release --dart-define=STREET_MEDICS_SERVER=https://mon-serveur/pb`
+- [ ] **Héberger la politique de confidentialité** et coller son URL.
+- [ ] **Restreindre la LECTURE** (nécessite l'authentification des medics) :
+      aujourd'hui n'importe qui peut lire les signalements, donc les numéros
+      de rappel des victimes. Voir `HARDENING.md`.
+

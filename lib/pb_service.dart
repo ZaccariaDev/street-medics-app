@@ -125,7 +125,12 @@ class PbService {
   static Future<void> setMedicOffDuty(String deviceId) async {
     final existing = await _findMedicByDevice(deviceId);
     if (existing != null) {
-      await client.collection('medics').update(existing, body: {'available': false});
+      // `deviceId` est renvoyé dans le corps : la règle de mise à jour du
+      // serveur l'exige (garde-fou contre les écritures anonymes).
+      await client.collection('medics').update(existing, body: {
+        'available': false,
+        'deviceId': deviceId,
+      });
     }
   }
 

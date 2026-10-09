@@ -17,9 +17,18 @@ class AppConfig {
   static const String _kPermsAsked = 'perms_asked';
   static const String _kVictimPhone = 'victim_phone';
 
-  /// URL par défaut — serveur de TEST courant.
-  /// À remplacer par l'URL du serveur déployé (modifiable dans l'onglet Réglages).
-  static const String defaultServerUrl = 'http://90.93.168.208:48020/pb';
+  /// URL du serveur PocketBase par défaut.
+  ///
+  /// Surchargeable **au build** sans toucher au code :
+  ///   flutter build appbundle --release \
+  ///     --dart-define=STREET_MEDICS_SERVER=https://mon-serveur.example/pb
+  ///
+  /// La valeur ci-dessous est le repli quand aucun `--dart-define` n'est
+  /// fourni. L'utilisateur peut de toute façon la changer dans les Réglages.
+  static const String defaultServerUrl = String.fromEnvironment(
+    'STREET_MEDICS_SERVER',
+    defaultValue: 'http://90.93.168.208:48020/pb',
+  );
 
   static String _serverUrl = defaultServerUrl;
   static String _deviceId = '';
