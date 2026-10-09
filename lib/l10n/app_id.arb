@@ -61,5 +61,17 @@
   "permSection": "Izin",
   "permCheck": "Periksa / beri izin",
   "permOk": "Semua izin diberikan",
-  "permMissingShort": "Beberapa izin kurang"
+  "permMissingShort": "Beberapa izin kurang",
+  "becomeMedic": "Jadi street medic",
+  "certTitle": "Komitmen street medic",
+  "certBody": "Saya menyatakan dengan hormat: mampu memberikan pertolongan pertama; menghormati orang dan aturan street medic; tidak membahayakan diri sendiri; dan menghubungi layanan darurat (112) sesegera mungkin jika orang yang ditolong belum melakukannya.",
+  "certCheck": "Saya telah membaca dan berkomitmen.",
+  "certAccept": "Berkomitmen dan mulai bertugas",
+  "cancel": "Batal",
+  "victimPhone": "Nomor telepon Anda (opsional)",
+  "victimPhoneHint": "Agar medic dapat menelepon Anda kembali",
+  "callVictim": "Telepon korban",
+  "privateCall": "Panggilan pribadi (nomor disembunyikan)",
+  "noPhone": "Tidak ada nomor",
+  "medicsOnly": "Peta hanya untuk street medic yang bertugas"
 }

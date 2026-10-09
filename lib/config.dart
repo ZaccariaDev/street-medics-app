@@ -15,6 +15,7 @@ class AppConfig {
   static const String _kOnDuty = 'on_duty';
   static const String _kMedicRecordId = 'medic_record_id';
   static const String _kPermsAsked = 'perms_asked';
+  static const String _kVictimPhone = 'victim_phone';
 
   /// URL par défaut — serveur de TEST courant.
   /// À remplacer par l'URL du serveur déployé (modifiable dans l'onglet Réglages).
@@ -28,6 +29,7 @@ class AppConfig {
   static bool _onDuty = false;
   static String _medicRecordId = '';
   static bool _permsAsked = false;
+  static String _victimPhone = '';
 
   static String get serverUrl => _serverUrl;
   static String get deviceId => _deviceId;
@@ -45,6 +47,9 @@ class AppConfig {
   /// Vrai si la demande de permissions du premier lancement a déjà été faite.
   static bool get permsAsked => _permsAsked;
 
+  /// Numéro de rappel de la personne qui demande de l'aide (optionnel).
+  static String get victimPhone => _victimPhone;
+
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _serverUrl = prefs.getString(_kServerUrl) ?? defaultServerUrl;
@@ -59,6 +64,7 @@ class AppConfig {
     _onDuty = prefs.getBool(_kOnDuty) ?? false;
     _medicRecordId = prefs.getString(_kMedicRecordId) ?? '';
     _permsAsked = prefs.getBool(_kPermsAsked) ?? false;
+    _victimPhone = prefs.getString(_kVictimPhone) ?? '';
   }
 
   static Future<void> setServerUrl(String url) async {
@@ -96,5 +102,10 @@ class AppConfig {
   static Future<void> setPermsAsked() async {
     _permsAsked = true;
     (await SharedPreferences.getInstance()).setBool(_kPermsAsked, true);
+  }
+
+  static Future<void> setVictimPhone(String v) async {
+    _victimPhone = v;
+    (await SharedPreferences.getInstance()).setString(_kVictimPhone, v);
   }
 }

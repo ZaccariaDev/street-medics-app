@@ -61,5 +61,17 @@
   "permSection": "权限",
   "permCheck": "检查 / 授予权限",
   "permOk": "所有权限已授予",
-  "permMissingShort": "缺少部分权限"
+  "permMissingShort": "缺少部分权限",
+  "becomeMedic": "成为街头医护",
+  "certTitle": "街头医护承诺",
+  "certBody": "我以名誉保证：我有能力提供急救；尊重他人及街头医护的规则；不让自己陷入危险；如果被救助者尚未联系急救服务（112），我会尽快联系。",
+  "certCheck": "我已阅读并承诺。",
+  "certAccept": "承诺并开始值班",
+  "cancel": "取消",
+  "victimPhone": "您的电话号码（可选）",
+  "victimPhoneHint": "以便医护回电给您",
+  "callVictim": "致电伤者",
+  "privateCall": "私密通话（隐藏号码）",
+  "noPhone": "未提供号码",
+  "medicsOnly": "地图仅限值班街头医护"
 }

@@ -61,5 +61,17 @@
   "permSection": "Permisos",
   "permCheck": "Comprobar / conceder permisos",
   "permOk": "Todos los permisos concedidos",
-  "permMissingShort": "Faltan algunos permisos"
+  "permMissingShort": "Faltan algunos permisos",
+  "becomeMedic": "Ser street medic",
+  "certTitle": "Compromiso del street medic",
+  "certBody": "Certifico bajo mi honor: ser capaz de prestar primeros auxilios; respetar a las personas y las reglas del street medic; no ponerme en peligro; y contactar a los servicios de emergencia (112) lo antes posible si la persona atendida no lo ha hecho ya.",
+  "certCheck": "He leído y me comprometo.",
+  "certAccept": "Comprometerme y entrar en servicio",
+  "cancel": "Cancelar",
+  "victimPhone": "Tu número de teléfono (opcional)",
+  "victimPhoneHint": "Para que el medic pueda llamarte",
+  "callVictim": "Llamar a la víctima",
+  "privateCall": "Llamada privada (número oculto)",
+  "noPhone": "Sin número",
+  "medicsOnly": "Mapa reservado a los street medics en servicio"
 }

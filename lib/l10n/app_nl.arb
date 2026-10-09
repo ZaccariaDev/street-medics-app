@@ -61,5 +61,17 @@
   "permSection": "Machtigingen",
   "permCheck": "Machtigingen controleren / geven",
   "permOk": "Alle machtigingen verleend",
-  "permMissingShort": "Sommige machtigingen ontbreken"
+  "permMissingShort": "Sommige machtigingen ontbreken",
+  "becomeMedic": "Street medic worden",
+  "certTitle": "Verplichting van de street medic",
+  "certBody": "Ik verklaar op mijn eer: in staat te zijn eerste hulp te verlenen; mensen en de regels van street medics te respecteren; mezelf niet in gevaar te brengen; en zo snel mogelijk de hulpdiensten (112) te bellen als de geholpen persoon dit nog niet heeft gedaan.",
+  "certCheck": "Ik heb gelezen en ik verbind me.",
+  "certAccept": "Verbinden en dienst starten",
+  "cancel": "Annuleren",
+  "victimPhone": "Je telefoonnummer (optioneel)",
+  "victimPhoneHint": "Zodat de medic je kan terugbellen",
+  "callVictim": "Bel het slachtoffer",
+  "privateCall": "Privégesprek (nummer verborgen)",
+  "noPhone": "Geen nummer opgegeven",
+  "medicsOnly": "Kaart alleen voor dienstdoende street medics"
 }

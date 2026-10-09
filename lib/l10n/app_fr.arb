@@ -61,5 +61,17 @@
   "permSection": "Autorisations",
   "permCheck": "Vérifier / accorder les autorisations",
   "permOk": "Toutes les autorisations sont accordées",
-  "permMissingShort": "Certaines autorisations manquent"
+  "permMissingShort": "Certaines autorisations manquent",
+  "becomeMedic": "Devenir street medic",
+  "certTitle": "Engagement du street medic",
+  "certBody": "Je certifie sur l'honneur : être capable de porter les premiers secours ; respecter les personnes et les règles du street medic ; ne pas me mettre en danger ; et contacter les urgences (15/112) dès que possible si la personne secourue ne l'a pas déjà fait.",
+  "certCheck": "J'ai lu et je m'engage.",
+  "certAccept": "M'engager et prendre le service",
+  "cancel": "Annuler",
+  "victimPhone": "Votre numéro de téléphone (optionnel)",
+  "victimPhoneHint": "Pour que le medic puisse vous rappeler",
+  "callVictim": "Appeler la victime",
+  "privateCall": "Appel privé (numéro masqué)",
+  "noPhone": "Aucun numéro fourni",
+  "medicsOnly": "Carte réservée aux street medics en service"
 }

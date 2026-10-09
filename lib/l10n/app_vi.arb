@@ -61,5 +61,17 @@
   "permSection": "Quyền",
   "permCheck": "Kiểm tra / cấp quyền",
   "permOk": "Đã cấp tất cả quyền",
-  "permMissingShort": "Thiếu một số quyền"
+  "permMissingShort": "Thiếu một số quyền",
+  "becomeMedic": "Trở thành street medic",
+  "certTitle": "Cam kết của street medic",
+  "certBody": "Tôi lấy danh dự cam kết: có khả năng sơ cứu; tôn trọng mọi người và các quy tắc của street medic; không đặt bản thân vào nguy hiểm; và liên hệ dịch vụ khẩn cấp (112) sớm nhất có thể nếu người được giúp chưa làm điều đó.",
+  "certCheck": "Tôi đã đọc và cam kết.",
+  "certAccept": "Cam kết và vào ca",
+  "cancel": "Hủy",
+  "victimPhone": "Số điện thoại của bạn (tùy chọn)",
+  "victimPhoneHint": "Để medic có thể gọi lại cho bạn",
+  "callVictim": "Gọi cho nạn nhân",
+  "privateCall": "Cuộc gọi riêng tư (ẩn số)",
+  "noPhone": "Không có số",
+  "medicsOnly": "Bản đồ chỉ dành cho street medic đang trực"
 }

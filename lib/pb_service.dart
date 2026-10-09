@@ -46,7 +46,7 @@ class PbService {
     required double lat,
     required double lng,
     required String description,
-    String senderPhone = 'anon',
+    String senderPhone = '',
   }) async {
     await client.collection('reports').create(body: {
       'senderPhone': senderPhone,
@@ -56,9 +56,14 @@ class PbService {
     });
   }
 
-  /// Liste les SOS, avec leur position et leur statut de prise en charge.
+  /// Liste les SOS **actifs** (ouverts ou pris en charge) avec position,
+  /// statut, auteur de la prise en charge et numéro de rappel.
+  ///
+  /// Les signalements résolus sont exclus : le blip disparaît de la carte.
   static Future<List<Map<String, dynamic>>> listReports() async {
-    final res = await client.collection('reports').getList(perPage: 200);
+    final res = await client
+        .collection('reports')
+        .getList(perPage: 200, filter: 'status != "resolved"');
     return res.items.map((r) {
       final base = _pos(r);
       return {
@@ -66,6 +71,7 @@ class PbService {
         'description': r.data['description']?.toString() ?? '',
         'status': r.data['status']?.toString() ?? 'open',
         'claimedBy': r.data['claimedBy']?.toString() ?? '',
+        'senderPhone': r.data['senderPhone']?.toString() ?? '',
         'created': r.get<String>('created'),
       };
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();

@@ -61,5 +61,17 @@
   "permSection": "İzinler",
   "permCheck": "İzinleri kontrol et / ver",
   "permOk": "Tüm izinler verildi",
-  "permMissingShort": "Bazı izinler eksik"
+  "permMissingShort": "Bazı izinler eksik",
+  "becomeMedic": "Street medic ol",
+  "certTitle": "Street medic taahhüdü",
+  "certBody": "Onurum üzerine beyan ederim: ilk yardım verebileceğimi; insanlara ve street medic kurallarına saygı göstereceğimi; kendimi tehlikeye atmayacağımı; ve yardım edilen kişi yapmadıysa en kısa sürede acil servislere (112) başvuracağımı.",
+  "certCheck": "Okudum ve taahhüt ediyorum.",
+  "certAccept": "Taahhüt et ve göreve başla",
+  "cancel": "İptal",
+  "victimPhone": "Telefon numaran (isteğe bağlı)",
+  "victimPhoneHint": "Böylece medic seni arayabilir",
+  "callVictim": "Mağduru ara",
+  "privateCall": "Gizli arama (numara gizli)",
+  "noPhone": "Numara verilmedi",
+  "medicsOnly": "Harita yalnızca görevdeki street medicler için"
 }

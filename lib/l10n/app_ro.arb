@@ -61,5 +61,17 @@
   "permSection": "Permisiuni",
   "permCheck": "Verifică / acordă permisiuni",
   "permOk": "Toate permisiunile acordate",
-  "permMissingShort": "Lipsesc unele permisiuni"
+  "permMissingShort": "Lipsesc unele permisiuni",
+  "becomeMedic": "Devino street medic",
+  "certTitle": "Angajamentul street medic",
+  "certBody": "Certific pe onoare: că pot acorda primul ajutor; că voi respecta oamenii și regulile street medic; că nu mă voi pune în pericol; și că voi contacta serviciile de urgență (112) cât mai curând dacă persoana ajutată nu a făcut-o deja.",
+  "certCheck": "Am citit și mă angajez.",
+  "certAccept": "Mă angajez și intru în tură",
+  "cancel": "Anulează",
+  "victimPhone": "Numărul tău de telefon (opțional)",
+  "victimPhoneHint": "Ca medicul să te poată suna",
+  "callVictim": "Sună victima",
+  "privateCall": "Apel privat (număr ascuns)",
+  "noPhone": "Niciun număr furnizat",
+  "medicsOnly": "Harta este doar pentru street medicii în tură"
 }

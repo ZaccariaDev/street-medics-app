@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -57,6 +59,10 @@ final LatLngBounds worldBounds = LatLngBounds(
 /// pour qu'elle recharge les marqueurs sans attendre.
 final ValueNotifier<int> mapRefresh = ValueNotifier<int>(0);
 
+/// Incrémenté quand l'état « en service » change (bouton « Devenir street
+/// medic »). Écoute aussi `settingsChanged` pour les changements d'identité.
+final ValueNotifier<int> dutyChanged = ValueNotifier<int>(0);
+
 /// Notifie l'app qu'un changement de réglage (langue, rayon) impose un rebuild.
 final ValueNotifier<int> settingsChanged = ValueNotifier<int>(0);
 
@@ -98,6 +104,32 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
   bool _askedPerms = false;
+  bool _onDuty = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _onDuty = AppConfig.onDuty;
+    dutyChanged.addListener(_syncDuty);
+    settingsChanged.addListener(_syncDuty);
+  }
+
+  @override
+  void dispose() {
+    dutyChanged.removeListener(_syncDuty);
+    settingsChanged.removeListener(_syncDuty);
+    super.dispose();
+  }
+
+  void _syncDuty() {
+    if (!mounted) return;
+    setState(() => _onDuty = AppConfig.onDuty);
+    // Si le medic quitte son service alors qu'il est sur la carte, on le
+    // ramène sur l'onglet SOS (la carte ne lui est plus accessible).
+    if (!_onDuty && _selectedIndex == 1) {
+      setState(() => _selectedIndex = 0);
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -130,10 +162,21 @@ class _MainScreenState extends State<MainScreen> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (i) => setState(() => _selectedIndex = i),
+        onDestinationSelected: (i) {
+          // Onglet Plan réservé aux street medics en service.
+          if (i == 1 && !_onDuty) {
+            showSnack(context, AppLocalizations.of(context).medicsOnly);
+            return;
+          }
+          setState(() => _selectedIndex = i);
+        },
         destinations: [
           NavigationDestination(icon: const Icon(Icons.sos), label: t.tabSos),
-          NavigationDestination(icon: const Icon(Icons.map), label: t.tabMap),
+          NavigationDestination(
+            icon: Icon(_onDuty ? Icons.map : Icons.lock_outline),
+            enabled: _onDuty,
+            label: t.tabMap,
+          ),
           NavigationDestination(
               icon: const Icon(Icons.settings), label: t.tabSettings),
         ],
@@ -173,6 +216,51 @@ void showSnack(BuildContext context, String msg) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 }
 
+/// Pays déduit de la carte SIM (dernier recours si la position échoue).
+Future<String?> _simCountry() async {
+  try {
+    return await const MethodChannel('android/telephony')
+        .invokeMethod<String>('getSimCountryIso');
+  } catch (_) {
+    return null;
+  }
+}
+
+/// Pays déduit de la **position géographique** (géocodage inverse OSM).
+///
+/// C'est la source prioritaire : un street medic en déplacement doit obtenir
+/// les numéros du pays où il se trouve réellement, pas ceux de la langue du
+/// téléphone. Le résultat est mis en cache pour la session.
+String? _countryCache;
+
+Future<String?> _countryFromPosition() async {
+  if (_countryCache != null) return _countryCache;
+  try {
+    Position? pos = await Geolocator.getLastKnownPosition();
+    pos ??= await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.low),
+    ).timeout(const Duration(seconds: 6));
+    final uri = Uri.https('nominatim.openstreetmap.org', '/reverse', {
+      'format': 'json',
+      'lat': pos.latitude.toString(),
+      'lon': pos.longitude.toString(),
+      'zoom': '3',
+    });
+    final res = await http.get(uri, headers: {
+      // Politique d'usage Nominatim : User-Agent identifiant obligatoire.
+      'User-Agent': 'street-medics-app/1.0 (emergency app)',
+    }).timeout(const Duration(seconds: 8));
+    if (res.statusCode != 200) return null;
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+    final code = (body['address'] as Map?)?['country_code'];
+    if (code is String && code.isNotEmpty) {
+      _countryCache = code.toUpperCase();
+      return _countryCache;
+    }
+  } catch (_) {}
+  return null;
+}
+
 /// Bouton d'appel des urgences, adapté au pays courant (227 pays).
 class EmergencyButton extends StatelessWidget {
   const EmergencyButton({super.key, this.compact = false});
@@ -181,8 +269,12 @@ class EmergencyButton extends StatelessWidget {
 
   Future<void> _show(BuildContext context) async {
     final t = AppLocalizations.of(context);
-    final country =
-        WidgetsBinding.instance.platformDispatcher.locale.countryCode;
+    // Pays déterminé par la POSITION géographique (prioritaire), puis la
+    // langue du téléphone, puis la carte SIM.
+    final country = await _countryFromPosition() ??
+        WidgetsBinding.instance.platformDispatcher.locale.countryCode ??
+        await _simCountry();
+    if (!context.mounted) return;
     final nums = Emergency.numbersFor(country);
     String label(List<String> types) {
       if (types.length >= 3) return t.svcAll;
@@ -276,12 +368,20 @@ class SosTab extends StatefulWidget {
 
 class _SosTabState extends State<SosTab> {
   final _descController = TextEditingController();
+  final _phoneController = TextEditingController();
   Position? _lastPosition;
   bool _busy = false;
 
   @override
+  void initState() {
+    super.initState();
+    _phoneController.text = AppConfig.victimPhone;
+  }
+
+  @override
   void dispose() {
     _descController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -295,12 +395,15 @@ class _SosTabState extends State<SosTab> {
     }
     setState(() => _lastPosition = pos);
     try {
+      final phone = _phoneController.text.trim();
+      await AppConfig.setVictimPhone(phone);
       await PbService.sendReport(
         lat: pos.latitude,
         lng: pos.longitude,
         description: _descController.text.trim().isEmpty
             ? 'SOS'
             : _descController.text.trim(),
+        senderPhone: phone,
       );
       if (mounted) showSnack(context, t.positionShared);
       mapRefresh.value++;
@@ -343,6 +446,7 @@ class _SosTabState extends State<SosTab> {
       await AppConfig.setMedicRecordId(id);
       await AppConfig.setOnDuty(true);
       await startBackgroundService();
+      dutyChanged.value++;
       if (mounted) showSnack(context, t.onDutyMsg);
       mapRefresh.value++;
     } catch (e) {
@@ -352,6 +456,54 @@ class _SosTabState extends State<SosTab> {
     }
   }
 
+  /// Affiche l'engagement du street medic : certificat sur l'honneur avant
+  /// de prendre le service. Le bouton n'est actif qu'après lecture confirmée.
+  Future<void> _confirmAndGoOnDuty() async {
+    final t = AppLocalizations.of(context);
+    var accepted = false;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => AlertDialog(
+          icon: const Icon(Icons.health_and_safety, color: Colors.red),
+          title: Text(t.certTitle),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.certBody),
+                const SizedBox(height: 12),
+                CheckboxListTile(
+                  value: accepted,
+                  contentPadding: EdgeInsets.zero,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text(t.certCheck),
+                  onChanged: (v) => setLocal(() => accepted = v ?? false),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(t.cancel),
+            ),
+            FilledButton(
+              onPressed: accepted
+                  ? () {
+                      Navigator.pop(ctx);
+                      _goOnDuty();
+                    }
+                  : null,
+              child: Text(t.certAccept),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _goOffDuty() async {
     setState(() => _busy = true);
     final t = AppLocalizations.of(context);
@@ -359,6 +511,7 @@ class _SosTabState extends State<SosTab> {
       await PbService.setMedicOffDuty(AppConfig.deviceId);
       await AppConfig.setOnDuty(false);
       await stopBackgroundService();
+      dutyChanged.value++;
       if (mounted) showSnack(context, t.offDutyMsg);
       mapRefresh.value++;
     } catch (e) {
@@ -390,6 +543,17 @@ class _SosTabState extends State<SosTab> {
               border: const OutlineInputBorder(),
             ),
           ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            decoration: InputDecoration(
+              labelText: t.victimPhone,
+              helperText: t.victimPhoneHint,
+              prefixIcon: const Icon(Icons.phone),
+              border: const OutlineInputBorder(),
+            ),
+          ),
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
@@ -418,9 +582,9 @@ class _SosTabState extends State<SosTab> {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: _busy ? null : _goOnDuty,
+              onPressed: _busy ? null : _confirmAndGoOnDuty,
               icon: const Icon(Icons.medical_services),
-              label: Text(t.imMedic),
+              label: Text(t.becomeMedic),
             ),
           ),
           TextButton(
@@ -500,6 +664,14 @@ class _MapTabState extends State<MapTab> {
   bool _loading = false;
   Timer? _autoTimer;
 
+  /// Blips traités encore affichés quelques secondes (grisés) avant de
+  /// disparaître : le medic voit sa confirmation, puis le marqueur s'efface.
+  final List<Map<String, dynamic>> _fading = [];
+  final List<Timer> _fadeTimers = [];
+
+  /// Durée d'affichage d'un blip traité avant disparition.
+  static const Duration _fadeDelay = Duration(seconds: 4);
+
   @override
   void initState() {
     super.initState();
@@ -513,6 +685,9 @@ class _MapTabState extends State<MapTab> {
   @override
   void dispose() {
     _autoTimer?.cancel();
+    for (final t in _fadeTimers) {
+      t.cancel();
+    }
     mapRefresh.removeListener(_refresh);
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     _mapController.dispose();
@@ -633,6 +808,33 @@ class _MapTabState extends State<MapTab> {
               ),
             ),
             const SizedBox(height: 16),
+            // Appeler la victime. Le numéro est masqué côté victime (appel
+            // privé) : le medic reste protégé, la victime assume son numéro.
+            if ((r['senderPhone'] ?? '').toString().isNotEmpty) ...[
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(backgroundColor: Colors.green),
+                  icon: const Icon(Icons.phone),
+                  label: Text(t.callVictim),
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    final uri = Uri(
+                        scheme: 'tel', path: r['senderPhone'].toString());
+                    if (await canLaunchUrl(uri)) await launchUrl(uri);
+                  },
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(t.privateCall,
+                  style: const TextStyle(fontSize: 11, color: Colors.grey)),
+              const SizedBox(height: 12),
+            ] else
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(t.noPhone,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              ),
             Row(children: [
               Expanded(
                 child: OutlinedButton.icon(
@@ -678,13 +880,32 @@ class _MapTabState extends State<MapTab> {
     }
   }
 
+  /// Marque un blip comme « traité » : il reste affiché (grisé) quelques
+  /// secondes, puis disparaît de la carte.
+  void _fadeOut(String reportId) {
+    final r = _reports.firstWhere(
+      (x) => x['id'] == reportId,
+      orElse: () => <String, dynamic>{},
+    );
+    if (r.isNotEmpty) {
+      setState(() => _fading.add({...r, 'status': 'resolved'}));
+    }
+    final timer = Timer(_fadeDelay, () {
+      if (!mounted) return;
+      setState(() => _fading.removeWhere((x) => x['id'] == reportId));
+    });
+    _fadeTimers.add(timer);
+    // Le serveur ne renvoie plus le record : on retire aussi la copie locale.
+    setState(() => _reports.removeWhere((x) => x['id'] == reportId));
+  }
+
   Future<void> _resolve(String reportId) async {
     final name =
         AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;
     try {
       await PbService.closeReport(reportId, name);
       if (mounted) showSnack(context, AppLocalizations.of(context).resolvedBtn);
-      _refresh();
+      _fadeOut(reportId);
     } catch (e) {
       if (mounted) showSnack(context, '$e');
     }
@@ -723,8 +944,16 @@ class _MapTabState extends State<MapTab> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    // Les signalements traités disparaissent de la carte : le serveur les
+    // exclut déjà, et les blips en cours de disparition restent quelques
+    // secondes (grisés) pour confirmer la prise en charge au medic.
+    final active = [
+      ..._reports
+          .where((r) => (r['status']?.toString() ?? 'open') != 'resolved'),
+      ..._fading,
+    ];
     final markers = <Marker>[
-      for (final r in _reports)
+      for (final r in active)
         Marker(
           point: LatLng(r['lat'] as double, r['lng'] as double),
           width: 44,

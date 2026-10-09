@@ -61,5 +61,17 @@
   "permSection": "Autorizzazioni",
   "permCheck": "Controlla / concedi autorizzazioni",
   "permOk": "Tutte le autorizzazioni concesse",
-  "permMissingShort": "Mancano alcune autorizzazioni"
+  "permMissingShort": "Mancano alcune autorizzazioni",
+  "becomeMedic": "Diventa street medic",
+  "certTitle": "Impegno dello street medic",
+  "certBody": "Certifico sul mio onore: di essere in grado di prestare primo soccorso; di rispettare le persone e le regole dello street medic; di non mettermi in pericolo; e di contattare i soccorsi (112) il prima possibile se la persona assistita non lo ha già fatto.",
+  "certCheck": "Ho letto e mi impegno.",
+  "certAccept": "Impegnarmi e entrare in servizio",
+  "cancel": "Annulla",
+  "victimPhone": "Il tuo numero di telefono (opzionale)",
+  "victimPhoneHint": "Così il medic può richiamarti",
+  "callVictim": "Chiama la vittima",
+  "privateCall": "Chiamata privata (numero nascosto)",
+  "noPhone": "Nessun numero fornito",
+  "medicsOnly": "Mappa riservata agli street medic in servizio"
 }

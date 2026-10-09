@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:street_medics_app/config.dart';
 import 'package:street_medics_app/main.dart';
 
 void main() {
@@ -13,11 +15,16 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
+    // L'onglet Plan n'est accessible qu'aux medics en service.
+    SharedPreferences.setMockInitialValues({'flutter.on_duty': true});
+    await AppConfig.load();
+
     await tester.pumpWidget(const StreetMedicsApp());
     await tester.pump(const Duration(milliseconds: 100));
 
-    // Aller sur l'onglet Carte.
-    await tester.tap(find.byIcon(Icons.map));
+    // Aller sur l'onglet Carte via la barre de navigation.
+    final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
+    nav.onDestinationSelected!(1);
     await tester.pumpAndSettle();
 
     final mapState = tester.state(find.byType(FlutterMap));

@@ -61,5 +61,17 @@
   "permSection": "Berechtigungen",
   "permCheck": "Berechtigungen prüfen / erteilen",
   "permOk": "Alle Berechtigungen erteilt",
-  "permMissingShort": "Einige Berechtigungen fehlen"
+  "permMissingShort": "Einige Berechtigungen fehlen",
+  "becomeMedic": "Street Medic werden",
+  "certTitle": "Verpflichtung des Street Medics",
+  "certBody": "Ich versichere auf Ehre: Erste Hilfe leisten zu können; Menschen und die Regeln der Street Medics zu respektieren; mich nicht in Gefahr zu bringen; und die Notdienste (112) so bald wie möglich zu verständigen, falls die betreute Person dies nicht bereits getan hat.",
+  "certCheck": "Ich habe gelesen und verpflichte mich.",
+  "certAccept": "Verpflichten und Dienst antreten",
+  "cancel": "Abbrechen",
+  "victimPhone": "Ihre Telefonnummer (optional)",
+  "victimPhoneHint": "Damit der Medic Sie zurückrufen kann",
+  "callVictim": "Opfer anrufen",
+  "privateCall": "Privater Anruf (Nummer unterdrückt)",
+  "noPhone": "Keine Nummer angegeben",
+  "medicsOnly": "Karte nur für diensthabende Street Medics"
 }

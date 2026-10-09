@@ -61,5 +61,17 @@
   "permSection": "権限",
   "permCheck": "権限を確認 / 許可",
   "permOk": "すべての権限が許可されています",
-  "permMissingShort": "一部の権限がありません"
+  "permMissingShort": "一部の権限がありません",
+  "becomeMedic": "ストリートメディックになる",
+  "certTitle": "ストリートメディックの誓約",
+  "certBody": "私は名誉にかけて誓います：応急処置ができること、人とストリートメディックの規則を尊重すること、自分を危険にさらさないこと、そして救護された人がまだ行っていない場合はできるだけ早く救急（112）に連絡すること。",
+  "certCheck": "読み、誓約します。",
+  "certAccept": "誓約して勤務を開始",
+  "cancel": "キャンセル",
+  "victimPhone": "電話番号（任意）",
+  "victimPhoneHint": "メディックが折り返し電話できるように",
+  "callVictim": "傷病者に電話",
+  "privateCall": "非通知通話（番号非表示）",
+  "noPhone": "番号がありません",
+  "medicsOnly": "地図は勤務中のストリートメディック専用"
 }

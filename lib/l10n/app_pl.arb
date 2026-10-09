@@ -61,5 +61,17 @@
   "permSection": "Uprawnienia",
   "permCheck": "Sprawdź / przyznaj uprawnienia",
   "permOk": "Wszystkie uprawnienia przyznane",
-  "permMissingShort": "Brakuje niektórych uprawnień"
+  "permMissingShort": "Brakuje niektórych uprawnień",
+  "becomeMedic": "Zostań street medykiem",
+  "certTitle": "Zobowiązanie street medyka",
+  "certBody": "Oświadczam na honor: potrafię udzielać pierwszej pomocy; będę szanować ludzi i zasady street medyków; nie narazę się na niebezpieczeństwo; i skontaktuję się ze służbami ratunkowymi (112) tak szybko, jak to możliwe, jeśli poszkodowany jeszcze tego nie zrobił.",
+  "certCheck": "Przeczytałem i zobowiązuję się.",
+  "certAccept": "Zobowiązuję się i zaczynam służbę",
+  "cancel": "Anuluj",
+  "victimPhone": "Twój numer telefonu (opcjonalnie)",
+  "victimPhoneHint": "Aby medyk mógł oddzwonić",
+  "callVictim": "Zadzwoń do poszkodowanego",
+  "privateCall": "Połączenie prywatne (numer ukryty)",
+  "noPhone": "Nie podano numeru",
+  "medicsOnly": "Mapa tylko dla street medyków na służbie"
 }
