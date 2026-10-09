@@ -57,5 +57,9 @@
   "permBattery": "Disable battery optimization — so the service is not killed",
   "allow": "Allow",
   "later": "Later",
-  "permMissing": "Some permissions are missing. Allow them to go on duty."
+  "permMissing": "Some permissions are missing. Allow them to go on duty.",
+  "permSection": "Permissions",
+  "permCheck": "Check / grant permissions",
+  "permOk": "All permissions granted",
+  "permMissingShort": "Some permissions are missing"
 }

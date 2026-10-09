@@ -980,6 +980,25 @@ class _SettingsTabState extends State<SettingsTab> {
         const SizedBox(height: 12),
         OutlinedButton(onPressed: _saveName, child: Text(t.save)),
         const Divider(height: 40),
+        Text(t.permSection,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.shield_outlined),
+          label: Text(t.permCheck),
+          onPressed: () async {
+            final t2 = AppLocalizations.of(context);
+            final missing = await Perms.missingForDuty();
+            if (!context.mounted) return;
+            if (missing.isEmpty) {
+              setState(() => _status = t2.permOk);
+            } else {
+              setState(() => _status = t2.permMissingShort);
+              await Perms.askDialog(context, missing: missing);
+            }
+          },
+        ),
+        const Divider(height: 40),
         TextField(
           controller: _emailController,
           decoration: InputDecoration(

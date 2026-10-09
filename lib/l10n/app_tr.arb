@@ -57,5 +57,9 @@
   "permBattery": "Pil optimizasyonunu kapat — hizmet durdurulmasın",
   "allow": "İzin ver",
   "later": "Sonra",
-  "permMissing": "Bazı izinler eksik. Göreve başlamak için izin ver."
+  "permMissing": "Bazı izinler eksik. Göreve başlamak için izin ver.",
+  "permSection": "İzinler",
+  "permCheck": "İzinleri kontrol et / ver",
+  "permOk": "Tüm izinler verildi",
+  "permMissingShort": "Bazı izinler eksik"
 }

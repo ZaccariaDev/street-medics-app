@@ -57,5 +57,9 @@
   "permBattery": "Akku-Optimierung deaktivieren — damit der Dienst nicht beendet wird",
   "allow": "Erlauben",
   "later": "Später",
-  "permMissing": "Einige Berechtigungen fehlen. Erlauben Sie sie, um Dienst anzutreten."
+  "permMissing": "Einige Berechtigungen fehlen. Erlauben Sie sie, um Dienst anzutreten.",
+  "permSection": "Berechtigungen",
+  "permCheck": "Berechtigungen prüfen / erteilen",
+  "permOk": "Alle Berechtigungen erteilt",
+  "permMissingShort": "Einige Berechtigungen fehlen"
 }

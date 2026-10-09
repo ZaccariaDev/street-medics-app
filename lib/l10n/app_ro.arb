@@ -57,5 +57,9 @@
   "permBattery": "Dezactivează optimizarea bateriei — ca serviciul să nu fie oprit",
   "allow": "Permite",
   "later": "Mai târziu",
-  "permMissing": "Lipsesc permisiuni. Permite-le pentru a intra în tură."
+  "permMissing": "Lipsesc permisiuni. Permite-le pentru a intra în tură.",
+  "permSection": "Permisiuni",
+  "permCheck": "Verifică / acordă permisiuni",
+  "permOk": "Toate permisiunile acordate",
+  "permMissingShort": "Lipsesc unele permisiuni"
 }

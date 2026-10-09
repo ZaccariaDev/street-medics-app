@@ -57,5 +57,9 @@
   "permBattery": "Wyłącz optymalizację baterii — aby usługa nie została zatrzymana",
   "allow": "Zezwól",
   "later": "Później",
-  "permMissing": "Brakuje uprawnień. Zezwól, aby rozpocząć służbę."
+  "permMissing": "Brakuje uprawnień. Zezwól, aby rozpocząć służbę.",
+  "permSection": "Uprawnienia",
+  "permCheck": "Sprawdź / przyznaj uprawnienia",
+  "permOk": "Wszystkie uprawnienia przyznane",
+  "permMissingShort": "Brakuje niektórych uprawnień"
 }

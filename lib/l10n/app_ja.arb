@@ -57,5 +57,9 @@
   "permBattery": "バッテリー最適化を無効化 — サービス停止を防ぐため",
   "allow": "許可",
   "later": "後で",
-  "permMissing": "一部の権限がありません。勤務開始には許可が必要です。"
+  "permMissing": "一部の権限がありません。勤務開始には許可が必要です。",
+  "permSection": "権限",
+  "permCheck": "権限を確認 / 許可",
+  "permOk": "すべての権限が許可されています",
+  "permMissingShort": "一部の権限がありません"
 }

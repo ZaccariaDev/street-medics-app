@@ -57,5 +57,9 @@
   "permBattery": "Batterij-optimalisatie uitzetten — zodat de dienst blijft draaien",
   "allow": "Toestaan",
   "later": "Later",
-  "permMissing": "Sommige machtigingen ontbreken. Sta ze toe om dienst te starten."
+  "permMissing": "Sommige machtigingen ontbreken. Sta ze toe om dienst te starten.",
+  "permSection": "Machtigingen",
+  "permCheck": "Machtigingen controleren / geven",
+  "permOk": "Alle machtigingen verleend",
+  "permMissingShort": "Sommige machtigingen ontbreken"
 }

@@ -52,9 +52,19 @@ class Perms {
   }
 
   /// Exemption d'optimisation de batterie (le service survit mieux).
+  ///
+  /// Android 12+ peut ne pas afficher la boîte de dialogue : on bascule alors
+  /// vers l'écran de réglages correspondant.
   static Future<void> batteryOptimization() async {
-    if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+    if (await FlutterForegroundTask.isIgnoringBatteryOptimizations) return;
+    try {
       await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+    } catch (_) {
+      await FlutterForegroundTask.openIgnoreBatteryOptimizationSettings();
+    }
+    // Repli : si toujours pas exempté, ouvrir l'écran de réglages.
+    if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+      await FlutterForegroundTask.openIgnoreBatteryOptimizationSettings();
     }
   }
 

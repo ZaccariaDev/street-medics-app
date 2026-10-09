@@ -57,5 +57,9 @@
   "permBattery": "Zima uboreshaji wa betri — huduma isikatishwe",
   "allow": "Ruhusu",
   "later": "Baadaye",
-  "permMissing": "Ruhusa kadhaa hazipo. Ziruhusu kuanza zamu."
+  "permMissing": "Ruhusa kadhaa hazipo. Ziruhusu kuanza zamu.",
+  "permSection": "Ruhusa",
+  "permCheck": "Angalia / toa ruhusa",
+  "permOk": "Ruhusa zote zimetolewa",
+  "permMissingShort": "Ruhusa kadhaa hazipo"
 }

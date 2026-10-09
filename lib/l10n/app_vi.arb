@@ -57,5 +57,9 @@
   "permBattery": "Tắt tối ưu pin — để dịch vụ không bị dừng",
   "allow": "Cho phép",
   "later": "Để sau",
-  "permMissing": "Thiếu một số quyền. Hãy cho phép để vào ca."
+  "permMissing": "Thiếu một số quyền. Hãy cho phép để vào ca.",
+  "permSection": "Quyền",
+  "permCheck": "Kiểm tra / cấp quyền",
+  "permOk": "Đã cấp tất cả quyền",
+  "permMissingShort": "Thiếu một số quyền"
 }

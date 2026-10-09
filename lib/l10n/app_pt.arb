@@ -57,5 +57,9 @@
   "permBattery": "Desativar a otimização de bateria — para não ser interrompido",
   "allow": "Permitir",
   "later": "Mais tarde",
-  "permMissing": "Faltam permissões. Permita-as para entrar de serviço."
+  "permMissing": "Faltam permissões. Permita-as para entrar de serviço.",
+  "permSection": "Permissões",
+  "permCheck": "Verificar / conceder permissões",
+  "permOk": "Todas as permissões concedidas",
+  "permMissingShort": "Faltam algumas permissões"
 }

@@ -57,5 +57,9 @@
   "permBattery": "Matikan optimasi baterai — agar layanan tidak dihentikan",
   "allow": "Izinkan",
   "later": "Nanti",
-  "permMissing": "Beberapa izin kurang. Izinkan untuk mulai bertugas."
+  "permMissing": "Beberapa izin kurang. Izinkan untuk mulai bertugas.",
+  "permSection": "Izin",
+  "permCheck": "Periksa / beri izin",
+  "permOk": "Semua izin diberikan",
+  "permMissingShort": "Beberapa izin kurang"
 }

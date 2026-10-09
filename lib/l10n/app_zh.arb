@@ -57,5 +57,9 @@
   "permBattery": "关闭电池优化 — 以免服务被终止",
   "allow": "允许",
   "later": "稍后",
-  "permMissing": "缺少部分权限。请允许以开始值班。"
+  "permMissing": "缺少部分权限。请允许以开始值班。",
+  "permSection": "权限",
+  "permCheck": "检查 / 授予权限",
+  "permOk": "所有权限已授予",
+  "permMissingShort": "缺少部分权限"
 }

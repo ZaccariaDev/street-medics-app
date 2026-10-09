@@ -57,5 +57,9 @@
   "permBattery": "배터리 최적화 해제 — 서비스 종료 방지",
   "allow": "허용",
   "later": "나중에",
-  "permMissing": "일부 권한이 없습니다. 근무를 시작하려면 허용하세요."
+  "permMissing": "일부 권한이 없습니다. 근무를 시작하려면 허용하세요.",
+  "permSection": "권한",
+  "permCheck": "권한 확인 / 부여",
+  "permOk": "모든 권한이 허용되었습니다",
+  "permMissingShort": "일부 권한이 없습니다"
 }

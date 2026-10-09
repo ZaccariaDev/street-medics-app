@@ -57,5 +57,9 @@
   "permBattery": "Désactiver l'optimisation batterie — pour ne pas être coupé",
   "allow": "Autoriser",
   "later": "Plus tard",
-  "permMissing": "Des autorisations manquent. Autorisez-les pour prendre le service."
+  "permMissing": "Des autorisations manquent. Autorisez-les pour prendre le service.",
+  "permSection": "Autorisations",
+  "permCheck": "Vérifier / accorder les autorisations",
+  "permOk": "Toutes les autorisations sont accordées",
+  "permMissingShort": "Certaines autorisations manquent"
 }

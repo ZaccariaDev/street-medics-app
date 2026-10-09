@@ -57,5 +57,9 @@
   "permBattery": "Disattiva l'ottimizzazione batteria — per non essere interrotto",
   "allow": "Consenti",
   "later": "Più tardi",
-  "permMissing": "Mancano alcune autorizzazioni. Consentile per entrare in servizio."
+  "permMissing": "Mancano alcune autorizzazioni. Consentile per entrare in servizio.",
+  "permSection": "Autorizzazioni",
+  "permCheck": "Controlla / concedi autorizzazioni",
+  "permOk": "Tutte le autorizzazioni concesse",
+  "permMissingShort": "Mancano alcune autorizzazioni"
 }
