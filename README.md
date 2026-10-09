@@ -21,7 +21,35 @@ Backend : [PocketBase](https://pocketbase.io) auto-hébergé (dépôt séparé
 |---|---|
 | **SOS** | Envoie la position GPS + description dans `reports`. Prise / fin de service street medic (`medics`). |
 | **Carte** | OpenStreetMap. Marqueurs **cliquables** : SOS (rouge = ouvert, orange = pris en charge, gris = résolu) et medics (vert). Fiche au tap avec **Prendre en charge** / **Résolu**. Bouton **Ma position** (recentre et zoome sur la rue). Rafraîchissement auto toutes les 20 s. |
-| **Réglages** | URL du serveur (persistée), test de connexion, **nom de street medic**, compte. |
+| **Réglages** | URL du serveur (persistée), test de connexion, **langue** (langue du téléphone par défaut), **rayon d'alerte**, **nom de street medic**, compte. |
+
+## Langues
+
+**24 langues**, sélectionnées automatiquement d'après la langue du téléphone
+(anglais par défaut, surcharge manuelle possible dans les Réglages) :
+en, fr, ar, bn, de, el, es, fa, he, hi, id, it, ja, ko, nl, pl, pt, ro, ru, sw,
+tr, uk, vi, zh. Source : `lib/l10n/app_<code>.arb` (généré par `flutter gen-l10n`).
+
+## Appel des urgences (monde entier)
+
+Bouton **Appeler les urgences** (onglet SOS + carte) : propose les numéros du
+pays courant d'après les **données AOSP officielles** (227 pays/territoires),
+avec le service associé (tous services, ambulance, police, pompiers) et repli
+sur le 112. Source : `lib/emergency_numbers.dart` (généré depuis
+`packages/services/Telephony/ecc`).
+
+## Service d'arrière-plan (medic en service)
+
+Quand le medic prend le service, un **service de premier plan** démarre :
+
+- le medic peut **fermer l'app** : le service continue ;
+- la **position est mise à jour toutes les 30 s** côté serveur ;
+- dès qu'un SOS apparaît dans le **rayon d'alerte** (réglable, 0,5–50 km), le
+  medic reçoit une **notification + un son d'alarme distinctif**
+  (`android/app/src/main/res/raw/alarm.mp3`, généré, libre de droits).
+
+Le service s'arrête avec **Terminer mon service**.
+
 
 ## Workflow medics
 
