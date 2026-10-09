@@ -19,9 +19,18 @@ Backend : [PocketBase](https://pocketbase.io) auto-hébergé (dépôt séparé
 
 | Onglet | Rôle |
 |---|---|
-| **SOS** | Envoie la position GPS + description dans la collection `reports`. Bouton secondaire : prise de service street medic (collection `medics`). |
-| **Carte** | OpenStreetMap (tuiles OSM). Affiche les SOS (rouge), les medics (vert) et votre position (bleu). Bouton rafraîchir. |
-| **Réglages** | URL du serveur (persistée), test de connexion, création/connexion de compte. |
+| **SOS** | Envoie la position GPS + description dans `reports`. Prise / fin de service street medic (`medics`). |
+| **Carte** | OpenStreetMap. Marqueurs **cliquables** : SOS (rouge = ouvert, orange = pris en charge, gris = résolu) et medics (vert). Fiche au tap avec **Prendre en charge** / **Résolu**. Bouton **Ma position** (recentre et zoome sur la rue). Rafraîchissement auto toutes les 20 s. |
+| **Réglages** | URL du serveur (persistée), test de connexion, **nom de street medic**, compte. |
+
+## Workflow medics
+
+1. Le medic prend le service (onglet SOS) : une fiche `medics` est créée/mise à
+   jour, identifiée par un `deviceId` persistant — **pas de doublon** à chaque
+   prise de service.
+2. Un SOS apparaît sur la carte (pastille rouge). Le medic tape dessus.
+3. **Prendre en charge** → le SOS passe en `claimed` (pastille orange) avec le
+   nom du medic ; **Résolu** → `resolved` (pastille grise).
 
 ## Configuration
 
