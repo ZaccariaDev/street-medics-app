@@ -88,5 +88,6 @@
   "checkUpdate": "Έλεγχος ενημερώσεων",
   "medicOnTheWay": "Ένας medecin πήρε το SOS σας και είναι καθ' οδόν.",
   "fillPhone": "Συμπλήρωσε τον αριθμό μου",
-  "phonePrefilled": "Ο αριθμός συμπληρώθηκε"
+  "phonePrefilled": "Ο αριθμός συμπληρώθηκε",
+  "locationFailed": "Could not get your location. Make sure GPS is enabled."
 }

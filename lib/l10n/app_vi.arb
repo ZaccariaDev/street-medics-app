@@ -88,5 +88,6 @@
   "checkUpdate": "Kiểm tra cập nhật",
   "medicOnTheWay": "Một medecin đã nhận SOS của bạn và đang trên đường đến.",
   "fillPhone": "Điền số của tôi",
-  "phonePrefilled": "Số đã được điền"
+  "phonePrefilled": "Số đã được điền",
+  "locationFailed": "Could not get your location. Make sure GPS is enabled."
 }

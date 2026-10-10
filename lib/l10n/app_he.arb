@@ -88,5 +88,6 @@
   "checkUpdate": "בדוק עדכונים",
   "medicOnTheWay": "מגיש לקח את ה-SOS שלך ובדרך.",
   "fillPhone": "מלא את המספר שלי",
-  "phonePrefilled": "המספר מולא"
+  "phonePrefilled": "המספר מולא",
+  "locationFailed": "Could not get your location. Make sure GPS is enabled."
 }

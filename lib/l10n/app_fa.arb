@@ -88,5 +88,6 @@
   "checkUpdate": "بررسی به‌روزرسانی",
   "medicOnTheWay": "یک امدادگر درخواست شما را پذیرفته و در راه است.",
   "fillPhone": "شماره من را پر کن",
-  "phonePrefilled": "شماره پر شد"
+  "phonePrefilled": "شماره پر شد",
+  "locationFailed": "موقعیت شما دریافت نشد. مطمئن شوید GPS فعال است."
 }

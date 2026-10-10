@@ -475,11 +475,29 @@ class _SosTabState extends State<SosTab> {
     try {
       final number = await MobileNumber.mobileNumber;
       if (number != null && number.isNotEmpty) {
-        _phoneController.text = number;
+        _phoneController.text = _normalizePhone(number);
       }
     } catch (_) {
       // Permission refusée ou non disponible : l'utilisateur saisit manuellement.
     }
+  }
+
+  /// Normalise un numéro de téléphone français au format international (+33...).
+  /// Évite les doubles préfixes (ex: "33+336xxxxx" → "+336xxxxx").
+  static String _normalizePhone(String raw) {
+    var s = raw.replaceAll(RegExp(r'[\s\-().]'), '');
+    // Cas "33+336..." ou "+33+336..." : garder uniquement le dernier +33
+    final plus33Index = s.lastIndexOf('+33');
+    if (plus33Index >= 0) {
+      s = s.substring(plus33Index);
+    } else if (s.startsWith('33') && s.length >= 10) {
+      s = '+$s';
+    } else if (s.startsWith('0') && s.length == 10) {
+      s = '+33${s.substring(1)}';
+    } else if (!s.startsWith('+')) {
+      s = '+$s';
+    }
+    return s;
   }
 
   Future<void> _sendSos() async {
@@ -532,23 +550,32 @@ class _SosTabState extends State<SosTab> {
   Future<void> _goOnDuty() async {
     setState(() => _busy = true);
     final t = AppLocalizations.of(context);
-    final pos = await obtainPosition(context);
-    if (pos == null) {
-      setState(() => _busy = false);
-      return;
-    }
-    setState(() => _lastPosition = pos);
 
-    // Vérifie les permissions nécessaires au suivi en arrière-plan : si l'une
-    // manque, on la redemande avant de prendre le service.
+    // 1. Vérifier les permissions AVANT d'essayer d'obtenir la position.
     final missing = await Perms.missingForDuty();
     if (missing.isNotEmpty && mounted) {
       await Perms.askDialog(context, duty: true, missing: missing);
       if (!mounted) return;
       final still = await Perms.missingForDuty();
-      if (still.isNotEmpty && mounted) showSnack(context, t.permMissing);
+      if (still.isNotEmpty && mounted) {
+        showSnack(context, t.permMissing);
+        setState(() => _busy = false);
+        return;
+      }
     }
 
+    // 2. Obtenir la position (permissions déjà accordées).
+    if (!mounted) return;
+    final pos = await obtainPosition(context);
+    if (!mounted) return;
+    if (pos == null) {
+      if (mounted) showSnack(context, t.locationFailed);
+      setState(() => _busy = false);
+      return;
+    }
+    setState(() => _lastPosition = pos);
+
+    // 3. Enregistrer le medic sur le serveur.
     try {
       final name =
           AppConfig.medicName.isEmpty ? 'Street Medic' : AppConfig.medicName;

@@ -88,5 +88,6 @@
   "checkUpdate": "আপডেট দেখুন",
   "medicOnTheWay": "একজন মেডিক আপনার SOS নিয়েছেন এবং পথে আছেন।",
   "fillPhone": "আমার নম্বর পূরণ করুন",
-  "phonePrefilled": "নম্বর পূরণ হয়েছে"
+  "phonePrefilled": "নম্বর পূরণ হয়েছে",
+  "locationFailed": "Could not get your location. Make sure GPS is enabled."
 }

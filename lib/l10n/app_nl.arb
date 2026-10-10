@@ -88,5 +88,6 @@
   "checkUpdate": "Controleren op updates",
   "medicOnTheWay": "Een medic heeft uw SOS aangenomen en is onderweg.",
   "fillPhone": "Mijn nummer invullen",
-  "phonePrefilled": "Nummer ingevuld"
+  "phonePrefilled": "Nummer ingevuld",
+  "locationFailed": "Could not get your location. Make sure GPS is enabled."
 }

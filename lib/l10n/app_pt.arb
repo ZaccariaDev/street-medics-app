@@ -88,5 +88,6 @@
   "checkUpdate": "Verificar atualizações",
   "medicOnTheWay": "Um medecin atendeu o seu SOS e está a caminho.",
   "fillPhone": "Preencher meu número",
-  "phonePrefilled": "Número preenchido"
+  "phonePrefilled": "Número preenchido",
+  "locationFailed": "Não foi possível obter sua localização. Verifique se o GPS está ativado."
 }

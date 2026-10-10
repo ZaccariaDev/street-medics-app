@@ -88,5 +88,6 @@
   "checkUpdate": "Angalia sasisho",
   "medicOnTheWay": "Mhudumu amechukua SOS yako na anakwenda.",
   "fillPhone": "Jaza nambari yangu",
-  "phonePrefilled": "Nambari imejazwa"
+  "phonePrefilled": "Nambari imejazwa",
+  "locationFailed": "Haupata kupata mahali pako. Hakikika GPS imewezeshwa."
 }

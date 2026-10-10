@@ -88,5 +88,6 @@
   "checkUpdate": "Güncellemeleri kontrol et",
   "medicOnTheWay": "Bir medic SOS'unuzu üstlendi ve yolda.",
   "fillPhone": "Numaramı doldur",
-  "phonePrefilled": "Numara dolduruldu"
+  "phonePrefilled": "Numara dolduruldu",
+  "locationFailed": "Could not get your location. Make sure GPS is enabled."
 }

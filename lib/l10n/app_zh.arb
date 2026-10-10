@@ -88,5 +88,6 @@
   "checkUpdate": "检查更新",
   "medicOnTheWay": "有医护已接受您的求救，正在赶来。",
   "fillPhone": "填入我的号码",
-  "phonePrefilled": "号码已填入"
+  "phonePrefilled": "号码已填入",
+  "locationFailed": "无法获取您的位置。请确保 GPS 已开启。"
 }

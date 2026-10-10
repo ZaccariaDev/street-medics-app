@@ -88,5 +88,6 @@
   "checkUpdate": "Periksa pembaruan",
   "medicOnTheWay": "Seorang medic telah menerima SOS Anda dan sedang dalam perjalanan.",
   "fillPhone": "Isi nomor saya",
-  "phonePrefilled": "Nomor terisi"
+  "phonePrefilled": "Nomor terisi",
+  "locationFailed": "Tidak dapat mendapatkan lokasi Anda. Pastikan GPS diaktifkan."
 }

@@ -88,5 +88,6 @@
   "checkUpdate": "Check for updates",
   "medicOnTheWay": "A medic has taken your SOS and is on the way.",
   "fillPhone": "Fill in my number",
-  "phonePrefilled": "Number filled in"
+  "phonePrefilled": "Number filled in",
+  "locationFailed": "Could not get your location. Make sure GPS is enabled."
 }

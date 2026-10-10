@@ -88,5 +88,6 @@
   "checkUpdate": "Verifică actualizări",
   "medicOnTheWay": "Un medic a preluat SOS-ul tău și este pe drum.",
   "fillPhone": "Completează numărul meu",
-  "phonePrefilled": "Număr completat"
+  "phonePrefilled": "Număr completat",
+  "locationFailed": "Could not get your location. Make sure GPS is enabled."
 }
