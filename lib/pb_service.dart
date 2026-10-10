@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
+import 'dart:math' as math;
 
-import 'package:http/http.dart' as http;
 import 'package:pocketbase/pocketbase.dart';
 
 import 'config.dart';
@@ -21,12 +21,31 @@ class PbService {
   static PocketBase get client {
     final url = AppConfig.serverUrl;
     if (_client == null || _clientUrl != url) {
-      _client = PocketBase(url, httpClientFactory: () {
-        return _RetryHttpClient();
-      });
+      _client = PocketBase(url);
       _clientUrl = url;
     }
     return _client!;
+  }
+
+  /// Exécute un appel API avec gestion automatique des 401.
+  /// Si le token est expiré → force re-login → réessaie une fois.
+  static Future<T> _withAuth<T>(Future<T> Function() api) async {
+    try {
+      return await api();
+    } catch (e) {
+      if (_isUnauthorized(e)) {
+        final ok = await forceReLogin();
+        if (ok) return await api();
+      }
+      rethrow;
+    }
+  }
+
+  /// Vrai si l'erreur est un 401 (token expiré ou invalide).
+  static bool _isUnauthorized(Object e) {
+    final msg = e.toString();
+    return msg.contains('401') || msg.contains('Unauthorized') ||
+        msg.contains('unauthorized');
   }
 
   /// Teste la connexion au serveur : renvoie true si l'API répond sainement.
@@ -37,6 +56,77 @@ class PbService {
     } catch (_) {
       return false;
     }
+  }
+
+  /// Authentification automatique au démarrage.
+  ///
+  /// 1. Si déjà authentifié (token valide) → retourne immédiatement.
+  /// 2. Si creds stockés → `authWithPassword`.
+  /// 3. Si 404 (compte n'existe pas) → crée le compte + sauvegarde creds.
+  /// 4. Si pas de creds → génère email + mot de passe aléatoire, crée compte.
+  ///
+  /// Retourne true si authentifié, false sinon.
+  static Future<bool> ensureAuth() async {
+    // Déjà authentifié ?
+    if (client.authStore.isValid) return true;
+
+    // Creds stockés ?
+    final email = AppConfig.authEmail;
+    final password = AppConfig.authPassword;
+
+    if (email.isNotEmpty && password.isNotEmpty) {
+      try {
+        await client.collection('users').authWithPassword(email, password);
+        return true;
+      } catch (_) {
+        // Token expiré ou compte supprimé → on recrée
+      }
+    }
+
+    // Générer un nouveau compte
+    final deviceId = AppConfig.deviceId;
+    final newEmail = 'dev-$deviceId@streetmedics.local';
+    final newPassword = _generatePassword();
+
+    try {
+      await client.collection('users').create(body: {
+        'email': newEmail,
+        'password': newPassword,
+        'passwordConfirm': newPassword,
+        'name': 'Street Medic',
+      });
+      await client.collection('users').authWithPassword(newEmail, newPassword);
+      await AppConfig.setAuthCredentials(newEmail, newPassword);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Rafraîchit la session si possible (token expiré mais refresh valide).
+  /// Retourne true si la session est valide après l'appel.
+  static Future<bool> refreshSession() async {
+    if (client.authStore.isValid) return true;
+    if (client.authStore.token.isEmpty) return false;
+    try {
+      await client.collection('users').authRefresh();
+      return client.authStore.isValid;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Force un re-login (utilisé après un 401).
+  static Future<bool> forceReLogin() async {
+    client.authStore.clear();
+    return ensureAuth();
+  }
+
+  /// Génère un mot de passe aléatoire (32 octets base64).
+  static String _generatePassword() {
+    final random = math.Random.secure();
+    final bytes = List<int>.generate(32, (_) => random.nextInt(256));
+    return base64Url.encode(bytes).replaceAll('=', '');
   }
 
   static Map<String, dynamic> _pos(RecordModel r) {
@@ -62,13 +152,15 @@ class PbService {
     required String description,
     String senderPhone = '',
   }) async {
-    final res = await client.collection('reports').create(body: {
-      'senderPhone': senderPhone,
-      'position': {'lat': lat, 'lng': lng},
-      'description': description,
-      'status': 'open',
+    return _withAuth(() async {
+      final res = await client.collection('reports').create(body: {
+        'senderPhone': senderPhone,
+        'position': {'lat': lat, 'lng': lng},
+        'description': description,
+        'status': 'open',
+      });
+      return res.id;
     });
-    return res.id;
   }
 
   /// Liste les SOS **actifs** (ouverts ou pris en charge) avec position,
@@ -76,20 +168,22 @@ class PbService {
   ///
   /// Les signalements résolus sont exclus : le blip disparaît de la carte.
   static Future<List<Map<String, dynamic>>> listReports() async {
-    final res = await client
-        .collection('reports')
-        .getList(perPage: 200, filter: 'status != "resolved"');
-    return res.items.map((r) {
-      final base = _pos(r);
-      return {
-        ...base,
-        'description': r.data['description']?.toString() ?? '',
-        'status': r.data['status']?.toString() ?? 'open',
-        'claimedBy': r.data['claimedBy']?.toString() ?? '',
-        'senderPhone': r.data['senderPhone']?.toString() ?? '',
-        'created': r.get<String>('created'),
-      };
-    }).where((m) => m['lat'] != null && m['lng'] != null).toList();
+    return _withAuth(() async {
+      final res = await client
+          .collection('reports')
+          .getList(perPage: 200, filter: 'status != "resolved"');
+      return res.items.map((r) {
+        final base = _pos(r);
+        return {
+          ...base,
+          'description': r.data['description']?.toString() ?? '',
+          'status': r.data['status']?.toString() ?? 'open',
+          'claimedBy': r.data['claimedBy']?.toString() ?? '',
+          'senderPhone': r.data['senderPhone']?.toString() ?? '',
+          'created': r.get<String>('created'),
+        };
+      }).where((m) => m['lat'] != null && m['lng'] != null).toList();
+    });
   }
 
   /// Récupère un signalement par son id.
@@ -163,12 +257,17 @@ class PbService {
 
   /// Repasse la fiche medic de cet appareil en indisponible.
   ///
-  /// Supprime la fiche auût de juste la mettre à unavailable : cela évite
-  /// les doublons si le medic se remet en service plus tard.
+  /// Met la fiche à `available: false` au lieu de la supprimer : le compte
+  /// utilisateur n'a pas toujours la permission DELETE. Pour éviter les
+  /// doublons à la reprise de service, on cherche d'abord une fiche
+  /// existante via deviceId.
   static Future<void> setMedicOffDuty(String deviceId) async {
     final existing = await _findMedicByDevice(deviceId);
     if (existing != null) {
-      await client.collection('medics').delete(existing);
+      await client.collection('medics').update(existing, body: {
+        'available': false,
+        'deviceId': deviceId,
+      });
     }
   }
 
@@ -200,47 +299,5 @@ class PbService {
         'available': r.data['available'] == true,
       };
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();
-  }
-}
-
-/// Client HTTP avec retry automatique pour gérer les timeouts de connexion.
-///
-/// Au démarrage de l'app, plusieurs requêtes API concurrentes (updater,
-/// carte, géoloc) peuvent saturer la connexion et provoquer des
-/// `SocketException: Connection timed out`. Ce client réessaie avec un
-/// backoff exponentiel (1s, 2s, 4s) avant d'abandonner.
-class _RetryHttpClient extends http.BaseClient {
-  final http.Client _inner = http.Client();
-
-  @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    const maxRetries = 3;
-    var attempt = 0;
-
-    while (true) {
-      try {
-        final response = await _inner.send(request);
-        // Si le serveur répond avec une erreur 5xx, on réessaie aussi
-        if (response.statusCode >= 500 && attempt < maxRetries) {
-          attempt++;
-          await Future.delayed(Duration(seconds: 1 << attempt));
-          continue;
-        }
-        return response;
-      } on SocketException catch (_) {
-        if (attempt >= maxRetries) rethrow;
-        attempt++;
-        await Future.delayed(Duration(seconds: 1 << attempt));
-      } on TimeoutException catch (_) {
-        if (attempt >= maxRetries) rethrow;
-        attempt++;
-        await Future.delayed(Duration(seconds: 1 << attempt));
-      }
-    }
-  }
-
-  @override
-  void close() {
-    _inner.close();
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,6 +28,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterForegroundTask.initCommunicationPort();
   await AppConfig.load();
+  // Auth automatique avant tout appel API (silencieux si échec).
+  // 1. Tente de rafraîchir la session existante (token expiré mais refresh valide)
+  // 2. Si échec, tente un re-login complet
+  await PbService.refreshSession();
+  await PbService.ensureAuth();
   await Notifs.init();
   // Configuration du service d'arrière-plan (obligatoire avant startService).
   FlutterForegroundTask.init(
@@ -894,11 +900,15 @@ class _MapTabState extends State<MapTab> {
     }
   }
 
+  int _refreshFailCount = 0;
+  static const int _maxRefreshInterval = 120;
+
   Future<void> _refresh() async {
     setState(() => _loading = true);
     try {
       final reports = await PbService.listReports();
       final medics = await PbService.listMedics();
+      _refreshFailCount = 0; // reset on success
       if (mounted) {
         setState(() {
           _reports = reports;
@@ -906,9 +916,18 @@ class _MapTabState extends State<MapTab> {
         });
       }
     } catch (e) {
-      if (mounted) showSnack(context, '$e');
+      _refreshFailCount++;
+      // PAS de SnackBar ici : il recouvre le bouton "Terminer mon service"
+      // et intercepte les taps. L'erreur est signalée par l'indicateur discret
+      // dans le header de la carte (voir _buildHeader).
     } finally {
       if (mounted) setState(() => _loading = false);
+      // Adapter l'intervalle du timer selon le nombre d'échecs consécutifs
+      _autoTimer?.cancel();
+      final interval = _refreshFailCount == 0
+          ? 20
+          : math.min(20 * (1 << _refreshFailCount), _maxRefreshInterval);
+      _autoTimer = Timer.periodic(Duration(seconds: interval), (_) => _refresh());
     }
   }
 

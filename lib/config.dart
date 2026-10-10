@@ -17,6 +17,8 @@ class AppConfig {
   static const String _kPermsAsked = 'perms_asked';
   static const String _kVictimPhone = 'victim_phone';
   static const String _kMyReportId = 'my_report_id';
+  static const String _kAuthEmail = 'auth_email';
+  static const String _kAuthPassword = 'auth_password';
 
   /// URL du serveur PocketBase.
   ///
@@ -35,6 +37,8 @@ class AppConfig {
   static bool _permsAsked = false;
   static String _victimPhone = '';
   static String _myReportId = '';
+  static String _authEmail = '';
+  static String _authPassword = '';
 
   static String get serverUrl => _serverUrl;
 
@@ -66,6 +70,12 @@ class AppConfig {
   /// reste accessible au patient.
   static String get myReportId => _myReportId;
 
+  /// Email du compte auto-généré (auth automatique).
+  static String get authEmail => _authEmail;
+
+  /// Mot de passe du compte auto-généré (auth automatique).
+  static String get authPassword => _authPassword;
+
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _serverUrl = prefs.getString(_kServerUrl) ?? defaultServerUrl;
@@ -82,6 +92,8 @@ class AppConfig {
     _permsAsked = prefs.getBool(_kPermsAsked) ?? false;
     _victimPhone = prefs.getString(_kVictimPhone) ?? '';
     _myReportId = prefs.getString(_kMyReportId) ?? '';
+    _authEmail = prefs.getString(_kAuthEmail) ?? '';
+    _authPassword = prefs.getString(_kAuthPassword) ?? '';
   }
 
   static Future<void> setMedicName(String name) async {
@@ -125,6 +137,15 @@ class AppConfig {
   static Future<void> setMyReportId(String v) async {
     _myReportId = v;
     (await SharedPreferences.getInstance()).setString(_kMyReportId, v);
+  }
+
+  /// Mémorise les credentials du compte auto-généré.
+  static Future<void> setAuthCredentials(String email, String password) async {
+    _authEmail = email;
+    _authPassword = password;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kAuthEmail, email);
+    await prefs.setString(_kAuthPassword, password);
   }
 
 }

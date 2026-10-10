@@ -35,6 +35,7 @@
   "nearSos": "SOS à proximité !",
   "trackingOn": "Suivi de position actif (arrière-plan)",
   "errorSend": "Échec de l'envoi",
+  "networkError": "Erreur réseau — vérifiez votre connexion",
   "alertRadiusHelp": "Vous recevez une alerte quand un SOS apparaît dans ce rayon.",
   "svcAll": "Tous services",
   "svcAmbulance": "Ambulance / SAMU",
