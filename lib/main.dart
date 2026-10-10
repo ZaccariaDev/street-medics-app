@@ -19,6 +19,7 @@ import 'l10n/app_localizations.dart';
 import 'notifs.dart';
 import 'pb_service.dart';
 import 'perms.dart';
+import 'phone_utils.dart';
 import 'update_dialog.dart';
 import 'updater.dart';
 
@@ -475,29 +476,11 @@ class _SosTabState extends State<SosTab> {
     try {
       final number = await MobileNumber.mobileNumber;
       if (number != null && number.isNotEmpty) {
-        _phoneController.text = _normalizePhone(number);
+        _phoneController.text = normalizePhone(number);
       }
     } catch (_) {
       // Permission refusée ou non disponible : l'utilisateur saisit manuellement.
     }
-  }
-
-  /// Normalise un numéro de téléphone français au format international (+33...).
-  /// Évite les doubles préfixes (ex: "33+336xxxxx" → "+336xxxxx").
-  static String _normalizePhone(String raw) {
-    var s = raw.replaceAll(RegExp(r'[\s\-().]'), '');
-    // Cas "33+336..." ou "+33+336..." : garder uniquement le dernier +33
-    final plus33Index = s.lastIndexOf('+33');
-    if (plus33Index >= 0) {
-      s = s.substring(plus33Index);
-    } else if (s.startsWith('33') && s.length >= 10) {
-      s = '+$s';
-    } else if (s.startsWith('0') && s.length == 10) {
-      s = '+33${s.substring(1)}';
-    } else if (!s.startsWith('+')) {
-      s = '+$s';
-    }
-    return s;
   }
 
   Future<void> _sendSos() async {
