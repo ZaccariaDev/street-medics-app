@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:http/http.dart' as http;
 import 'package:pocketbase/pocketbase.dart';
 
 import 'config.dart';
@@ -17,7 +21,9 @@ class PbService {
   static PocketBase get client {
     final url = AppConfig.serverUrl;
     if (_client == null || _clientUrl != url) {
-      _client = PocketBase(url);
+      _client = PocketBase(url, httpClientFactory: () {
+        return _RetryHttpClient();
+      });
       _clientUrl = url;
     }
     return _client!;
@@ -156,15 +162,13 @@ class PbService {
   }
 
   /// Repasse la fiche medic de cet appareil en indisponible.
+  ///
+  /// Supprime la fiche auût de juste la mettre à unavailable : cela évite
+  /// les doublons si le medic se remet en service plus tard.
   static Future<void> setMedicOffDuty(String deviceId) async {
     final existing = await _findMedicByDevice(deviceId);
     if (existing != null) {
-      // `deviceId` est renvoyé dans le corps : la règle de mise à jour du
-      // serveur l'exige (garde-fou contre les écritures anonymes).
-      await client.collection('medics').update(existing, body: {
-        'available': false,
-        'deviceId': deviceId,
-      });
+      await client.collection('medics').delete(existing);
     }
   }
 
@@ -196,5 +200,47 @@ class PbService {
         'available': r.data['available'] == true,
       };
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();
+  }
+}
+
+/// Client HTTP avec retry automatique pour gérer les timeouts de connexion.
+///
+/// Au démarrage de l'app, plusieurs requêtes API concurrentes (updater,
+/// carte, géoloc) peuvent saturer la connexion et provoquer des
+/// `SocketException: Connection timed out`. Ce client réessaie avec un
+/// backoff exponentiel (1s, 2s, 4s) avant d'abandonner.
+class _RetryHttpClient extends http.BaseClient {
+  final http.Client _inner = http.Client();
+
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) async {
+    const maxRetries = 3;
+    var attempt = 0;
+
+    while (true) {
+      try {
+        final response = await _inner.send(request);
+        // Si le serveur répond avec une erreur 5xx, on réessaie aussi
+        if (response.statusCode >= 500 && attempt < maxRetries) {
+          attempt++;
+          await Future.delayed(Duration(seconds: 1 << attempt));
+          continue;
+        }
+        return response;
+      } on SocketException catch (_) {
+        if (attempt >= maxRetries) rethrow;
+        attempt++;
+        await Future.delayed(Duration(seconds: 1 << attempt));
+      } on TimeoutException catch (_) {
+        if (attempt >= maxRetries) rethrow;
+        attempt++;
+        await Future.delayed(Duration(seconds: 1 << attempt));
+      }
+    }
+  }
+
+  @override
+  void close() {
+    _inner.close();
   }
 }

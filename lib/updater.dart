@@ -50,7 +50,7 @@ class Updater {
       final res = await http
           .get(Uri.parse('$base/api/collections/app_release/records'
               '?perPage=1&sort=-versionCode'))
-          .timeout(const Duration(seconds: 8));
+          .timeout(const Duration(seconds: 15));
       if (res.statusCode != 200) return null;
 
       final items = (jsonDecode(res.body)['items'] as List?) ?? [];

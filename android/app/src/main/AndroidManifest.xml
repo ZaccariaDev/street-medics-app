@@ -28,6 +28,9 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
+        <meta-data
+            android:name="android.app.feature_graphics"
+            android:resource="@drawable/feature_graphic" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
