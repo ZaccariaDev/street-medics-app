@@ -228,6 +228,15 @@ class PbService {
     });
   }
 
+  /// Le patient annule SON SOS (statut → resolved).
+  static Future<void> cancelReport(String reportId) async {
+    await _withAuth(() async {
+      await client.collection('reports').update(reportId, body: {
+        'status': 'resolved',
+      });
+    });
+  }
+
   // ---------- Medics ----------
 
   /// Crée ou met à jour la fiche medic de CET appareil (identité persistante
@@ -299,5 +308,31 @@ class PbService {
         'available': r.data['available'] == true,
       };
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();
+  }
+
+  // ---------- Realtime (SSE) ----------
+
+  static final List<UnsubscribeFunc> _unsubscribers = [];
+
+  /// Abonne la carte aux changements de la collection `reports` (SOS).
+  static Future<void> subscribeReports(void Function(dynamic) callback) async {
+    _unsubscribers.add(
+      await client.realtime.subscribe('reports/*', (e) => callback(e)),
+    );
+  }
+
+  /// Abonne la carte aux changements de la collection `medics`.
+  static Future<void> subscribeMedics(void Function(dynamic) callback) async {
+    _unsubscribers.add(
+      await client.realtime.subscribe('medics/*', (e) => callback(e)),
+    );
+  }
+
+  /// Désabonne toutes les subscriptions réaltime.
+  static Future<void> unsubscribeAll() async {
+    for (final unsub in _unsubscribers) {
+      await unsub();
+    }
+    _unsubscribers.clear();
   }
 }

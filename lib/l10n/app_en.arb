@@ -8,6 +8,8 @@
   "sosExplain": "Your position will be sent to nearby street medics.",
   "descriptionOptional": "Description (optional)",
   "sendMyPosition": "SEND MY POSITION",
+  "cancelSos": "CANCEL SOS",
+  "sosCancelled": "SOS cancelled",
   "sending": "Sending…",
   "imMedic": "I'm a street medic — go on duty",
   "endService": "End my shift",

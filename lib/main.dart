@@ -536,6 +536,28 @@ class _SosTabState extends State<SosTab> {
     }
   }
 
+  Future<void> _cancelSos() async {
+    setState(() => _busy = true);
+    final t = AppLocalizations.of(context);
+    final reportId = AppConfig.myReportId;
+    if (reportId.isEmpty) {
+      setState(() => _busy = false);
+      return;
+    }
+    try {
+      await PbService.cancelReport(reportId);
+      await AppConfig.setMyReportId('');
+      await stopBackgroundService();
+      dutyChanged.value++;
+      mapRefresh.value++;
+      if (mounted) showSnack(context, t.sosCancelled);
+    } catch (e) {
+      if (mounted) showSnack(context, '${t.errorSend} : $e');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   Future<void> _goOnDuty() async {
     setState(() => _busy = true);
     final t = AppLocalizations.of(context);
@@ -699,10 +721,17 @@ class _SosTabState extends State<SosTab> {
             width: double.infinity,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
-                backgroundColor: Colors.red,
+                // Orange si un SOS est actif (bouton annuler), rouge sinon.
+                backgroundColor: AppConfig.myReportId.isNotEmpty
+                    ? Colors.orange
+                    : Colors.red,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              onPressed: _busy ? null : _sendSos,
+              onPressed: _busy
+                  ? null
+                  : (AppConfig.myReportId.isNotEmpty
+                      ? _cancelSos
+                      : _sendSos),
               icon: _busy
                   ? const SizedBox(
                       width: 20,
@@ -710,8 +739,14 @@ class _SosTabState extends State<SosTab> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white),
                     )
-                  : const Icon(Icons.sos),
-              label: Text(_busy ? t.sending : t.sendMyPosition),
+                  : Icon(AppConfig.myReportId.isNotEmpty
+                      ? Icons.cancel
+                      : Icons.sos),
+              label: Text(_busy
+                  ? t.sending
+                  : (AppConfig.myReportId.isNotEmpty
+                      ? t.cancelSos
+                      : t.sendMyPosition)),
             ),
           ),
           const SizedBox(height: 12),
@@ -828,8 +863,43 @@ class _MapTabState extends State<MapTab> {
     _refresh();
     _locate();
     mapRefresh.addListener(_refresh);
-    _autoTimer = Timer.periodic(const Duration(seconds: 20), (_) => _refresh());
+    // Temps réel (SSE) : le serveur pousse les changements au lieu du
+    // polling toutes les 20s. Gain majeur de scalabilité.
+    _subscribeRealtime();
     FlutterForegroundTask.addTaskDataCallback(_onTaskData);
+  }
+
+  /// Abonne la carte aux collections `reports` et `medics` en temps réel.
+  void _subscribeRealtime() {
+    PbService.subscribeReports((e) => _onRealtime(e, 'reports'));
+    PbService.subscribeMedics((e) => _onRealtime(e, 'medics'));
+  }
+
+  /// Recoit un événement SSE (create/update/delete) et rafraîchit les
+  /// données correspondantes. Si l'action est `create`, on re-récupère la
+  /// fiche complète via `getOne` (l'événement SSE ne contient pas toujours
+  /// tous les champs).
+  void _onRealtime(dynamic e, String collection) {
+    if (!mounted) return;
+    final data = e.jsonData();
+    final action = (data['action']?.toString() ?? '').toLowerCase();
+    if (action == 'create' && collection == 'reports') {
+      final record = data['record'];
+      if (record is Map && record['id'] != null) {
+        // Re-récupère la fiche complète (champs position, etc.)
+        PbService.getReport(record['id'].toString()).then((r) {
+          if (r != null && mounted) {
+            setState(() {
+              _reports = _reports.where((x) => x['id'] != r['id']).toList()
+                ..add(r);
+            });
+          }
+        });
+        return;
+      }
+    }
+    // update / delete / create incomplet → rafraîchit la liste concernée
+    _refresh();
   }
 
   @override
@@ -840,6 +910,7 @@ class _MapTabState extends State<MapTab> {
     }
     mapRefresh.removeListener(_refresh);
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
+    PbService.unsubscribeAll();
     _mapController.dispose();
     super.dispose();
   }
@@ -1425,10 +1496,12 @@ class _SettingsTabState extends State<SettingsTab> {
           Expanded(
             child: Slider(
               value: _radius,
-              min: 0.5,
+              min: 0.1,
               max: 50,
-              divisions: 99,
-              label: '${_radius.toStringAsFixed(1)} km',
+              divisions: 499,
+              label: _radius < 1
+                  ? '${(_radius * 1000).round()} m'
+                  : '${_radius.toStringAsFixed(1)} km',
               onChanged: (v) => setState(() => _radius = v),
               onChangeEnd: (v) async {
                 await AppConfig.setRadiusKm(v);
