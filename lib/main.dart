@@ -42,6 +42,10 @@ Future<void> main() async {
   // 2. Si échec, tente un re-login complet
   await PbService.refreshSession();
   await PbService.ensureAuth();
+  // Si l'appareil vient de migrer vers un deviceId stable, on désactive la
+  // fiche medic fantôme laissée par l'ancien identifiant (sinon elle
+  // apparaîtrait comme un blip de plus sur la carte).
+  await PbService.retireLegacyMedic(AppConfig.legacyDeviceId);
   // Envoie au serveur les erreurs/warnings des exécutions précédentes.
   AppLog.flush();
   await Notifs.init();

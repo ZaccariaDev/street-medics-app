@@ -272,6 +272,23 @@ class PbService {
     }
   }
 
+  /// Désactive la fiche medic laissée par un ancien `deviceId`.
+  ///
+  /// Quand un appareil migre de `dev-<horodatage>` vers `dev-<ANDROID_ID>`,
+  /// son ancienne fiche reste `available = true` et apparaîtrait comme un
+  /// blip fantôme sur la carte. On la passe hors service au premier démarrage
+  /// après migration, puis on oublie l'ancien identifiant.
+  static Future<void> retireLegacyMedic(String legacyDeviceId) async {
+    if (legacyDeviceId.isEmpty) return;
+    try {
+      await setMedicOffDuty(legacyDeviceId);
+      AppConfig.clearLegacyDeviceId();
+    } catch (_) {
+      // Réseau indisponible : on réessaiera au prochain démarrage (l'ancien
+      // identifiant n'est pas oublié tant que l'opération n'a pas réussi).
+    }
+  }
+
   /// Fiche medic de cet appareil, ou null s'il n'est pas en service.
   static Future<Map<String, dynamic>?> myMedic(String deviceId) async {
     final id = await _findMedicByDevice(deviceId);

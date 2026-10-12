@@ -35,6 +35,9 @@ class AppConfig {
   static String _lang = '';
   static bool _onDuty = false;
   static String _medicRecordId = '';
+
+  /// Ancien `deviceId` (format horodatage) remplacé lors de la migration.
+  static String _legacyDeviceId = '';
   static bool _permsAsked = false;
   static String _victimPhone = '';
   static String _myReportId = '';
@@ -60,6 +63,17 @@ class AppConfig {
   /// d'arrière-plan pour mettre à jour la position).
   static String get medicRecordId => _medicRecordId;
 
+  /// Ancien `deviceId` (format horodatage) remplacé par l'ANDROID_ID stable.
+  ///
+  /// Vide si aucune migration n'a eu lieu. Permet de désactiver la fiche medic
+  /// fantôme que cet identifiant avait laissée sur le serveur.
+  static String get legacyDeviceId => _legacyDeviceId;
+
+  /// Oublie l'ancien `deviceId` (sa fiche a été passée hors service).
+  static void clearLegacyDeviceId() {
+    _legacyDeviceId = '';
+  }
+
   /// Vrai si la demande de permissions du premier lancement a déjà été faite.
   static bool get permsAsked => _permsAsked;
 
@@ -84,11 +98,18 @@ class AppConfig {
     final prefs = await SharedPreferences.getInstance();
     _serverUrl = prefs.getString(_kServerUrl) ?? defaultServerUrl;
     _deviceId = prefs.getString(_kDeviceId) ?? '';
-    if (_deviceId.isEmpty) {
-      // Identifiant STABLE de l'appareil : `androidId` survit aux
-      // réinstallations (contrairement à un timestamp en SharedPreferences).
-      // Sans cela, chaque réinstallation créait une nouvelle fiche medic
-      // fantôme sur la carte.
+    // Identifiant STABLE de l'appareil : `androidId` survit aux
+    // réinstallations (contrairement à un timestamp en SharedPreferences).
+    // Sans cela, chaque réinstallation créait une nouvelle fiche medic
+    // fantôme sur la carte.
+    //
+    // MIGRATION : les premières versions stockaient `dev-<microsecondes>`.
+    // Or cet identifiant n'était calculé QUE si la valeur était vide : un
+    // appareil déjà installé gardait donc son ancien identifiant à vie, et
+    // laissait une fiche fantôme de plus à chaque réinstallation. On remplace
+    // désormais tout identifiant au format horodatage par l'ANDROID_ID stable.
+    final isLegacy = RegExp(r'^dev-\d+$').hasMatch(_deviceId);
+    if (_deviceId.isEmpty || isLegacy) {
       String stable = '';
       try {
         final info = await DeviceInfoPlugin().androidInfo;
@@ -96,10 +117,20 @@ class AppConfig {
       } catch (_) {
         // Plateforme non-Android ou erreur : repli sur un aléatoire stable.
       }
-      _deviceId = stable.isNotEmpty
-          ? 'dev-$stable'
-          : 'dev-${DateTime.now().microsecondsSinceEpoch}';
-      await prefs.setString(_kDeviceId, _deviceId);
+      if (stable.isNotEmpty) {
+        final migrated = 'dev-$stable';
+        if (migrated != _deviceId) {
+          // L'ancien identifiant est conservé : il permet de désactiver la
+          // fiche fantôme qu'il a laissée sur le serveur (voir
+          // `PbService.retireLegacyMedic`).
+          if (isLegacy) _legacyDeviceId = _deviceId;
+          _deviceId = migrated;
+          await prefs.setString(_kDeviceId, _deviceId);
+        }
+      } else if (_deviceId.isEmpty) {
+        _deviceId = 'dev-${DateTime.now().microsecondsSinceEpoch}';
+        await prefs.setString(_kDeviceId, _deviceId);
+      }
     }
     _medicName = prefs.getString(_kMedicName) ?? '';
     _radiusKm = prefs.getDouble(_kRadiusKm) ?? 2.0;
