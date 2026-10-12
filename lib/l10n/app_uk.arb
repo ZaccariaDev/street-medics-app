@@ -89,5 +89,17 @@
   "medicOnTheWay": "Медик прийняв ваш SOS і вже в дорозі.",
   "fillPhone": "Заповнити мій номер",
   "phonePrefilled": "Номер заповнено",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "cancelSos": "СКАСУВАТИ SOS",
+  "sosCancelled": "SOS скасовано",
+  "cancelLastSos": "Скасувати останній",
+  "activeSosCount": "Активних SOS: {count}",
+  "networkError": "Помилка мережі",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

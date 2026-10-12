@@ -89,5 +89,17 @@
   "medicOnTheWay": "메딕이 귀하의 SOS를 접수하고 가는 중입니다.",
   "fillPhone": "내 번호 입력",
   "phonePrefilled": "번호가 입력됨",
-  "locationFailed": "위치를 가져올 수 없습니다. GPS가 활성화되어 있는지 확인하세요."
+  "locationFailed": "위치를 가져올 수 없습니다. GPS가 활성화되어 있는지 확인하세요.",
+  "cancelSos": "SOS 취소",
+  "sosCancelled": "SOS가 취소되었습니다",
+  "cancelLastSos": "마지막 항목 취소",
+  "activeSosCount": "진행 중인 SOS {count}건",
+  "networkError": "네트워크 오류",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

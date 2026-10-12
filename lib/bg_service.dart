@@ -41,10 +41,14 @@ class AppTaskHandler extends TaskHandler {
   double _radiusKm = 2.0;
 
   /// SOS du patient (mode patient : on surveille la prise en charge).
-  String _patientReportId = '';
+  ///
+  /// Plusieurs ids possibles : un témoin peut signaler plusieurs blessés. On
+  /// surveille TOUS ses signalements, sinon un medecin qui prend en charge le
+  /// 2e blessé n'alerterait jamais l'émetteur.
+  List<String> _patientReportIds = [];
 
-  /// Évite de notifier en boucle : une seule alerte par prise en charge.
-  bool _patientAlerted = false;
+  /// Ids déjà annoncés comme pris en charge (une alerte par signalement).
+  final Set<String> _patientAlertedIds = {};
 
   /// Dernière position envoyée au serveur (mode medic) — on n'envoie une
   /// mise à jour que si le déplacement dépasse 100 m pour réduire la charge.
@@ -85,7 +89,15 @@ class AppTaskHandler extends TaskHandler {
         _recordId = (m['recordId'] ?? '').toString();
         _deviceId = (m['deviceId'] ?? '').toString();
         _radiusKm = (m['radiusKm'] as num?)?.toDouble() ?? 2.0;
-        _patientReportId = (m['patientReportId'] ?? '').toString();
+        _patientReportIds = ((m['patientReportIds'] as List?) ?? [])
+            .map((e) => e.toString())
+            .where((e) => e.isNotEmpty)
+            .toList();
+        // Compatibilité : ancien format à un seul id.
+        final legacy = (m['patientReportId'] ?? '').toString();
+        if (_patientReportIds.isEmpty && legacy.isNotEmpty) {
+          _patientReportIds = [legacy];
+        }
       } catch (_) {}
     }
   }
@@ -142,9 +154,11 @@ class AppTaskHandler extends TaskHandler {
         }
       }
 
-      // Mode patient : surveille la prise en charge de SON SOS.
-      if (_patientReportId.isNotEmpty && _base.isNotEmpty) {
-        await _checkPatientClaim();
+      // Mode patient : surveille la prise en charge de TOUS ses SOS.
+      if (_patientReportIds.isNotEmpty && _base.isNotEmpty) {
+        for (final id in List<String>.from(_patientReportIds)) {
+          await _checkPatientClaim(id);
+        }
       } else {
         await _checkAlerts(pos);
       }
@@ -153,14 +167,14 @@ class AppTaskHandler extends TaskHandler {
     }
   }
 
-  /// Mode patient : interroge le statut du SOS de cet appareil.
+  /// Mode patient : interroge le statut d'UN des SOS de cet appareil.
   ///
   /// Dès qu'un medecin le prend en charge (`status = "claimed"`), on alerte
   /// le patient et on lui transmet la position du medecin (mise à jour côté
   /// serveur par le service medic, toutes les 30 s).
-  Future<void> _checkPatientClaim() async {
+  Future<void> _checkPatientClaim(String reportId) async {
     final res = await _client!.get(
-      Uri.parse('$_base/api/collections/reports/records/$_patientReportId'),
+      Uri.parse('$_base/api/collections/reports/records/$reportId'),
     );
     if (res.statusCode != 200) return;
 
@@ -170,20 +184,26 @@ class AppTaskHandler extends TaskHandler {
     // retrouver la position du medecin qui arrive).
     final claimedById = (r['claimedBy'] ?? '').toString();
 
-    if (status == 'claimed' && claimedById.isNotEmpty && !_patientAlerted) {
-      _patientAlerted = true;
+    if (status == 'claimed' && claimedById.isNotEmpty &&
+        !_patientAlertedIds.contains(reportId)) {
+      _patientAlertedIds.add(reportId);
+      final restants = _patientReportIds.length - _patientAlertedIds.length;
       // Alerte le patient : un medecin arrive.
       FlutterForegroundTask.sendDataToMain({
         'type': 'medic_on_the_way',
-        'reportId': _patientReportId,
+        'reportId': reportId,
         'claimedById': claimedById,
       });
 
       if (_notifsReady) {
         await _notifs.show(
-          id: 43,
+          // id dérivé du reportId : deux blessés pris en charge en même temps
+          // doivent produire DEUX notifications distinctes.
+          id: 43 + reportId.hashCode.abs() % 1000,
           title: 'Medecin en route',
-          body: 'Un medecin a pris votre SOS en charge et arrive.',
+          body: restants > 0
+              ? 'Un medecin a pris un de vos SOS en charge ($restants autre(s) en attente).'
+              : 'Un medecin a pris votre SOS en charge et arrive.',
           notificationDetails: const NotificationDetails(
             android: AndroidNotificationDetails(
               'sos_alerts',
@@ -211,6 +231,7 @@ class AppTaskHandler extends TaskHandler {
         if (mpos is Map) {
           FlutterForegroundTask.sendDataToMain({
             'type': 'medic_position',
+            'reportId': reportId,
             'lat': mpos['lat'],
             'lng': mpos['lng'],
           });

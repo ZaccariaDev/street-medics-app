@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +20,8 @@ class AppConfig {
   static const String _kPermsAsked = 'perms_asked';
   static const String _kVictimPhone = 'victim_phone';
   static const String _kMyReportId = 'my_report_id';
+  /// Liste des SOS envoyés par cet appareil (plusieurs signalements possibles).
+  static const String _kMyReports = 'my_reports';
   static const String _kAuthEmail = 'auth_email';
   static const String _kAuthPassword = 'auth_password';
 
@@ -40,7 +44,10 @@ class AppConfig {
   static String _legacyDeviceId = '';
   static bool _permsAsked = false;
   static String _victimPhone = '';
-  static String _myReportId = '';
+
+  /// SOS envoyés par cet appareil (ordre d'envoi). Peut en contenir plusieurs :
+  /// en manifestation, un témoin peut signaler plusieurs blessés.
+  static List<String> _myReports = <String>[];
   static String _authEmail = '';
   static String _authPassword = '';
 
@@ -83,7 +90,17 @@ class AppConfig {
   /// Id du SOS envoyé par CET appareil (vide si aucun). Sert à suivre le
   /// medecin qui arrive : tant que ce SOS est pris en charge, la carte
   /// reste accessible au patient.
-  static String get myReportId => _myReportId;
+  /// Id du PREMIER SOS envoyé par cet appareil (compatibilité ascendante).
+  ///
+  /// Utilisé par le service d'arrière-plan en mode patient : historiquement,
+  /// un appareil n'avait qu'un SOS. Préférer `myReports` pour tout nouveau code.
+  static String get myReportId => _myReports.isNotEmpty ? _myReports.first : '';
+
+  /// Tous les SOS envoyés par cet appareil, dans l'ordre d'envoi.
+  static List<String> get myReports => List<String>.unmodifiable(_myReports);
+
+  /// Vrai si cet appareil a au moins un SOS en cours.
+  static bool get hasMyReports => _myReports.isNotEmpty;
 
   /// Email du compte auto-généré (auth automatique).
   static String get authEmail => _authEmail;
@@ -139,7 +156,20 @@ class AppConfig {
     _medicRecordId = prefs.getString(_kMedicRecordId) ?? '';
     _permsAsked = prefs.getBool(_kPermsAsked) ?? false;
     _victimPhone = prefs.getString(_kVictimPhone) ?? '';
-    _myReportId = prefs.getString(_kMyReportId) ?? '';
+    // SOS envoyés par cet appareil. On lit la nouvelle clé (liste) et, si elle
+    // est absente, l'ancienne clé (un seul id) : sans cette reprise, un
+    // utilisateur qui avait un SOS en cours le perdrait au redémarrage.
+    final rawList = prefs.getString(_kMyReports);
+    if (rawList != null && rawList.isNotEmpty) {
+      try {
+        _myReports = (jsonDecode(rawList) as List).map((e) => e.toString()).toList();
+      } catch (_) {
+        _myReports = <String>[];
+      }
+    } else {
+      final legacy = prefs.getString(_kMyReportId) ?? '';
+      _myReports = legacy.isEmpty ? <String>[] : <String>[legacy];
+    }
     _authEmail = prefs.getString(_kAuthEmail) ?? '';
     _authPassword = prefs.getString(_kAuthPassword) ?? '';
   }
@@ -181,10 +211,38 @@ class AppConfig {
     (await SharedPreferences.getInstance()).setString(_kVictimPhone, v);
   }
 
-  /// Mémorise l'id du SOS envoyé par cet appareil.
+  /// Remplace l'unique SOS par celui-ci (ancienne API, conservée pour la
+  /// compatibilité : préférer `addMyReport`).
   static Future<void> setMyReportId(String v) async {
-    _myReportId = v;
-    (await SharedPreferences.getInstance()).setString(_kMyReportId, v);
+    _myReports = v.isEmpty ? <String>[] : <String>[v];
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kMyReportId, v);
+    await _persistMyReports();
+  }
+
+  /// Ajoute un SOS à la liste des signalements de cet appareil.
+  static Future<void> addMyReport(String id) async {
+    if (id.isEmpty || _myReports.contains(id)) return;
+    _myReports = [..._myReports, id];
+    await _persistMyReports();
+  }
+
+  /// Retire un SOS de la liste (annulé ou résolu).
+  static Future<void> removeMyReport(String id) async {
+    if (!_myReports.contains(id)) return;
+    _myReports = _myReports.where((e) => e != id).toList();
+    await _persistMyReports();
+  }
+
+  /// Remplace toute la liste (après vérification auprès du serveur).
+  static Future<void> setMyReports(List<String> ids) async {
+    _myReports = List<String>.from(ids);
+    await _persistMyReports();
+  }
+
+  static Future<void> _persistMyReports() async {
+    await (await SharedPreferences.getInstance())
+        .setString(_kMyReports, jsonEncode(_myReports));
   }
 
   /// Mémorise les credentials du compte auto-généré.

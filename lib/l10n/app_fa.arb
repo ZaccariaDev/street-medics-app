@@ -89,5 +89,17 @@
   "medicOnTheWay": "یک امدادگر درخواست شما را پذیرفته و در راه است.",
   "fillPhone": "شماره من را پر کن",
   "phonePrefilled": "شماره پر شد",
-  "locationFailed": "موقعیت شما دریافت نشد. مطمئن شوید GPS فعال است."
+  "locationFailed": "موقعیت شما دریافت نشد. مطمئن شوید GPS فعال است.",
+  "cancelSos": "لغو درخواست",
+  "sosCancelled": "درخواست لغو شد",
+  "cancelLastSos": "لغو آخری",
+  "activeSosCount": "{count} درخواست فعال",
+  "networkError": "خطای شبکه",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

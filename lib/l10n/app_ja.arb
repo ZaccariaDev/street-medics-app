@@ -89,5 +89,17 @@
   "medicOnTheWay": "メディックがあなたのSOSを受け付け、向かっています。",
   "fillPhone": "番号を入力",
   "phonePrefilled": "番号が入力されました",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "cancelSos": "SOSを取り消す",
+  "sosCancelled": "SOSを取り消しました",
+  "cancelLastSos": "最後の1件を取り消す",
+  "activeSosCount": "進行中のSOS {count}件",
+  "networkError": "ネットワークエラー",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

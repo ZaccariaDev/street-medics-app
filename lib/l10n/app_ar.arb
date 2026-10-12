@@ -89,5 +89,17 @@
   "medicOnTheWay": "تولى مسعف طلب النجدة الخاص بك وهو في الطريق.",
   "fillPhone": "تعبئة رقمي",
   "phonePrefilled": "تم تعبئة الرقم",
-  "locationFailed": "تعذر الحصول على موقعك. تأكد من تفعيل نظام تحديد المواقع."
+  "locationFailed": "تعذر الحصول على موقعك. تأكد من تفعيل نظام تحديد المواقع.",
+  "cancelSos": "إلغاء النداء",
+  "sosCancelled": "تم إلغاء النداء",
+  "cancelLastSos": "إلغاء الأخير",
+  "activeSosCount": "{count} نداءات جارية",
+  "networkError": "خطأ في الشبكة",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

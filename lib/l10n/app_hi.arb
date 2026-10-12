@@ -89,5 +89,17 @@
   "medicOnTheWay": "एक मेडिक ने आपका SOS लिया है और रास्ते में है।",
   "fillPhone": "मेरा नंबर भरें",
   "phonePrefilled": "नंबर भरा गया",
-  "locationFailed": "आपकी स्थिति प्राप्त नहीं हो सकी। सुनिश्चित करें कि GPS सक्षम है।"
+  "locationFailed": "आपकी स्थिति प्राप्त नहीं हो सकी। सुनिश्चित करें कि GPS सक्षम है।",
+  "cancelSos": "SOS रद्द करें",
+  "sosCancelled": "SOS रद्द किया गया",
+  "cancelLastSos": "अंतिम रद्द करें",
+  "activeSosCount": "{count} सक्रिय SOS",
+  "networkError": "नेटवर्क त्रुटि",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

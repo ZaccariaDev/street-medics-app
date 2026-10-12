@@ -89,5 +89,17 @@
   "medicOnTheWay": "Een medic heeft uw SOS aangenomen en is onderweg.",
   "fillPhone": "Mijn nummer invullen",
   "phonePrefilled": "Nummer ingevuld",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "cancelSos": "SOS ANNULEREN",
+  "sosCancelled": "SOS geannuleerd",
+  "cancelLastSos": "Laatste annuleren",
+  "activeSosCount": "{count} actieve SOS",
+  "networkError": "Netwerkfout",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

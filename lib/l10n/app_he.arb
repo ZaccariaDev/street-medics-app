@@ -89,5 +89,17 @@
   "medicOnTheWay": "מגיש לקח את ה-SOS שלך ובדרך.",
   "fillPhone": "מלא את המספר שלי",
   "phonePrefilled": "המספר מולא",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "cancelSos": "ביטול SOS",
+  "sosCancelled": "ה-SOS בוטל",
+  "cancelLastSos": "ביטול האחרון",
+  "activeSosCount": "{count} SOS פעילים",
+  "networkError": "שגיאת רשת",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

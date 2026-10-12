@@ -89,5 +89,17 @@
   "medicOnTheWay": "Bir medic SOS'unuzu üstlendi ve yolda.",
   "fillPhone": "Numaramı doldur",
   "phonePrefilled": "Numara dolduruldu",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "cancelSos": "SOS'U İPTAL ET",
+  "sosCancelled": "SOS iptal edildi",
+  "cancelLastSos": "Sonuncuyu iptal et",
+  "activeSosCount": "{count} aktif SOS",
+  "networkError": "Ağ hatası",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

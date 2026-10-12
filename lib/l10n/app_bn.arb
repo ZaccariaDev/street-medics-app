@@ -89,5 +89,17 @@
   "medicOnTheWay": "একজন মেডিক আপনার SOS নিয়েছেন এবং পথে আছেন।",
   "fillPhone": "আমার নম্বর পূরণ করুন",
   "phonePrefilled": "নম্বর পূরণ হয়েছে",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "cancelSos": "SOS বাতিল করুন",
+  "sosCancelled": "SOS বাতিল হয়েছে",
+  "cancelLastSos": "শেষটি বাতিল করুন",
+  "activeSosCount": "{count}টি সক্রিয় SOS",
+  "networkError": "নেটওয়ার্ক ত্রুটি",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

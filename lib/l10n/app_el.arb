@@ -89,5 +89,17 @@
   "medicOnTheWay": "Ένας medecin πήρε το SOS σας και είναι καθ' οδόν.",
   "fillPhone": "Συμπλήρωσε τον αριθμό μου",
   "phonePrefilled": "Ο αριθμός συμπληρώθηκε",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "cancelSos": "ΑΚΥΡΩΣΗ SOS",
+  "sosCancelled": "Το SOS ακυρώθηκε",
+  "cancelLastSos": "Ακύρωση τελευταίου",
+  "activeSosCount": "{count} ενεργά SOS",
+  "networkError": "Σφάλμα δικτύου",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -9,6 +9,13 @@
   "descriptionOptional": "Description (optional)",
   "sendMyPosition": "SEND MY POSITION",
   "cancelSos": "CANCEL SOS",
+  "cancelLastSos": "Cancel the last one",
+  "activeSosCount": "{count} active SOS",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "sosCancelled": "SOS cancelled",
   "sending": "Sending…",
   "imMedic": "I'm a street medic — go on duty",

@@ -89,5 +89,17 @@
   "medicOnTheWay": "Seorang medic telah menerima SOS Anda dan sedang dalam perjalanan.",
   "fillPhone": "Isi nomor saya",
   "phonePrefilled": "Nomor terisi",
-  "locationFailed": "Tidak dapat mendapatkan lokasi Anda. Pastikan GPS diaktifkan."
+  "locationFailed": "Tidak dapat mendapatkan lokasi Anda. Pastikan GPS diaktifkan.",
+  "cancelSos": "BATALKAN SOS",
+  "sosCancelled": "SOS dibatalkan",
+  "cancelLastSos": "Batalkan yang terakhir",
+  "activeSosCount": "{count} SOS aktif",
+  "networkError": "Kesalahan jaringan",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

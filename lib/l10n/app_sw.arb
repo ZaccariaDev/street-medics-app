@@ -89,5 +89,17 @@
   "medicOnTheWay": "Mhudumu amechukua SOS yako na anakwenda.",
   "fillPhone": "Jaza nambari yangu",
   "phonePrefilled": "Nambari imejazwa",
-  "locationFailed": "Haupata kupata mahali pako. Hakikika GPS imewezeshwa."
+  "locationFailed": "Haupata kupata mahali pako. Hakikika GPS imewezeshwa.",
+  "cancelSos": "GHAIRI SOS",
+  "sosCancelled": "SOS imeghairiwa",
+  "cancelLastSos": "Ghairi ya mwisho",
+  "activeSosCount": "SOS {count} zinazoendelea",
+  "networkError": "Hitilafu ya mtandao",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

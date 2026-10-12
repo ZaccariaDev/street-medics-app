@@ -199,9 +199,9 @@ class _MainScreenState extends State<MainScreen> {
     if (!mounted) return;
     setState(() {
       _onDuty = AppConfig.onDuty;
-      // Le patient suit le medecin qui arrive uniquement quand son SOS est
-      // pris en charge (pas quand il est encore ouvert).
-      _patientTracking = AppConfig.myReportId.isNotEmpty &&
+      // Le patient suit le medecin qui arrive uniquement quand AU MOINS UN de
+      // ses SOS est pris en charge (pas quand ils sont encore ouverts).
+      _patientTracking = AppConfig.hasMyReports &&
           !AppConfig.onDuty &&
           _patientTracking;
     });
@@ -539,11 +539,16 @@ class _SosTabState extends State<SosTab> {
       );
       // Le patient suit son SOS : la carte reste accessible tant qu'un
       // medecin l'a pris en charge (et jusqu'à ce qu'il soit résolu).
-      await AppConfig.setMyReportId(id);
+      // On AJOUTE à la liste : un témoin peut signaler plusieurs blessés.
+      await AppConfig.addMyReport(id);
       // Lance le service en mode patient : alerte dès la prise en charge.
       await startBackgroundService();
-      if (mounted) showSnack(context, t.positionShared);
+      if (mounted) {
+        final n = AppConfig.myReports.length;
+        showSnack(context, n > 1 ? '${t.positionShared} ($n)' : t.positionShared);
+      }
       mapRefresh.value++;
+      dutyChanged.value++;
     } catch (e, st) {
       AppLog.error(e, stack: st, context: 'sendSos');
       if (mounted) showSnack(context, '${t.errorSend} : $e');
@@ -552,21 +557,30 @@ class _SosTabState extends State<SosTab> {
     }
   }
 
-  Future<void> _cancelSos() async {
+  /// Annule le DERNIER SOS envoyé (celui qu'on vient de créer par erreur).
+  Future<void> _cancelLastSos() async {
+    final reports = AppConfig.myReports;
+    if (reports.isEmpty) return;
+    await _cancelReport(reports.last);
+  }
+
+  /// Annule un SOS précis de la liste.
+  Future<void> _cancelReport(String reportId) async {
     setState(() => _busy = true);
     final t = AppLocalizations.of(context);
-    final reportId = AppConfig.myReportId;
-    if (reportId.isEmpty) {
-      setState(() => _busy = false);
-      return;
-    }
     try {
       await PbService.cancelReport(reportId);
-      await AppConfig.setMyReportId('');
-      await stopBackgroundService();
+      await AppConfig.removeMyReport(reportId);
+      // Le service d'arrière-plan ne tourne que s'il reste un SOS à suivre.
+      if (!AppConfig.hasMyReports) {
+        await stopBackgroundService();
+      }
       dutyChanged.value++;
       mapRefresh.value++;
-      if (mounted) showSnack(context, t.sosCancelled);
+      if (mounted) {
+        final n = AppConfig.myReports.length;
+        showSnack(context, n > 0 ? '${t.sosCancelled} ($n)' : t.sosCancelled);
+      }
     } catch (e, st) {
       AppLog.error(e, stack: st, context: 'cancelSos');
       if (mounted) showSnack(context, '${t.errorSend} : $e');
@@ -736,21 +750,17 @@ class _SosTabState extends State<SosTab> {
             ),
           ),
           const SizedBox(height: 16),
+          // Bouton SOS PRINCIPAL : un seul appui envoie un SOS (inchangé).
+          // Un témoin peut appuyer plusieurs fois pour signaler plusieurs
+          // blessés : chaque appui crée un signalement indépendant.
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
-                // Orange si un SOS est actif (bouton annuler), rouge sinon.
-                backgroundColor: AppConfig.myReportId.isNotEmpty
-                    ? Colors.orange
-                    : Colors.red,
+                backgroundColor: Colors.red,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              onPressed: _busy
-                  ? null
-                  : (AppConfig.myReportId.isNotEmpty
-                      ? _cancelSos
-                      : _sendSos),
+              onPressed: _busy ? null : _sendSos,
               icon: _busy
                   ? const SizedBox(
                       width: 20,
@@ -758,16 +768,35 @@ class _SosTabState extends State<SosTab> {
                       child: CircularProgressIndicator(
                           strokeWidth: 2, color: Colors.white),
                     )
-                  : Icon(AppConfig.myReportId.isNotEmpty
-                      ? Icons.cancel
-                      : Icons.sos),
-              label: Text(_busy
-                  ? t.sending
-                  : (AppConfig.myReportId.isNotEmpty
-                      ? t.cancelSos
-                      : t.sendMyPosition)),
+                  : const Icon(Icons.sos),
+              label: Text(_busy ? t.sending : t.sendMyPosition),
             ),
           ),
+          // SOS déjà envoyés par cet appareil : suivi + annulation du dernier.
+          // N'apparaît qu'à partir du 2e signalement, pour ne rien ajouter au
+          // parcours du premier SOS.
+          if (AppConfig.hasMyReports) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.activeSosCount(AppConfig.myReports.length),
+                    style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.orange),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: _busy ? null : _cancelLastSos,
+                  icon: const Icon(Icons.cancel, size: 18),
+                  label: Text(t.cancelLastSos),
+                  style: TextButton.styleFrom(foregroundColor: Colors.orange),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 12),
           const EmergencyButton(),
           const SizedBox(height: 20),
@@ -817,10 +846,11 @@ Future<void> startBackgroundService() async {
     'deviceId': AppConfig.deviceId,
     'medicName': AppConfig.medicName,
     'radiusKm': AppConfig.radiusKm,
-    // `patientReportId` : mode patient — surveille la prise en charge de SON SOS.
+    // `patientReportIds` : mode patient — surveille la prise en charge de TOUS
+    // les SOS de cet appareil (un témoin peut en signaler plusieurs).
     // Présent = mode patient, absent = mode medic.
-    if (AppConfig.myReportId.isNotEmpty)
-      'patientReportId': AppConfig.myReportId,
+    if (AppConfig.hasMyReports)
+      'patientReportIds': AppConfig.myReports,
   });
   await FlutterForegroundTask.saveData(key: 'cfg', value: cfg);
 
@@ -1301,9 +1331,10 @@ class _MapTabState extends State<MapTab> {
       await PbService.closeReport(reportId, name);
       if (mounted) showSnack(context, AppLocalizations.of(context).resolvedBtn);
       _fadeOut(reportId);
-      // Si c'était le SOS de cet appareil, on n'a plus à le suivre.
-      if (reportId == AppConfig.myReportId) {
-        await AppConfig.setMyReportId('');
+      // Si c'était un des SOS de cet appareil, on ne le suit plus. On retire
+      // précisément celui-ci : les autres signalements restent en cours.
+      if (AppConfig.myReports.contains(reportId)) {
+        await AppConfig.removeMyReport(reportId);
         dutyChanged.value++;
       }
     } catch (e) {

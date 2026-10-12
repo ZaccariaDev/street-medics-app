@@ -89,5 +89,17 @@
   "medicOnTheWay": "Ein Medic hat Ihr SOS angenommen und ist unterwegs.",
   "fillPhone": "Meine Nummer einfügen",
   "phonePrefilled": "Nummer eingefügt",
-  "locationFailed": "Standort konnte nicht ermittelt werden. Stelle sicher, dass GPS aktiviert ist."
+  "locationFailed": "Standort konnte nicht ermittelt werden. Stelle sicher, dass GPS aktiviert ist.",
+  "cancelSos": "SOS ABBRECHEN",
+  "sosCancelled": "SOS abgebrochen",
+  "cancelLastSos": "Letztes abbrechen",
+  "activeSosCount": "{count} aktive SOS",
+  "networkError": "Netzwerkfehler",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

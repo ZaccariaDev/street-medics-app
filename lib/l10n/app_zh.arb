@@ -89,5 +89,17 @@
   "medicOnTheWay": "有医护已接受您的求救，正在赶来。",
   "fillPhone": "填入我的号码",
   "phonePrefilled": "号码已填入",
-  "locationFailed": "无法获取您的位置。请确保 GPS 已开启。"
+  "locationFailed": "无法获取您的位置。请确保 GPS 已开启。",
+  "cancelSos": "取消 SOS",
+  "sosCancelled": "SOS 已取消",
+  "cancelLastSos": "取消最后一个",
+  "activeSosCount": "{count} 个 SOS 进行中",
+  "networkError": "网络错误",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -89,5 +89,17 @@
   "medicOnTheWay": "Medyk przyjął twoje SOS i jest w drodze.",
   "fillPhone": "Wypełnij mój numer",
   "phonePrefilled": "Numer wypełniony",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "cancelSos": "ANULUJ SOS",
+  "sosCancelled": "SOS anulowany",
+  "cancelLastSos": "Anuluj ostatnie",
+  "activeSosCount": "{count} aktywnych SOS",
+  "networkError": "Błąd sieci",
+  "@activeSosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }
