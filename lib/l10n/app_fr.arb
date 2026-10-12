@@ -19,7 +19,9 @@
   "activeSosCount": "{count} SOS en cours",
   "@activeSosCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "sosCancelled": "SOS annulé",
@@ -105,5 +107,38 @@
   "medicOnTheWay": "Un medecin a pris votre SOS en charge et arrive.",
   "fillPhone": "Préremplir mon numéro",
   "phonePrefilled": "Numéro prérempli",
-  "locationFailed": "Impossible d'obtenir votre position. Vérifiez que le GPS est activé."
+  "locationFailed": "Impossible d'obtenir votre position. Vérifiez que le GPS est activé.",
+  "zoneHead": "Tête",
+  "zoneNeck": "Cou",
+  "zoneNape": "Nuque",
+  "zoneShoulderL": "Épaule gauche",
+  "zoneShoulderR": "Épaule droite",
+  "zoneChest": "Buste",
+  "zoneBack": "Dos",
+  "zoneAbdomen": "Ventre",
+  "zoneLowerBack": "Reins",
+  "zoneArmL": "Bras gauche",
+  "zoneArmR": "Bras droit",
+  "zoneForearmL": "Avant-bras gauche",
+  "zoneForearmR": "Avant-bras droit",
+  "zoneHandL": "Main gauche",
+  "zoneHandR": "Main droite",
+  "zoneThighL": "Cuisse gauche",
+  "zoneThighR": "Cuisse droite",
+  "zoneShinL": "Jambe gauche",
+  "zoneShinR": "Jambe droite",
+  "zoneFootL": "Pied gauche",
+  "zoneFootR": "Pied droit",
+  "injuryWound": "Plaie",
+  "injuryFracture": "Fracture",
+  "injuryBurn": "Brûlure",
+  "injuryOther": "Autre",
+  "bodyMapTitle": "Blessures",
+  "bodyMapHint": "Touchez une partie du corps",
+  "bodyMapFront": "Face",
+  "bodyMapBack": "Dos",
+  "bodyMapClear": "Effacer",
+  "bodyMapNone": "Aucune blessure indiquée",
+  "bodyMapSelected": "Blessure sélectionnée",
+  "injuriesLabel": "Blessures"
 }

@@ -19,7 +19,9 @@
   "activeSosCount": "{count} active SOS",
   "@activeSosCount": {
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "sosCancelled": "SOS cancelled",
@@ -105,5 +107,38 @@
   "medicOnTheWay": "A medic has taken your SOS and is on the way.",
   "fillPhone": "Fill in my number",
   "phonePrefilled": "Number filled in",
-  "locationFailed": "Could not get your location. Make sure GPS is enabled."
+  "locationFailed": "Could not get your location. Make sure GPS is enabled.",
+  "zoneHead": "Head",
+  "zoneNeck": "Neck",
+  "zoneNape": "Nape",
+  "zoneShoulderL": "Left shoulder",
+  "zoneShoulderR": "Right shoulder",
+  "zoneChest": "Chest",
+  "zoneBack": "Back",
+  "zoneAbdomen": "Abdomen",
+  "zoneLowerBack": "Lower back",
+  "zoneArmL": "Left arm",
+  "zoneArmR": "Right arm",
+  "zoneForearmL": "Left forearm",
+  "zoneForearmR": "Right forearm",
+  "zoneHandL": "Left hand",
+  "zoneHandR": "Right hand",
+  "zoneThighL": "Left thigh",
+  "zoneThighR": "Right thigh",
+  "zoneShinL": "Left leg",
+  "zoneShinR": "Right leg",
+  "zoneFootL": "Left foot",
+  "zoneFootR": "Right foot",
+  "injuryWound": "Wound",
+  "injuryFracture": "Fracture",
+  "injuryBurn": "Burn",
+  "injuryOther": "Other",
+  "bodyMapTitle": "Injuries",
+  "bodyMapHint": "Tap a body part",
+  "bodyMapFront": "Front",
+  "bodyMapBack": "Back view",
+  "bodyMapClear": "Clear",
+  "bodyMapNone": "No injury marked",
+  "bodyMapSelected": "Selected injury",
+  "injuriesLabel": "Injuries"
 }
