@@ -14,6 +14,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:mobile_number/mobile_number.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'app_log.dart';
 import 'bg_service.dart';
 import 'config.dart';
 import 'l10n/app_localizations.dart';
@@ -28,11 +29,21 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   FlutterForegroundTask.initCommunicationPort();
   await AppConfig.load();
+  // Renseigne la version de l'app (utilisée dans les journaux).
+  try {
+    final info = await PackageInfo.fromPlatform();
+    AppConfig.appVersion = info.version;
+  } catch (_) {}
+  // Journalisation : installe les gestionnaires d'erreurs et charge les
+  // traces de l'exécution PRÉCÉDENTE (conservées sur disque).
+  await AppLog.init();
   // Auth automatique avant tout appel API (silencieux si échec).
   // 1. Tente de rafraîchir la session existante (token expiré mais refresh valide)
   // 2. Si échec, tente un re-login complet
   await PbService.refreshSession();
   await PbService.ensureAuth();
+  // Envoie au serveur les erreurs/warnings des exécutions précédentes.
+  AppLog.flush();
   await Notifs.init();
   // Configuration du service d'arrière-plan (obligatoire avant startService).
   FlutterForegroundTask.init(
@@ -998,11 +1009,17 @@ class _MapTabState extends State<MapTab> {
       // dans le header de la carte (voir _buildHeader).
     } finally {
       if (mounted) setState(() => _loading = false);
-      // Adapter l'intervalle du timer selon le nombre d'échecs consécutifs
+      // Le polling est un FILET DE SÉCURITÉ, pas le mécanisme principal :
+      //  - SSE actif → intervalle long (120 s) : le temps réel fait le travail,
+      //    on ne fait qu'une vérification périodique de cohérence ;
+      //  - SSE tombé → intervalle court (20 s) pour continuer à voir les
+      //    changements sans temps réel.
+      // L'intervalle s'allonge aussi en cas d'échecs réseau répétés.
       _autoTimer?.cancel();
+      final base = PbService.realtimeConnected ? 120 : 20;
       final interval = _refreshFailCount == 0
-          ? 20
-          : math.min(20 * (1 << _refreshFailCount), _maxRefreshInterval);
+          ? base
+          : math.min(base * (1 << _refreshFailCount), _maxRefreshInterval);
       _autoTimer = Timer.periodic(Duration(seconds: interval), (_) => _refresh());
     }
   }

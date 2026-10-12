@@ -77,6 +77,9 @@ class AppConfig {
   /// Mot de passe du compte auto-généré (auth automatique).
   static String get authPassword => _authPassword;
 
+  /// Version de l'app (renseignée au démarrage via `PackageInfo`).
+  static String appVersion = '';
+
   static Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
     _serverUrl = prefs.getString(_kServerUrl) ?? defaultServerUrl;

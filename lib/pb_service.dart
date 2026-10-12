@@ -298,6 +298,29 @@ class PbService {
     });
   }
 
+  /// Envoie une entrée de journal (`logs`) au serveur.
+  ///
+  /// Renvoie `true` si l'entrée a été acceptée, `false` sinon (réseau
+  /// indisponible ou règle serveur refusée) : l'appelant conserve alors
+  /// l'entrée localement pour un nouvel essai.
+  static Future<bool> sendLog(Map<String, dynamic> entry) async {
+    try {
+      await client.collection('logs').create(body: {
+        'deviceId': entry['deviceId'] ?? '',
+        'level': entry['level'] ?? 'error',
+        'message': entry['message'] ?? '',
+        'stack': entry['stack'] ?? '',
+        'context': entry['context'] ?? '',
+        'appVersion': entry['appVersion'] ?? '',
+        'platform': entry['platform'] ?? '',
+        'occurredAt': entry['occurredAt'] ?? '',
+      });
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // ---------- Realtime (SSE) ----------
 
   static final List<UnsubscribeFunc> _unsubscribers = [];
