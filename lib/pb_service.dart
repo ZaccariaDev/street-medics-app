@@ -369,9 +369,15 @@ class PbService {
     _unsubscribers.clear();
   }
 
-  /// Liste les medics, avec position et disponibilité.
+  /// Liste les medics EN SERVICE, avec position.
+  ///
+  /// Seuls les medics `available = true` sont renvoyés : une fiche laissée
+  /// par une fin de service (ou par une ancienne installation) ne doit
+  /// jamais apparaître comme un blip sur la carte.
   static Future<List<Map<String, dynamic>>> listMedics() async {
-    final res = await client.collection('medics').getList(perPage: 200);
+    final res = await client
+        .collection('medics')
+        .getList(perPage: 200, filter: 'available = true');
     return res.items.map((r) {
       final base = _pos(r);
       return {

@@ -1,3 +1,4 @@
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Configuration globale de l'app Street Medics.
@@ -81,7 +82,20 @@ class AppConfig {
     _serverUrl = prefs.getString(_kServerUrl) ?? defaultServerUrl;
     _deviceId = prefs.getString(_kDeviceId) ?? '';
     if (_deviceId.isEmpty) {
-      _deviceId = 'dev-${DateTime.now().microsecondsSinceEpoch}';
+      // Identifiant STABLE de l'appareil : `androidId` survit aux
+      // réinstallations (contrairement à un timestamp en SharedPreferences).
+      // Sans cela, chaque réinstallation créait une nouvelle fiche medic
+      // fantôme sur la carte.
+      String stable = '';
+      try {
+        final info = await DeviceInfoPlugin().androidInfo;
+        stable = info.id; // ANDROID_ID
+      } catch (_) {
+        // Plateforme non-Android ou erreur : repli sur un aléatoire stable.
+      }
+      _deviceId = stable.isNotEmpty
+          ? 'dev-$stable'
+          : 'dev-${DateTime.now().microsecondsSinceEpoch}';
       await prefs.setString(_kDeviceId, _deviceId);
     }
     _medicName = prefs.getString(_kMedicName) ?? '';
