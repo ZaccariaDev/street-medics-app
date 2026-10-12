@@ -853,6 +853,15 @@ class _SosTabState extends State<SosTab> {
                         final r = i < rows.length ? rows[i] : null;
                         final desc = (r?['description'] ?? '') as String;
                         final claimedBy = (r?['claimedBy'] ?? '') as String;
+                        // Blessures localisées : c'est ce qui permet de
+                        // distinguer plusieurs SOS d'un coup d'œil.
+                        final injuries =
+                            (r?['injuries'] as List?)?.cast<Injury>() ??
+                                const <Injury>[];
+                        // La vue compte : « épaule gauche » ne se lit pas
+                        // pareil de face et de dos.
+                        final injView =
+                            (r?['injuriesView'] as BodyView?) ?? BodyView.front;
                         return ListTile(
                           contentPadding: EdgeInsets.zero,
                           leading: Icon(
@@ -868,16 +877,39 @@ class _SosTabState extends State<SosTab> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          subtitle: Text(
-                            claimedBy.isNotEmpty
-                                ? t.mySosClaimed
-                                : (loading ? t.mySosLoading : t.mySosOpen),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: claimedBy.isNotEmpty
-                                  ? Colors.orange
-                                  : Colors.grey,
-                            ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                claimedBy.isNotEmpty
+                                    ? t.mySosClaimed
+                                    : (loading ? t.mySosLoading : t.mySosOpen),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: claimedBy.isNotEmpty
+                                      ? Colors.orange
+                                      : Colors.grey,
+                                ),
+                              ),
+                              // Pastilles des blessures, une par zone.
+                              if (injuries.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Wrap(
+                                    spacing: 4,
+                                    runSpacing: 2,
+                                    children: [
+                                      for (final inj in injuries)
+                                        _InjuryChip(
+                                          injury: inj,
+                                          label: _zoneLabel(
+                                              t, injView, inj.zoneId),
+                                          typeLabel: _typeLabel(t, inj.typeId),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                            ],
                           ),
                           trailing: TextButton(
                             onPressed: () async {
@@ -2043,6 +2075,43 @@ class _SettingsTabState extends State<SettingsTab> {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Pastille compacte résumant une blessure : partie du corps + type.
+///
+/// Sert dans la liste des SOS, où l'on doit distinguer plusieurs signalements
+/// d'un coup d'œil. La couleur vient du type de blessure, la même que sur la
+/// silhouette, pour que les deux vues se répondent.
+class _InjuryChip extends StatelessWidget {
+  const _InjuryChip({
+    required this.injury,
+    required this.label,
+    required this.typeLabel,
+  });
+
+  final Injury injury;
+  final String label;
+  final String typeLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final type = kInjuryTypes
+        .where((t) => t.id == injury.typeId)
+        .firstOrNull;
+    final color = type?.color ?? Colors.grey;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
+      ),
+      child: Text(
+        '$label · $typeLabel',
+        style: TextStyle(fontSize: 11, color: color),
+      ),
     );
   }
 }

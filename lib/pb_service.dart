@@ -191,10 +191,45 @@ class PbService {
           'status': r.data['status']?.toString() ?? 'open',
           'claimedBy': r.data['claimedBy']?.toString() ?? '',
           'senderPhone': r.data['senderPhone']?.toString() ?? '',
+          'injuries': _injuries(r),
+          'injuriesView': _injuriesView(r),
           'created': r.get<String>('created'),
         };
       }).where((m) => m['lat'] != null && m['lng'] != null).toList();
     });
+  }
+
+  /// Blessures localisées sur la silhouette, relues depuis un signalement.
+  ///
+  /// Renvoie une liste vide si le SOS n'en porte pas (parcours d'urgence
+  /// simple) ou si la donnée est illisible : l'affichage ne doit jamais
+  /// casser à cause d'un enregistrement ancien ou malformé.
+  static List<Injury> _injuries(RecordModel r) {
+    final raw = r.data['injuries'];
+    if (raw is! Map) return const <Injury>[];
+    final zones = raw['zones'];
+    if (zones is! List) return const <Injury>[];
+    final out = <Injury>[];
+    for (final z in zones) {
+      if (z is! Map) continue;
+      final zone = z['zone']?.toString() ?? '';
+      final type = z['type']?.toString() ?? '';
+      if (zone.isEmpty) continue;
+      out.add(Injury(zoneId: zone, typeId: type.isEmpty ? 'other' : type));
+    }
+    return out;
+  }
+
+  /// Vue (face / dos) sur laquelle les blessures ont été marquées.
+  ///
+  /// Indispensable pour l'affichage : « épaule gauche » n'a pas le même
+  /// libellé selon la vue, et une zone du dos n'existe pas côté face.
+  static BodyView _injuriesView(RecordModel r) {
+    final raw = r.data['injuries'];
+    if (raw is Map && raw['view']?.toString() == 'back') {
+      return BodyView.back;
+    }
+    return BodyView.front;
   }
 
   /// Récupère un signalement par son id.
@@ -208,6 +243,8 @@ class PbService {
       'claimedBy': r.data['claimedBy']?.toString() ?? '',
       'claimedByName': r.data['claimedByName']?.toString() ?? '',
       'senderPhone': r.data['senderPhone']?.toString() ?? '',
+      'injuries': _injuries(r),
+      'injuriesView': _injuriesView(r),
       'created': r.get<String>('created'),
     };
   }
