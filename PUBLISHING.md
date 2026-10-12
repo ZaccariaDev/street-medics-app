@@ -28,8 +28,8 @@ Les deux fichiers sont exclus de git (`.gitignore`). Ne les commite jamais.
 Empreinte de la clé (à conserver, utile en cas de litige Play) :
 
 ```
-SHA-256: fefc91925fe935cbd2a3a96c93ec36ad876c51dbcaaf05b132a18bf1f05d624b
-SHA-1  : 897f6501aea1fef4b4af6426168684d4ce77db9b
+SHA-256: 4c2e846d748e8416f8291980fd07624de41a62a2d88d3c9bb04a34eb6d2da368
+SHA-1  : 7b651702b17cb5fca94af7c3e338fd996d9746cd
 ```
 
 > Note : Google recommande **Play App Signing** (Google conserve la clé de
