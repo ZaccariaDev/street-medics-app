@@ -15,17 +15,27 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
+    // `device_id` est OBLIGATOIRE : sans lui, `AppConfig.load()` appelle
+    // `DeviceInfoPlugin().androidInfo`, un canal natif qui ne répond jamais
+    // en test — le test se fige indéfiniment.
     // L'onglet Plan n'est accessible qu'aux medics EN SERVICE.
-    SharedPreferences.setMockInitialValues({'flutter.on_duty': true});
+    SharedPreferences.setMockInitialValues({
+      'flutter.on_duty': true,
+      'device_id': 'dev-test',
+    });
     await AppConfig.load();
 
     await tester.pumpWidget(const StreetMedicsApp());
     await tester.pump(const Duration(milliseconds: 100));
 
     // Aller sur l'onglet Carte via la barre de navigation.
+    // `pump()` et non `pumpAndSettle()` : la carte arme un `Timer.periodic`
+    // de rafraîchissement qui ne s'arrête jamais, et `pumpAndSettle()` attend
+    // qu'aucun timer ne soit actif — il boucle alors indéfiniment.
     final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
     nav.onDestinationSelected!(1);
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     final mapState = tester.state(find.byType(FlutterMap));
     final map = mapState.widget as FlutterMap;

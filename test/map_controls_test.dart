@@ -11,10 +11,17 @@ import 'package:street_medics_app/main.dart';
 
 /// Sélectionne un onglet via le callback de la barre de navigation.
 /// (Plus fiable en test que `tap()`, la barre pouvant être obscurcie.)
+///
+/// On utilise `pump()` et non `pumpAndSettle()` : la carte arme un
+/// `Timer.periodic` de rafraîchissement qui ne s'arrête jamais, or
+/// `pumpAndSettle()` attend qu'AUCUN timer ne soit actif — il boucle donc
+/// indéfiniment et le test n'aboutit pas. `pump()` avance d'une frame, ce qui
+/// suffit à construire l'onglet.
 Future<void> selectTab(WidgetTester tester, int index) async {
   final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
   nav.onDestinationSelected!(index);
-  await tester.pumpAndSettle();
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
 }
 
 void main() {
@@ -24,7 +31,13 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
-    SharedPreferences.setMockInitialValues({'flutter.on_duty': true});
+    // `device_id` est OBLIGATOIRE ici : sans lui, `AppConfig.load()` appelle
+    // `DeviceInfoPlugin().androidInfo`, un canal de plateforme natif qui ne
+    // répond jamais en test — le test se fige indéfiniment.
+    SharedPreferences.setMockInitialValues({
+      'flutter.on_duty': true,
+      'device_id': 'dev-test',
+    });
     await AppConfig.load();
 
     await tester.pumpWidget(const StreetMedicsApp());
@@ -43,7 +56,10 @@ void main() {
     tester.view.devicePixelRatio = 3.0;
     addTearDown(tester.view.reset);
 
-    SharedPreferences.setMockInitialValues({'flutter.on_duty': false});
+    SharedPreferences.setMockInitialValues({
+      'flutter.on_duty': false,
+      'device_id': 'dev-test',
+    });
     await AppConfig.load();
 
     await tester.pumpWidget(const StreetMedicsApp());

@@ -1008,6 +1008,10 @@ class _MapTabState extends State<MapTab> {
       }
     } catch (e, st) {
       _refreshFailCount++;
+      // Le serveur a échoué : on invalide le cache de joignabilité pour que
+      // le prochain abonnement SSE retente (sinon on resterait bloqué sur
+      // « serveur injoignable » alors qu'il est revenu).
+      PbService.resetServerReachable();
       // Remontée au serveur (uniquement au 1er échec de la série : évite de
       // noyer le serveur quand la connexion est durablement coupée).
       if (_refreshFailCount == 1) {

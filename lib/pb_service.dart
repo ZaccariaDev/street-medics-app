@@ -324,6 +324,9 @@ class PbService {
   // ---------- Realtime (SSE) ----------
 
   static final List<UnsubscribeFunc> _unsubscribers = [];
+  static UnsubscribeFunc? _connectWatcher;
+  static bool _watching = false;
+  static bool? _serverReachableCache;
   static bool _realtimeConnected = false;
   static Timer? _fallbackTimer;
   static void Function(bool connected)? onRealtimeStatusChanged;
@@ -332,7 +335,22 @@ class PbService {
   static bool get realtimeConnected => _realtimeConnected;
 
   /// Abonne la carte aux changements de la collection `reports` (SOS).
+  ///
+  /// Le SDK PocketBase ne sait pas fermer une connexion SSE qui n'a jamais
+  /// abouti : `_sendSubscriptions()` sort tôt tant que `clientId` est vide, et
+  /// le client SSE relance indéfiniment (`maxRetry = infinity`) avec des délais
+  /// de 200 ms à 2 s. Une seule tentative vers un serveur injoignable crée donc
+  /// une boucle de reconnexion éternelle — un timer orphelin qui survit à la
+  /// fermeture de l'écran et vide la batterie.
+  ///
+  /// On ne tente donc la connexion que si le serveur répond.
   static Future<void> subscribeReports(void Function(dynamic) callback) async {
+    if (!await _serverReachable()) {
+      // Serveur injoignable : pas de SSE, mais la carte doit continuer à se
+      // rafraîchir. On lance le polling de secours.
+      _startFallbackPolling();
+      return;
+    }
     _unsubscribers.add(
       await client.realtime.subscribe('reports/*', (e) => callback(e)),
     );
@@ -341,10 +359,38 @@ class PbService {
 
   /// Abonne la carte aux changements de la collection `medics`.
   static Future<void> subscribeMedics(void Function(dynamic) callback) async {
+    if (!await _serverReachable()) {
+      _startFallbackPolling();
+      return;
+    }
     _unsubscribers.add(
       await client.realtime.subscribe('medics/*', (e) => callback(e)),
     );
     _watchRealtime();
+  }
+
+  /// Vrai si le serveur répond (et si on ne le sait pas encore, on teste).
+  ///
+  /// Mis en cache : les deux abonnements de la carte ne déclenchent qu'un seul
+  /// `health.check()`. Aucun timer n'est utilisé pour l'invalidation — un
+  /// timer orphelin survivrait à la fermeture de l'écran (et fait échouer les
+  /// tests : « A Timer is still pending even after the widget tree was
+  /// disposed »). C'est `resetServerReachable()` qui invalide le cache,
+  /// appelée quand un appel API échoue.
+  static Future<bool> _serverReachable() async {
+    final cached = _serverReachableCache;
+    if (cached != null) return cached;
+    final ok = await ping();
+    _serverReachableCache = ok;
+    return ok;
+  }
+
+  /// Invalide le cache de joignabilité : le prochain abonnement retestera.
+  ///
+  /// À appeler quand un appel API échoue, pour ne pas rester bloqué sur un
+  /// « serveur injoignable » alors qu'il est revenu.
+  static void resetServerReachable() {
+    _serverReachableCache = null;
   }
 
   /// Notifie la carte de se rafraîchir (utilisé par le fallback polling).
@@ -352,13 +398,29 @@ class PbService {
 
   /// Surveille la connexion SSE : si elle tombe → fallback polling 20s ;
   /// si elle se rétablit → retour au temps réel.
+  ///
+  /// Idempotent : `subscribeReports` et `subscribeMedics` appellent tous deux
+  /// cette méthode. Sans ce garde, le second appel réinstallait un abonnement
+  /// `PB_CONNECT` dont la fonction de désabonnement était perdue — la
+  /// connexion SSE ne se fermait alors jamais, et sa boucle de reconnexion
+  /// continuait de tourner après la fermeture de l'écran (fuite : le test
+  /// « Timer is still pending even after the widget tree was disposed »
+  /// venait de là, et la batterie se vidait en arrière-plan).
   static void _watchRealtime() {
+    if (_watching) return;
+    _watching = true;
+
     client.realtime.onDisconnect = (subs) {
       _setRealtime(false);
     };
+
     // PB_CONNECT est réémis à chaque reconnexion : on bascule en temps réel.
+    // La fonction de désabonnement est CONSERVÉE : sans elle, la connexion
+    // SSE ne se ferme pas dans `unsubscribeAll()`.
     client.realtime.subscribe('PB_CONNECT', (e) {
       _setRealtime(true);
+    }).then((unsub) {
+      _connectWatcher = unsub;
     });
   }
 
@@ -383,13 +445,40 @@ class PbService {
   }
 
   /// Désabonne toutes les subscriptions réaltime et arrête le fallback.
+  ///
+  /// Ferme aussi l'abonnement `PB_CONNECT` et réinitialise l'état : sans cela
+  /// la connexion SSE survit à la fermeture de l'écran et sa boucle de
+  /// reconnexion continue de tourner (timer orphelin + batterie).
   static Future<void> unsubscribeAll() async {
     _fallbackTimer?.cancel();
     _fallbackTimer = null;
+
+    // Ferme l'abonnement PB_CONNECT (celui qui maintient la connexion ouverte).
+    try {
+      await _connectWatcher?.call();
+    } catch (_) {
+      // Déjà fermé / connexion perdue : rien à faire.
+    }
+    _connectWatcher = null;
+    _watching = false;
+
     for (final unsub in _unsubscribers) {
-      await unsub();
+      try {
+        await unsub();
+      } catch (_) {
+        // Idem : ne pas bloquer le nettoyage sur un désabonnement déjà mort.
+      }
     }
     _unsubscribers.clear();
+
+    // NE PAS appeler `client.realtime.unsubscribe()` ici : chaque appel passe
+    // par `_submitSubscriptions()`, qui programme un micro-timer même quand
+    // plus aucun abonnement ne reste (observé en test : « A Timer is still
+    // pending even after the widget tree was disposed »). Les fonctions de
+    // désabonnement individuelles ci-dessus suffisent : elles retirent les
+    // écouteurs et, une fois la liste vide, le SDK ferme la connexion SSE.
+
+    _realtimeConnected = false;
   }
 
   /// Liste les medics EN SERVICE, avec position.
