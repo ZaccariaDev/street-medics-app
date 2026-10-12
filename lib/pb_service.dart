@@ -157,21 +157,46 @@ class PbService {
     BodyView? injuriesView,
   }) async {
     return _withAuth(() async {
-      final res = await client.collection('reports').create(body: {
-        'senderPhone': senderPhone,
-        'position': {'lat': lat, 'lng': lng},
-        'description': description,
-        'status': 'open',
-        // Blessures localisées sur la silhouette (facultatif : un SOS simple
-        // part sans ce champ, pour ne rien changer au parcours d'urgence).
-        if (injuries.isNotEmpty)
-          'injuries': {
-            'view': (injuriesView ?? BodyView.front).name,
-            'zones': injuries.map((i) => i.toJson()).toList(),
-          },
-      });
+      final res = await client.collection('reports').create(
+            body: reportBody(
+              lat: lat,
+              lng: lng,
+              description: description,
+              senderPhone: senderPhone,
+              injuries: injuries,
+              injuriesView: injuriesView,
+            ),
+          );
       return res.id;
     });
+  }
+
+  /// Construit le corps envoyé au serveur pour un SOS.
+  ///
+  /// Fonction PURE et publique : c'est ce qui permet de vérifier exactement ce
+  /// qui part sur le réseau, sans avoir à interroger un serveur. Le champ
+  /// `injuries` est **omis** quand aucune blessure n'est marquée : le parcours
+  /// d'urgence simple n'ajoute donc rien à la requête.
+  @visibleForTesting
+  static Map<String, dynamic> reportBody({
+    required double lat,
+    required double lng,
+    required String description,
+    String senderPhone = '',
+    List<Injury> injuries = const <Injury>[],
+    BodyView? injuriesView,
+  }) {
+    return {
+      'senderPhone': senderPhone,
+      'position': {'lat': lat, 'lng': lng},
+      'description': description,
+      'status': 'open',
+      if (injuries.isNotEmpty)
+        'injuries': {
+          'view': (injuriesView ?? BodyView.front).name,
+          'zones': injuries.map((i) => i.toJson()).toList(),
+        },
+    };
   }
 
   /// Liste les SOS **actifs** (ouverts ou pris en charge) avec position,
