@@ -140,5 +140,15 @@
   "bodyMapClear": "مسح",
   "bodyMapNone": "لا إصابات محددة",
   "bodyMapSelected": "الإصابة المحددة",
-  "injuriesLabel": "الإصابات"
+  "injuriesLabel": "الإصابات",
+  "bodyMapAddOptional": "إضافة الإصابات (اختياري)",
+  "bodyMapInjuriesCount": "تم تحديد {n} إصابة",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "تأكيد"
 }

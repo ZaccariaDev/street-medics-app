@@ -140,5 +140,15 @@
   "bodyMapClear": "Effacer",
   "bodyMapNone": "Aucune blessure indiquée",
   "bodyMapSelected": "Blessure sélectionnée",
-  "injuriesLabel": "Blessures"
+  "injuriesLabel": "Blessures",
+  "bodyMapAddOptional": "Ajouter les blessures (optionnel)",
+  "bodyMapInjuriesCount": "{n} blessure(s) localisée(s)",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Valider"
 }

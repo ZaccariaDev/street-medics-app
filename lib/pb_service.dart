@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:pocketbase/pocketbase.dart';
 
+import 'body_map.dart';
 import 'config.dart';
 
 /// Accès au serveur PocketBase auto-hébergé.
@@ -152,6 +153,8 @@ class PbService {
     required double lng,
     required String description,
     String senderPhone = '',
+    List<Injury> injuries = const <Injury>[],
+    BodyView? injuriesView,
   }) async {
     return _withAuth(() async {
       final res = await client.collection('reports').create(body: {
@@ -159,6 +162,13 @@ class PbService {
         'position': {'lat': lat, 'lng': lng},
         'description': description,
         'status': 'open',
+        // Blessures localisées sur la silhouette (facultatif : un SOS simple
+        // part sans ce champ, pour ne rien changer au parcours d'urgence).
+        if (injuries.isNotEmpty)
+          'injuries': {
+            'view': (injuriesView ?? BodyView.front).name,
+            'zones': injuries.map((i) => i.toJson()).toList(),
+          },
       });
       return res.id;
     });

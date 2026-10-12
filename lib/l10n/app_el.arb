@@ -140,5 +140,15 @@
   "bodyMapClear": "Καθαρισμός",
   "bodyMapNone": "Δεν σημειώθηκε τραυματισμός",
   "bodyMapSelected": "Επιλεγμένος τραυματισμός",
-  "injuriesLabel": "Τραυματισμοί"
+  "injuriesLabel": "Τραυματισμοί",
+  "bodyMapAddOptional": "Προσθήκη τραυμάτων (προαιρετικό)",
+  "bodyMapInjuriesCount": "Εντοπίστηκαν {n} τραύματα",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Επιβεβαίωση"
 }

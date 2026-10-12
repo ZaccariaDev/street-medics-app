@@ -140,5 +140,15 @@
   "bodyMapClear": "Temizle",
   "bodyMapNone": "Yaralanma belirtilmedi",
   "bodyMapSelected": "Seçili yaralanma",
-  "injuriesLabel": "Yaralanmalar"
+  "injuriesLabel": "Yaralanmalar",
+  "bodyMapAddOptional": "Yaralanmaları ekle (isteğe bağlı)",
+  "bodyMapInjuriesCount": "{n} yaralanma konumlandırıldı",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Onayla"
 }

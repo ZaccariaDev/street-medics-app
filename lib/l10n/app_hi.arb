@@ -140,5 +140,15 @@
   "bodyMapClear": "साफ़ करें",
   "bodyMapNone": "कोई चोट दर्ज नहीं",
   "bodyMapSelected": "चयनित चोट",
-  "injuriesLabel": "चोटें"
+  "injuriesLabel": "चोटें",
+  "bodyMapAddOptional": "चोटें जोड़ें (वैकल्पिक)",
+  "bodyMapInjuriesCount": "{n} चोट स्थान चिह्नित",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "पुष्टि करें"
 }

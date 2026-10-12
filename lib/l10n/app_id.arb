@@ -140,5 +140,15 @@
   "bodyMapClear": "Hapus",
   "bodyMapNone": "Tidak ada cedera ditandai",
   "bodyMapSelected": "Cedera terpilih",
-  "injuriesLabel": "Cedera"
+  "injuriesLabel": "Cedera",
+  "bodyMapAddOptional": "Tambahkan cedera (opsional)",
+  "bodyMapInjuriesCount": "{n} cedera dilokalisasi",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Konfirmasi"
 }

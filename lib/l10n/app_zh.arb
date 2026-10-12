@@ -140,5 +140,15 @@
   "bodyMapClear": "清除",
   "bodyMapNone": "未标明伤情",
   "bodyMapSelected": "已选伤情",
-  "injuriesLabel": "伤情"
+  "injuriesLabel": "伤情",
+  "bodyMapAddOptional": "添加伤情（可选）",
+  "bodyMapInjuriesCount": "已定位 {n} 处伤情",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "确认"
 }

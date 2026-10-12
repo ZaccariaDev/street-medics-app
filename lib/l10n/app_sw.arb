@@ -140,5 +140,15 @@
   "bodyMapClear": "Futa",
   "bodyMapNone": "Hakuna jeraha lililoonyeshwa",
   "bodyMapSelected": "Jeraha lililochaguliwa",
-  "injuriesLabel": "Majeraha"
+  "injuriesLabel": "Majeraha",
+  "bodyMapAddOptional": "Ongeza majeraha (si lazima)",
+  "bodyMapInjuriesCount": "Majeraha {n} yamebainishwa",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Thibitisha"
 }

@@ -140,5 +140,15 @@
   "bodyMapClear": "Șterge",
   "bodyMapNone": "Nicio leziune indicată",
   "bodyMapSelected": "Leziune selectată",
-  "injuriesLabel": "Leziuni"
+  "injuriesLabel": "Leziuni",
+  "bodyMapAddOptional": "Adaugă rănile (opțional)",
+  "bodyMapInjuriesCount": "{n} rană(răni) localizate",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Confirmă"
 }

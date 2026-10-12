@@ -16,6 +16,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'app_log.dart';
 import 'bg_service.dart';
+import 'body_map.dart';
+import 'body_map_view.dart';
 import 'config.dart';
 import 'l10n/app_localizations.dart';
 import 'notifs.dart';
@@ -475,6 +477,11 @@ class _SosTabState extends State<SosTab> {
   Position? _lastPosition;
   bool _busy = false;
 
+  /// Blessures localisées sur la silhouette, en cours de saisie pour le
+  /// prochain SOS. Vide = parcours d'urgence inchangé (1 appui).
+  final List<Injury> _injuries = <Injury>[];
+  BodyView _injuriesView = BodyView.front;
+
   @override
   void initState() {
     super.initState();
@@ -536,7 +543,17 @@ class _SosTabState extends State<SosTab> {
             ? 'SOS'
             : _descController.text.trim(),
         senderPhone: phone,
+        injuries: _injuries,
+        injuriesView: _injuriesView,
       );
+      // Le SOS est parti : on vide la saisie de blessures pour que le
+      // prochain signalement reparte d'une silhouette vierge.
+      if (mounted) {
+        setState(() {
+          _injuries.clear();
+          _injuriesView = BodyView.front;
+        });
+      }
       // Le patient suit son SOS : la carte reste accessible tant qu'un
       // medecin l'a pris en charge (et jusqu'à ce qu'il soit résolu).
       // On AJOUTE à la liste : un témoin peut signaler plusieurs blessés.
@@ -562,6 +579,229 @@ class _SosTabState extends State<SosTab> {
     final reports = AppConfig.myReports;
     if (reports.isEmpty) return;
     await _cancelReport(reports.last);
+  }
+
+  /// Ouvre le sélecteur de blessures en plein écran.
+  ///
+  /// La silhouette n'est qu'une **aide** : tant qu'on ne l'ouvre pas, le SOS
+  /// reste à un seul appui. Les blessures saisies s'attachent au prochain SOS.
+  Future<void> _openBodyMap() async {
+    final t = AppLocalizations.of(context);
+    final injuries = List<Injury>.from(_injuries);
+    var view = _injuriesView;
+    // IMPORTANT : `pending` vit HORS du builder. Declare a l'interieur, il
+    // serait recree a chaque reconstruction et la selection serait perdue
+    // immediatement (bug attrape par le test d'integration).
+    final pending = <String, String>{};
+
+    final ok = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          // Mise en page en trois blocs : en-tete fixe, silhouette qui prend
+          // TOUT l'espace restant (Expanded), commandes fixes en bas.
+          // Sans cela la colonne debordait et le haut du corps sortait du
+          // cadre — donc invisible et intouchable.
+          final media = MediaQuery.of(ctx).size;
+
+          void onZone(BodyZone zone) {
+            if (pending.containsKey(zone.id)) {
+              setSheet(() => pending.remove(zone.id));
+              return;
+            }
+            // Type par défaut : on peut marquer vite, puis affiner.
+            setSheet(() => pending[zone.id] = kInjuryTypes.first.id);
+          }
+
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
+            child: SizedBox(
+              // Hauteur bornee : la silhouette occupe la place restante,
+              // jamais plus que ce que la feuille peut offrir.
+              height: media.height * 0.78,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(t.bodyMapTitle,
+                            style: const TextStyle(
+                                fontSize: 17, fontWeight: FontWeight.bold)),
+                      ),
+                      // Bascule face / dos : deux vues du même corps.
+                      SegmentedButton<BodyView>(
+                        segments: [
+                          ButtonSegment(
+                            value: BodyView.front,
+                            icon: const Icon(Icons.person, size: 18),
+                            label: Text(t.bodyMapFront),
+                          ),
+                          ButtonSegment(
+                            value: BodyView.back,
+                            icon: const Icon(Icons.person_outline, size: 18),
+                            label: Text(t.bodyMapBack),
+                          ),
+                        ],
+                        selected: {view},
+                        onSelectionChanged: (s) =>
+                            setSheet(() => view = s.first),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Expanded : la silhouette prend exactement la place libre.
+                  Expanded(
+                    child: BodyMapView(
+                      key: ValueKey(view),
+                      view: view,
+                      injuries: [
+                        for (final e in pending.entries)
+                          Injury(zoneId: e.key, typeId: e.value),
+                      ],
+                      onZoneTapped: onZone,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  // Pastilles de type : elles s'appliquent a la zone
+                  // selectionnee, donc l'ordre de saisie reste libre.
+                  if (pending.isEmpty)
+                    Text(t.bodyMapHint,
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey))
+                  else
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: media.height * 0.16),
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          spacing: 8,
+                          children: [
+                            for (final entry in pending.entries)
+                              for (final type in kInjuryTypes)
+                                ChoiceChip(
+                                  label: Text(
+                                      '${_zoneLabel(t, view, entry.key)} · ${_typeLabel(t, type.id)}'),
+                                  selected: entry.value == type.id,
+                                  onSelected: (_) => setSheet(
+                                      () => pending[entry.key] = type.id),
+                                ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => setSheet(pending.clear),
+                          child: Text(t.cancel),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: FilledButton(
+                          onPressed: () {
+                            injuries
+                              ..clear()
+                              ..addAll(pending.entries.map((e) =>
+                                  Injury(zoneId: e.key, typeId: e.value)));
+                            Navigator.of(ctx).pop(true);
+                          },
+                          child: Text('${t.validate} (${pending.length})'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+
+    if (ok == true && mounted) {
+      setState(() {
+        _injuries
+          ..clear()
+          ..addAll(injuries);
+        _injuriesView = view;
+      });
+    }
+  }
+
+  /// Libellé traduit d'une zone du corps.
+  String _zoneLabel(AppLocalizations t, BodyView view, String zoneId) {
+    final zone =
+        bodyZones(view).where((z) => z.id == zoneId).firstOrNull;
+    return _labelFor(t, zone?.labelKey ?? 'zoneHead');
+  }
+
+  /// Libellé traduit d'un type de blessure.
+  String _typeLabel(AppLocalizations t, String typeId) {
+    final type =
+        kInjuryTypes.where((x) => x.id == typeId).firstOrNull;
+    return _labelFor(t, type?.labelKey ?? 'injuryOther');
+  }
+
+  static String _labelFor(AppLocalizations t, String key) {
+    switch (key) {
+      case 'zoneHead':
+        return t.zoneHead;
+      case 'zoneNeck':
+        return t.zoneNeck;
+      case 'zoneNape':
+        return t.zoneNape;
+      case 'zoneShoulderL':
+        return t.zoneShoulderL;
+      case 'zoneShoulderR':
+        return t.zoneShoulderR;
+      case 'zoneChest':
+        return t.zoneChest;
+      case 'zoneBack':
+        return t.zoneBack;
+      case 'zoneAbdomen':
+        return t.zoneAbdomen;
+      case 'zoneLowerBack':
+        return t.zoneLowerBack;
+      case 'zoneArmL':
+        return t.zoneArmL;
+      case 'zoneArmR':
+        return t.zoneArmR;
+      case 'zoneForearmL':
+        return t.zoneForearmL;
+      case 'zoneForearmR':
+        return t.zoneForearmR;
+      case 'zoneHandL':
+        return t.zoneHandL;
+      case 'zoneHandR':
+        return t.zoneHandR;
+      case 'zoneThighL':
+        return t.zoneThighL;
+      case 'zoneThighR':
+        return t.zoneThighR;
+      case 'zoneShinL':
+        return t.zoneShinL;
+      case 'zoneShinR':
+        return t.zoneShinR;
+      case 'zoneFootL':
+        return t.zoneFootL;
+      case 'zoneFootR':
+        return t.zoneFootR;
+      case 'injuryWound':
+        return t.injuryWound;
+      case 'injuryFracture':
+        return t.injuryFracture;
+      case 'injuryBurn':
+        return t.injuryBurn;
+      case 'injuryOther':
+        return t.injuryOther;
+      default:
+        return key;
+    }
   }
 
   /// Ouvre la liste des SOS envoyés par cet appareil.
@@ -842,6 +1082,47 @@ class _SosTabState extends State<SosTab> {
               icon: const Icon(Icons.contact_phone, size: 18),
               label: Text(t.fillPhone),
               onPressed: _busy ? null : _fillPhoneNumber,
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Localisation des blessures : OPTIONNELLE et hors du chemin du SOS.
+          // On peut l'ignorer complètement — le bouton SOS reste à un appui.
+          Card(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              leading: Icon(
+                _injuries.isEmpty ? Icons.accessibility_new : Icons.healing,
+                color: _injuries.isEmpty ? Colors.grey : Colors.red,
+              ),
+              title: Text(t.bodyMapTitle,
+                  style: const TextStyle(
+                      fontSize: 14, fontWeight: FontWeight.w600)),
+              subtitle: Text(
+                _injuries.isEmpty
+                    ? t.bodyMapAddOptional
+                    : t.bodyMapInjuriesCount(_injuries.length),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _injuries.isEmpty ? Colors.grey : Colors.red,
+                ),
+              ),
+              trailing: _injuries.isEmpty
+                  ? const Icon(Icons.add_circle_outline, color: Colors.grey)
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: t.cancel,
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: _busy
+                              ? null
+                              : () => setState(() => _injuries.clear()),
+                        ),
+                        const Icon(Icons.chevron_right, color: Colors.grey),
+                      ],
+                    ),
+              onTap: _busy ? null : _openBodyMap,
             ),
           ),
           const SizedBox(height: 16),

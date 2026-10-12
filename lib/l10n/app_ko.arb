@@ -140,5 +140,15 @@
   "bodyMapClear": "지우기",
   "bodyMapNone": "표시된 부상 없음",
   "bodyMapSelected": "선택된 부상",
-  "injuriesLabel": "부상"
+  "injuriesLabel": "부상",
+  "bodyMapAddOptional": "부상 추가(선택)",
+  "bodyMapInjuriesCount": "부상 {n}곳 지정됨",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "확인"
 }

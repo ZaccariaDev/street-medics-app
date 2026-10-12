@@ -140,5 +140,15 @@
   "bodyMapClear": "پاک کردن",
   "bodyMapNone": "آسیبی مشخص نشده",
   "bodyMapSelected": "آسیب انتخاب‌شده",
-  "injuriesLabel": "آسیب‌ها"
+  "injuriesLabel": "آسیب‌ها",
+  "bodyMapAddOptional": "افزودن آسیب‌ها (اختیاری)",
+  "bodyMapInjuriesCount": "{n} آسیب مشخص شد",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "تأیید"
 }

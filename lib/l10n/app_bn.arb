@@ -140,5 +140,15 @@
   "bodyMapClear": "মুছুন",
   "bodyMapNone": "কোনো আঘাত চিহ্নিত নয়",
   "bodyMapSelected": "নির্বাচিত আঘাত",
-  "injuriesLabel": "আঘাত"
+  "injuriesLabel": "আঘাত",
+  "bodyMapAddOptional": "আঘাত যোগ করুন (ঐচ্ছিক)",
+  "bodyMapInjuriesCount": "{n}টি আঘাত চিহ্নিত",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "নিশ্চিত করুন"
 }

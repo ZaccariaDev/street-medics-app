@@ -140,5 +140,15 @@
   "bodyMapClear": "Wyczyść",
   "bodyMapNone": "Brak obrażeń",
   "bodyMapSelected": "Wybrane obrażenie",
-  "injuriesLabel": "Obrażenia"
+  "injuriesLabel": "Obrażenia",
+  "bodyMapAddOptional": "Dodaj obrażenia (opcjonalnie)",
+  "bodyMapInjuriesCount": "Zlokalizowano obrażeń: {n}",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Potwierdź"
 }

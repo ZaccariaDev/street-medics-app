@@ -140,5 +140,15 @@
   "bodyMapClear": "Xoá",
   "bodyMapNone": "Chưa đánh dấu chấn thương",
   "bodyMapSelected": "Chấn thương đã chọn",
-  "injuriesLabel": "Chấn thương"
+  "injuriesLabel": "Chấn thương",
+  "bodyMapAddOptional": "Thêm vết thương (tùy chọn)",
+  "bodyMapInjuriesCount": "Đã định vị {n} vết thương",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Xác nhận"
 }

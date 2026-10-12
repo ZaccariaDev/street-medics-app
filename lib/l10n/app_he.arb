@@ -140,5 +140,15 @@
   "bodyMapClear": "נקה",
   "bodyMapNone": "לא סומנה פציעה",
   "bodyMapSelected": "פציעה נבחרת",
-  "injuriesLabel": "פציעות"
+  "injuriesLabel": "פציעות",
+  "bodyMapAddOptional": "הוספת פציעות (אופציונלי)",
+  "bodyMapInjuriesCount": "מוקמו {n} פציעות",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "אישור"
 }

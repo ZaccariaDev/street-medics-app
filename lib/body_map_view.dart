@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'body_map.dart';
 
-/// Silhouette interactive avec zoom sur la zone touchée.
+/// Silhouette anatomique interactive, avec zoom sur la zone touchée.
 ///
-/// Le zoom n'est qu'une transformation de rendu : la géométrie des zones vit
-/// en coordonnées normalisées (0..1) et les taps sont reconvertis par l'inverse
-/// de la matrice courante. La détection reste donc exacte à toute échelle.
+/// Superposition de trois couches :
+///   1. l'image SVG (silhouette CC0), teintée et semi-transparente ;
+///   2. les zones cliquables, invisibles (polygones calibrés sur le rendu) ;
+///   3. les blessures, en couleur pleine — elles ressortent nettement sur la
+///      silhouette translucide, comme la lésion mise en évidence sur les
+///      illustrations médicales de référence.
+///
+/// Le zoom n'est qu'une transformation de rendu : la géométrie reste en
+/// coordonnées normalisées et les taps sont reconvertis par l'inverse de la
+/// matrice, donc la détection reste exacte à toute échelle.
 class BodyMapView extends StatefulWidget {
   const BodyMapView({
     super.key,
     required this.view,
     required this.injuries,
     required this.onZoneTapped,
-    this.selectedTypeId,
     this.zoomEnabled = true,
+    this.showHints = false,
   });
 
   final BodyView view;
   final List<Injury> injuries;
   final void Function(BodyZone zone) onZoneTapped;
-  final String? selectedTypeId;
   final bool zoomEnabled;
+
+  /// Met brièvement en évidence la zone touchée (retour visuel).
+  final bool showHints;
 
   @override
   State<BodyMapView> createState() => BodyMapViewState();
@@ -33,6 +43,7 @@ class BodyMapViewState extends State<BodyMapView>
   Animation<double> _anim = const AlwaysStoppedAnimation(1.0);
   Offset _focus = const Offset(0.5, 0.5);
   bool _zoomed = false;
+  String? _flashZone;
 
   static const double _maxScale = 3.0;
 
@@ -40,7 +51,7 @@ class BodyMapViewState extends State<BodyMapView>
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 320));
+        vsync: this, duration: const Duration(milliseconds: 300));
   }
 
   @override
@@ -49,74 +60,120 @@ class BodyMapViewState extends State<BodyMapView>
     super.dispose();
   }
 
-  /// Revenir à la vue d'ensemble.
+  bool get isZoomed => _zoomed;
+
+  /// Retour à la vue d'ensemble.
   void reset() {
     if (!_zoomed) return;
     _zoomed = false;
-    _anim = Tween<double>(begin: _anim.value, end: 1.0).animate(
-        CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+    _anim = Tween<double>(begin: _anim.value, end: 1.0)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     _ctrl.forward(from: 0);
     setState(() {});
   }
 
-  /// Zoome sur une zone : le cadre s'ajuste à son emprise, avec une marge.
+  /// Zoome sur une zone ; le facteur dépend de sa taille (une tête demande
+  /// plus de grossissement qu'un buste).
   void zoomOn(BodyZone zone) {
     if (!widget.zoomEnabled) return;
     final b = zone.normalizedBounds();
-    // Centre sur la zone ; le facteur dépend de sa taille (une tête demande
-    // plus de zoom qu'un buste).
-    final span = (b.width > b.height ? b.width : b.height).clamp(0.05, 1.0);
-    final target = (_maxScale * (0.30 / span)).clamp(1.6, _maxScale);
+    final span = (b.width > b.height ? b.width : b.height).clamp(0.04, 1.0);
+    final target = (_maxScale * (0.26 / span)).clamp(1.5, _maxScale);
     _focus = b.center;
     _zoomed = true;
-    _anim = Tween<double>(begin: _anim.value, end: target).animate(
-        CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+    _anim = Tween<double>(begin: _anim.value, end: target)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     _ctrl.forward(from: 0);
     setState(() {});
   }
-
-  bool get isZoomed => _zoomed;
 
   /// Convertit un point écran en coordonnées normalisées.
   Offset _toNormalized(Offset local, Size size) {
     final s = _anim.value;
-    final center = Offset(size.width * _focus.dx, size.height * _focus.dy);
-    final origin = center - (center - Offset.zero) * s;
-    final nx = (local.dx - origin.dx) / (size.width * s);
-    final ny = (local.dy - origin.dy) / (size.height * s);
-    return Offset(nx, ny);
+    final c = Offset(size.width * _focus.dx, size.height * _focus.dy);
+    final origin = c - c * s;
+    return Offset((local.dx - origin.dx) / (size.width * s),
+        (local.dy - origin.dy) / (size.height * s));
   }
 
   void _handleTap(Offset local, Size size) {
-    final n = _toNormalized(local, size);
-    final zone = zoneAt(widget.view, n);
+    final zone = zoneAt(widget.view, _toNormalized(local, size));
     if (zone == null) {
-      // Tap hors du corps : on dézoome, geste naturel pour « annuler ».
-      reset();
+      reset(); // tap hors du corps = annuler le zoom
       return;
     }
+    setState(() => _flashZone = zone.id);
+    Future.delayed(const Duration(milliseconds: 220), () {
+      if (mounted) setState(() => _flashZone = null);
+    });
     widget.onZoneTapped(zone);
     if (widget.zoomEnabled) zoomOn(zone);
   }
 
   @override
   Widget build(BuildContext context) {
+    final asset = BodyViewAsset.of(widget.view);
+    final scheme = Theme.of(context).colorScheme;
+
     return LayoutBuilder(
       builder: (ctx, c) {
-        final size = Size(c.maxWidth, c.maxHeight);
+        // Le SVG garde son ratio : on l'inscrit dans la zone disponible.
+        var w = c.maxWidth;
+        var h = w / asset.aspect;
+        if (h > c.maxHeight) {
+          h = c.maxHeight;
+          w = h * asset.aspect;
+        }
+        final size = Size(w, h);
+        final origin = Offset((c.maxWidth - w) / 2, (c.maxHeight - h) / 2);
+
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTapUp: (d) => _handleTap(d.localPosition, size),
+          onTapUp: (d) {
+            final local = d.localPosition - origin;
+            if (local.dx < 0 || local.dy < 0 ||
+                local.dx > size.width || local.dy > size.height) {
+              reset();
+              return;
+            }
+            _handleTap(local, size);
+          },
           child: AnimatedBuilder(
             animation: _anim,
-            builder: (ctx2, _) => CustomPaint(
-              size: size,
-              painter: _BodyPainter(
-                view: widget.view,
-                injuries: widget.injuries,
-                scale: _anim.value,
-                focus: _focus,
-                onSurface: Theme.of(ctx2).colorScheme.surface,
+            builder: (ctx2, _) => Transform.translate(
+              offset: origin,
+              child: SizedBox(
+                width: size.width,
+                height: size.height,
+                child: ClipRect(
+                  child: Transform(
+                    alignment: Alignment.topLeft,
+                    transform: _matrix(size),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // 1. Silhouette translucide.
+                        SvgPicture.asset(
+                          asset.asset,
+                          fit: BoxFit.fill,
+                          colorFilter: ColorFilter.mode(
+                            scheme.onSurface.withValues(alpha: 0.22),
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                        // 2. Zones + 3. blessures.
+                        CustomPaint(
+                          painter: _ZonePainter(
+                            view: widget.view,
+                            injuries: widget.injuries,
+                            flashZone: _flashZone,
+                            outline: scheme.onSurface.withValues(alpha: 0.18),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -124,88 +181,77 @@ class BodyMapViewState extends State<BodyMapView>
       },
     );
   }
+
+  Matrix4 _matrix(Size size) {
+    final s = _anim.value;
+    final c = Offset(size.width * _focus.dx, size.height * _focus.dy);
+    return Matrix4.identity()
+      ..translateByDouble(c.dx, c.dy, 0, 1)
+      ..scaleByDouble(s, s, 1, 1)
+      ..translateByDouble(-c.dx, -c.dy, 0, 1);
+  }
 }
 
-/// Dessine la silhouette : zones non marquées, puis zones marquées.
-class _BodyPainter extends CustomPainter {
-  _BodyPainter({
+/// Dessine les blessures et le contour des zones (jamais leur remplissage,
+/// sauf pendant le retour visuel du tap).
+class _ZonePainter extends CustomPainter {
+  _ZonePainter({
     required this.view,
     required this.injuries,
-    required this.scale,
-    required this.focus,
-    required this.onSurface,
+    required this.flashZone,
+    required this.outline,
   });
 
   final BodyView view;
   final List<Injury> injuries;
-  final double scale;
-  final Offset focus;
-  final Color onSurface;
+  final String? flashZone;
+  final Color outline;
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.save();
-    // Zoom centré sur la zone : on translate le foyer au centre puis on scale.
-    final center = Offset(size.width * focus.dx, size.height * focus.dy);
-    canvas.translate(center.dx, center.dy);
-    canvas.scale(scale);
-    canvas.translate(-center.dx, -center.dy);
-
     final marked = <String, String>{
       for (final i in injuries) i.zoneId: i.typeId,
     };
 
-    // 1. Base : toutes les zones en gris translucide (silhouette asexuée).
-    final base = Paint()
-      ..style = PaintingStyle.fill
-      ..color = onSurface.withValues(alpha: 0.16);
-    final edge = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..color = onSurface.withValues(alpha: 0.35);
-
-    for (final z in bodyZones(view)) {
-      if (marked.containsKey(z.id)) continue; // dessinée après, colorée
-      final path = z.toPath(size);
-      canvas.drawPath(path, base);
-      canvas.drawPath(path, edge);
-    }
-
-    // 2. Zones blessées : couleur du type, opacité soutenue.
+    // Blessures : remplissage + contour nets.
     for (final z in bodyZones(view)) {
       final typeId = marked[z.id];
       if (typeId == null) continue;
-      final type = kInjuryTypes.firstWhere(
-        (t) => t.id == typeId,
-        orElse: () => kInjuryTypes.last,
-      );
+      final type = kInjuryTypes.firstWhere((t) => t.id == typeId,
+          orElse: () => kInjuryTypes.last);
       final path = z.toPath(size);
+      canvas.drawPath(path,
+          Paint()..color = type.color.withValues(alpha: 0.55));
       canvas.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.fill
-          ..color = type.color.withValues(alpha: 0.55),
-      );
-      canvas.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.0
-          ..color = type.color,
-      );
+          path,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2.2
+            ..color = type.color);
     }
-    canvas.restore();
+
+    // Retour visuel du tap.
+    if (flashZone != null) {
+      final z = bodyZones(view).where((e) => e.id == flashZone).firstOrNull;
+      if (z != null) {
+        canvas.drawPath(
+            z.toPath(size),
+            Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 2.5
+              ..color = Colors.white.withValues(alpha: 0.9));
+      }
+    }
   }
 
   @override
-  bool shouldRepaint(covariant _BodyPainter old) =>
+  bool shouldRepaint(covariant _ZonePainter old) =>
       old.view != view ||
-      old.scale != scale ||
-      old.focus != focus ||
+      old.flashZone != flashZone ||
       old.injuries.length != injuries.length ||
-      !_sameInjuries(old.injuries, injuries);
+      !_same(old.injuries, injuries);
 
-  static bool _sameInjuries(List<Injury> a, List<Injury> b) {
+  static bool _same(List<Injury> a, List<Injury> b) {
     for (var i = 0; i < a.length; i++) {
       if (a[i].zoneId != b[i].zoneId || a[i].typeId != b[i].typeId) {
         return false;

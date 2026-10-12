@@ -140,5 +140,15 @@
   "bodyMapClear": "消去",
   "bodyMapNone": "負傷の指定なし",
   "bodyMapSelected": "選択中の負傷",
-  "injuriesLabel": "負傷"
+  "injuriesLabel": "負傷",
+  "bodyMapAddOptional": "けがを追加（任意）",
+  "bodyMapInjuriesCount": "{n}件のけがを特定",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "確定"
 }

@@ -140,5 +140,15 @@
   "bodyMapClear": "Wissen",
   "bodyMapNone": "Geen verwonding",
   "bodyMapSelected": "Geselecteerde verwonding",
-  "injuriesLabel": "Verwondingen"
+  "injuriesLabel": "Verwondingen",
+  "bodyMapAddOptional": "Verwondingen toevoegen (optioneel)",
+  "bodyMapInjuriesCount": "{n} verwonding(en) gelokaliseerd",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Bevestigen"
 }

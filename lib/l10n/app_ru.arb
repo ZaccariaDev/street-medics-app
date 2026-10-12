@@ -140,5 +140,15 @@
   "bodyMapClear": "Очистить",
   "bodyMapNone": "Травмы не указаны",
   "bodyMapSelected": "Выбранная травма",
-  "injuriesLabel": "Травмы"
+  "injuriesLabel": "Травмы",
+  "bodyMapAddOptional": "Добавить травмы (необязательно)",
+  "bodyMapInjuriesCount": "Локализовано травм: {n}",
+  "@bodyMapInjuriesCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "validate": "Подтвердить"
 }

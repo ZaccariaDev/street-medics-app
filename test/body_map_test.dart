@@ -2,8 +2,6 @@
 //
 // Ces tests vérifient le point le plus fragile de la fonctionnalité : le
 // hit-testing doit rester exact quelle que soit la transformation appliquée.
-import 'dart:ui';
-
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:street_medics_app/body_map.dart';
@@ -53,10 +51,18 @@ void main() {
     });
 
     test('les deux vues ont le même nombre de membres', () {
-      int limbs(BodyView v) =>
-          bodyZones(v).where((z) => z.id != 'neck' && z.id != 'chest' &&
-              z.id != 'back' && z.id != 'abdomen' && z.id != 'lower_back').length;
-      expect(limbs(BodyView.front), limbs(BodyView.back));
+      final front = bodyZones(BodyView.front);
+      final back = bodyZones(BodyView.back);
+      // Mêmes membres (bras, mains, jambes, pieds) : 2 vues == 4 membres chacune.
+      final frontLimbs = front.where((z) =>
+          !['head', 'neck', 'shoulder_l', 'shoulder_r', 'chest', 'abdomen']
+              .contains(z.id));
+      final backLimbs = back.where((z) =>
+          !['head', 'nape', 'shoulder_l', 'shoulder_r', 'back', 'lower_back']
+              .contains(z.id));
+      expect(frontLimbs.length, backLimbs.length);
+      expect(frontLimbs.map((z) => z.id).toSet(),
+          equals(backLimbs.map((z) => z.id).toSet()));
     });
   });
 
