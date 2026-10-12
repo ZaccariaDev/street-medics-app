@@ -756,15 +756,17 @@ class _SosTabState extends State<SosTab> {
           const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _busy ? null : _confirmAndGoOnDuty,
-              icon: const Icon(Icons.medical_services),
-              label: Text(t.becomeMedic),
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: AppConfig.onDuty ? Colors.red : Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              onPressed: _busy
+                  ? null
+                  : (AppConfig.onDuty ? _goOffDuty : _confirmAndGoOnDuty),
+              icon: Icon(AppConfig.onDuty ? Icons.stop : Icons.play_arrow),
+              label: Text(AppConfig.onDuty ? t.endService : t.becomeMedic),
             ),
-          ),
-          TextButton(
-            onPressed: _busy ? null : _goOffDuty,
-            child: Text(t.endService),
           ),
           if (AppConfig.onDuty)
             Text(t.trackingOn,
