@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "ה-SOS הפעילים שלי",
+  "mySosHint": "הקש ביטול כדי להסיר דיווח מסוים.",
+  "mySosNoDescription": "ללא תיאור",
+  "mySosOpen": "ממתין למחלץ",
+  "mySosClaimed": "בטיפול",
+  "mySosLoading": "טוען…"
 }

@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "我的进行中 SOS",
+  "mySosHint": "点按取消以移除特定上报。",
+  "mySosNoDescription": "无描述",
+  "mySosOpen": "等待救援者",
+  "mySosClaimed": "处理中",
+  "mySosLoading": "加载中…"
 }

@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "SOS aktif saya",
+  "mySosHint": "Ketuk Batal untuk menghapus laporan tertentu.",
+  "mySosNoDescription": "Tanpa deskripsi",
+  "mySosOpen": "Menunggu penolong",
+  "mySosClaimed": "Sedang ditangani",
+  "mySosLoading": "Memuat…"
 }

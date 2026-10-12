@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Meine aktiven SOS",
+  "mySosHint": "Tippe auf Abbrechen, um eine bestimmte Meldung zu entfernen.",
+  "mySosNoDescription": "Ohne Beschreibung",
+  "mySosOpen": "Wartet auf Helfer",
+  "mySosClaimed": "In Bearbeitung",
+  "mySosLoading": "Lädt…"
 }

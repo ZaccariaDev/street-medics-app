@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Meus SOS ativos",
+  "mySosHint": "Toque em Cancelar para remover um aviso específico.",
+  "mySosNoDescription": "Sem descrição",
+  "mySosOpen": "Aguardando socorrista",
+  "mySosClaimed": "Em atendimento",
+  "mySosLoading": "Carregando…"
 }

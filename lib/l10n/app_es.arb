@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Mis SOS activos",
+  "mySosHint": "Pulsa Cancelar para quitar un aviso concreto.",
+  "mySosNoDescription": "Sin descripción",
+  "mySosOpen": "Esperando a un socorrista",
+  "mySosClaimed": "En gestión",
+  "mySosLoading": "Cargando…"
 }

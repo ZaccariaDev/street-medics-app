@@ -10,6 +10,12 @@
   "sendMyPosition": "SEND MY POSITION",
   "cancelSos": "CANCEL SOS",
   "cancelLastSos": "Cancel the last one",
+  "mySosTitle": "My active SOS",
+  "mySosHint": "Tap Cancel to remove a specific report.",
+  "mySosNoDescription": "No description",
+  "mySosOpen": "Waiting for a responder",
+  "mySosClaimed": "Being handled",
+  "mySosLoading": "Loading…",
   "activeSosCount": "{count} active SOS",
   "@activeSosCount": {
     "placeholders": {

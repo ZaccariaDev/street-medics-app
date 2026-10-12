@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "SOS đang hoạt động của tôi",
+  "mySosHint": "Nhấn Huỷ để bỏ một báo cáo cụ thể.",
+  "mySosNoDescription": "Không có mô tả",
+  "mySosOpen": "Đang chờ cứu trợ",
+  "mySosClaimed": "Đang xử lý",
+  "mySosLoading": "Đang tải…"
 }

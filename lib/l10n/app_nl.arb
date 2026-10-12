@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Mijn actieve SOS",
+  "mySosHint": "Tik op Annuleren om een specifieke melding te verwijderen.",
+  "mySosNoDescription": "Geen beschrijving",
+  "mySosOpen": "Wacht op hulpverlener",
+  "mySosClaimed": "In behandeling",
+  "mySosLoading": "Laden…"
 }

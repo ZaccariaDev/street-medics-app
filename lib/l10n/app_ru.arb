@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Мои активные SOS",
+  "mySosHint": "Нажмите «Отмена», чтобы убрать конкретное сообщение.",
+  "mySosNoDescription": "Без описания",
+  "mySosOpen": "Ожидание спасателя",
+  "mySosClaimed": "В обработке",
+  "mySosLoading": "Загрузка…"
 }

@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "मेरे सक्रिय SOS",
+  "mySosHint": "किसी विशेष रिपोर्ट को हटाने के लिए रद्द दबाएँ।",
+  "mySosNoDescription": "कोई विवरण नहीं",
+  "mySosOpen": "सहायक की प्रतीक्षा",
+  "mySosClaimed": "प्रबंधन में",
+  "mySosLoading": "लोड हो रहा है…"
 }

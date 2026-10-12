@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "SOS zangu zinazoendelea",
+  "mySosHint": "Gusa Ghairi kuondoa ripoti mahususi.",
+  "mySosNoDescription": "Bila maelezo",
+  "mySosOpen": "Inasubiri mwokozi",
+  "mySosClaimed": "Inashughulikiwa",
+  "mySosLoading": "Inapakia…"
 }

@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "SOS-urile mele active",
+  "mySosHint": "Apasă Anulează pentru a elimina un raport anume.",
+  "mySosNoDescription": "Fără descriere",
+  "mySosOpen": "Se așteaptă un salvator",
+  "mySosClaimed": "În gestionare",
+  "mySosLoading": "Se încarcă…"
 }

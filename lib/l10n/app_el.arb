@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Τα ενεργά SOS μου",
+  "mySosHint": "Πατήστε Άκυρο για να αφαιρέσετε συγκεκριμένη αναφορά.",
+  "mySosNoDescription": "Χωρίς περιγραφή",
+  "mySosOpen": "Αναμονή διασώστη",
+  "mySosClaimed": "Σε εξέλιξη",
+  "mySosLoading": "Φόρτωση…"
 }

@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "進行中の自分のSOS",
+  "mySosHint": "特定の通報を取り消すには「取消」を押してください。",
+  "mySosNoDescription": "説明なし",
+  "mySosOpen": "救助者を待っています",
+  "mySosClaimed": "対応中",
+  "mySosLoading": "読み込み中…"
 }

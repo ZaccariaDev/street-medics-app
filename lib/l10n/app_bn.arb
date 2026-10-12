@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "আমার সক্রিয় SOS",
+  "mySosHint": "একটি নির্দিষ্ট রিপোর্ট সরাতে বাতিল চাপুন।",
+  "mySosNoDescription": "বর্ণনা নেই",
+  "mySosOpen": "সাড়াদাতার অপেক্ষায়",
+  "mySosClaimed": "পরিচালনায়",
+  "mySosLoading": "লোড হচ্ছে…"
 }

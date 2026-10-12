@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Aktif SOS'larım",
+  "mySosHint": "Belirli bir bildirimi kaldırmak için İptal'e dokunun.",
+  "mySosNoDescription": "Açıklama yok",
+  "mySosOpen": "Yardımcı bekleniyor",
+  "mySosClaimed": "İşlemde",
+  "mySosLoading": "Yükleniyor…"
 }

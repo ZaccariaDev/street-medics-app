@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Мої активні SOS",
+  "mySosHint": "Натисніть «Скасувати», щоб прибрати конкретне повідомлення.",
+  "mySosNoDescription": "Без опису",
+  "mySosOpen": "Очікування рятівника",
+  "mySosClaimed": "В обробці",
+  "mySosLoading": "Завантаження…"
 }

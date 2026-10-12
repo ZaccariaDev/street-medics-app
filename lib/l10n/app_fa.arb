@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "درخواست‌های فعال من",
+  "mySosHint": "برای حذف یک گزارش مشخص، لغو را بزنید.",
+  "mySosNoDescription": "بدون توضیح",
+  "mySosOpen": "در انتظار امدادگر",
+  "mySosClaimed": "در حال رسیدگی",
+  "mySosLoading": "در حال بارگذاری…"
 }

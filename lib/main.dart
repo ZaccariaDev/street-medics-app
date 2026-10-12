@@ -564,6 +564,101 @@ class _SosTabState extends State<SosTab> {
     await _cancelReport(reports.last);
   }
 
+  /// Ouvre la liste des SOS envoyés par cet appareil.
+  ///
+  /// Indispensable dès qu'il y en a plusieurs : on doit pouvoir annuler
+  /// n'importe lequel (par exemple l'avant-dernier), pas seulement le dernier.
+  /// Chaque ligne affiche sa description, sa position et son statut, avec un
+  /// bouton d'annulation individuel.
+  void _showMySosSheet() {
+    if (!mounted) return;
+    final t = AppLocalizations.of(context);
+    final ids = AppConfig.myReports;
+    if (ids.isEmpty) return;
+
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.mySosTitle,
+                  style: const TextStyle(
+                      fontSize: 17, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 4),
+              Text(t.mySosHint,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              const SizedBox(height: 12),
+              // Chargement des détails : le nombre d'ids est déjà connu, on
+              // affiche donc la liste immédiatement puis on la complète.
+              Flexible(
+                child: FutureBuilder<List<Map<String, dynamic>?>>(
+                  future: Future.wait(
+                      ids.map((e) => PbService.getReport(e))),
+                  builder: (ctx2, snap) {
+                    final rows =
+                        snap.data ?? const <Map<String, dynamic>?>[];
+                    final loading =
+                        snap.connectionState != ConnectionState.done;
+                    return ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: ids.length,
+                      separatorBuilder: (_, _) => const Divider(height: 1),
+                      itemBuilder: (ctx3, i) {
+                        final id = ids[i];
+                        final r = i < rows.length ? rows[i] : null;
+                        final desc = (r?['description'] ?? '') as String;
+                        final claimedBy = (r?['claimedBy'] ?? '') as String;
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: Icon(
+                            claimedBy.isNotEmpty
+                                ? Icons.directions_run
+                                : Icons.warning_amber,
+                            color: claimedBy.isNotEmpty
+                                ? Colors.orange
+                                : Colors.red,
+                          ),
+                          title: Text(
+                            desc.trim().isEmpty ? t.mySosNoDescription : desc,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            claimedBy.isNotEmpty
+                                ? t.mySosClaimed
+                                : (loading ? t.mySosLoading : t.mySosOpen),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: claimedBy.isNotEmpty
+                                  ? Colors.orange
+                                  : Colors.grey,
+                            ),
+                          ),
+                          trailing: TextButton(
+                            onPressed: () async {
+                              Navigator.of(ctx).pop();
+                              await _cancelReport(id);
+                            },
+                            child: Text(t.cancel),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Annule un SOS précis de la liste.
   Future<void> _cancelReport(String reportId) async {
     setState(() => _busy = true);
@@ -772,20 +867,38 @@ class _SosTabState extends State<SosTab> {
               label: Text(_busy ? t.sending : t.sendMyPosition),
             ),
           ),
-          // SOS déjà envoyés par cet appareil : suivi + annulation du dernier.
-          // N'apparaît qu'à partir du 2e signalement, pour ne rien ajouter au
+          // SOS déjà envoyés par cet appareil : le compteur ouvre la liste
+          // détaillée (pour annuler un SOS précis, pas seulement le dernier).
+          // N'apparaît qu'à partir du 1er signalement, pour ne rien ajouter au
           // parcours du premier SOS.
           if (AppConfig.hasMyReports) ...[
             const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    t.activeSosCount(AppConfig.myReports.length),
-                    style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.orange),
+                  child: InkWell(
+                    onTap: _busy ? null : _showMySosSheet,
+                    borderRadius: BorderRadius.circular(6),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 4),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.list_alt,
+                              size: 18, color: Colors.orange),
+                          const SizedBox(width: 6),
+                          Text(
+                            t.activeSosCount(AppConfig.myReports.length),
+                            style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.orange),
+                          ),
+                          const Icon(Icons.chevron_right,
+                              size: 18, color: Colors.orange),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 TextButton.icon(

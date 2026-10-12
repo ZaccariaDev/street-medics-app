@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "Moje aktywne SOS",
+  "mySosHint": "Naciśnij Anuluj, aby usunąć konkretne zgłoszenie.",
+  "mySosNoDescription": "Bez opisu",
+  "mySosOpen": "Oczekiwanie na ratownika",
+  "mySosClaimed": "W trakcie obsługi",
+  "mySosLoading": "Ładowanie…"
 }

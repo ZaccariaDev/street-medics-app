@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "내 활성 SOS",
+  "mySosHint": "특정 신고를 취소하려면 취소를 누르세요.",
+  "mySosNoDescription": "설명 없음",
+  "mySosOpen": "구조자 대기 중",
+  "mySosClaimed": "처리 중",
+  "mySosLoading": "불러오는 중…"
 }

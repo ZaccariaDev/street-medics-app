@@ -10,6 +10,12 @@
   "sendMyPosition": "ENVOYER MA POSITION",
   "cancelSos": "ANNULER LE SOS",
   "cancelLastSos": "Annuler le dernier",
+  "mySosTitle": "Mes SOS en cours",
+  "mySosHint": "Appuyez sur Annuler pour retirer un signalement précis.",
+  "mySosNoDescription": "Sans description",
+  "mySosOpen": "En attente d'un secouriste",
+  "mySosClaimed": "Prise en charge en cours",
+  "mySosLoading": "Chargement…",
   "activeSosCount": "{count} SOS en cours",
   "@activeSosCount": {
     "placeholders": {

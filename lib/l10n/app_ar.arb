@@ -101,5 +101,11 @@
         "type": "int"
       }
     }
-  }
+  },
+  "mySosTitle": "نداءاتي الجارية",
+  "mySosHint": "اضغط إلغاء لإزالة بلاغ محدد.",
+  "mySosNoDescription": "بدون وصف",
+  "mySosOpen": "في انتظار مسعف",
+  "mySosClaimed": "قيد المعالجة",
+  "mySosLoading": "جارٍ التحميل…"
 }
