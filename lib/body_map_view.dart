@@ -138,42 +138,58 @@ class BodyMapViewState extends State<BodyMapView>
             }
             _handleTap(local, size);
           },
-          child: AnimatedBuilder(
-            animation: _anim,
-            builder: (ctx2, _) => Transform.translate(
-              offset: origin,
-              child: SizedBox(
-                width: size.width,
-                height: size.height,
-                child: ClipRect(
-                  child: Transform(
-                    alignment: Alignment.topLeft,
-                    transform: _matrix(size),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // 1. Silhouette translucide.
-                        SvgPicture.asset(
-                          asset.asset,
-                          fit: BoxFit.fill,
-                          colorFilter: ColorFilter.mode(
-                            scheme.onSurface.withValues(alpha: 0.22),
-                            BlendMode.srcIn,
-                          ),
+          // SizedBox.expand : le widget occupe TOUTE la place offerte, quelle
+          // que soit la mise en page du parent.
+          //
+          // Sans cela, la largeur retenue etait celle de la silhouette ; le
+          // parent la recentrait de son cote, et l'offset de centrage etait
+          // donc applique DEUX fois — le corps apparaissait decale vers la
+          // droite sur le telephone (bug constate a l'ecran).
+          //
+          // Le centrage se fait ici par Positioned, jamais par translation :
+          // la position est ainsi deterministe.
+          child: SizedBox.expand(
+            child: AnimatedBuilder(
+              animation: _anim,
+              builder: (ctx2, _) => Stack(
+                children: [
+                  Positioned(
+                    left: origin.dx,
+                    top: origin.dy,
+                    width: size.width,
+                    height: size.height,
+                    child: ClipRect(
+                      child: Transform(
+                        alignment: Alignment.topLeft,
+                        transform: _matrix(size),
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            // 1. Silhouette translucide.
+                            SvgPicture.asset(
+                              asset.asset,
+                              fit: BoxFit.fill,
+                              colorFilter: ColorFilter.mode(
+                                scheme.onSurface.withValues(alpha: 0.22),
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            // 2. Zones + 3. blessures.
+                            CustomPaint(
+                              painter: _ZonePainter(
+                                view: widget.view,
+                                injuries: widget.injuries,
+                                flashZone: _flashZone,
+                                outline:
+                                    scheme.onSurface.withValues(alpha: 0.18),
+                              ),
+                            ),
+                          ],
                         ),
-                        // 2. Zones + 3. blessures.
-                        CustomPaint(
-                          painter: _ZonePainter(
-                            view: widget.view,
-                            injuries: widget.injuries,
-                            flashZone: _flashZone,
-                            outline: scheme.onSurface.withValues(alpha: 0.18),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
