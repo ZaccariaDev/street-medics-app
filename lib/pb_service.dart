@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import 'config.dart';
@@ -228,15 +229,6 @@ class PbService {
     });
   }
 
-  /// Le patient annule SON SOS (statut → resolved).
-  static Future<void> cancelReport(String reportId) async {
-    await _withAuth(() async {
-      await client.collection('reports').update(reportId, body: {
-        'status': 'resolved',
-      });
-    });
-  }
-
   // ---------- Medics ----------
 
   /// Crée ou met à jour la fiche medic de CET appareil (identité persistante
@@ -297,6 +289,86 @@ class PbService {
     return res.items.first.id;
   }
 
+  /// Le patient annule SON SOS (statut → resolved).
+  static Future<void> cancelReport(String reportId) async {
+    await _withAuth(() async {
+      await client.collection('reports').update(reportId, body: {
+        'status': 'resolved',
+      });
+    });
+  }
+
+  // ---------- Realtime (SSE) ----------
+
+  static final List<UnsubscribeFunc> _unsubscribers = [];
+  static bool _realtimeConnected = false;
+  static Timer? _fallbackTimer;
+  static void Function(bool connected)? onRealtimeStatusChanged;
+
+  /// Vrai si la connexion SSE est active.
+  static bool get realtimeConnected => _realtimeConnected;
+
+  /// Abonne la carte aux changements de la collection `reports` (SOS).
+  static Future<void> subscribeReports(void Function(dynamic) callback) async {
+    _unsubscribers.add(
+      await client.realtime.subscribe('reports/*', (e) => callback(e)),
+    );
+    _watchRealtime();
+  }
+
+  /// Abonne la carte aux changements de la collection `medics`.
+  static Future<void> subscribeMedics(void Function(dynamic) callback) async {
+    _unsubscribers.add(
+      await client.realtime.subscribe('medics/*', (e) => callback(e)),
+    );
+    _watchRealtime();
+  }
+
+  /// Notifie la carte de se rafraîchir (utilisé par le fallback polling).
+  static final ValueNotifier<int> fallbackRefresh = ValueNotifier<int>(0);
+
+  /// Surveille la connexion SSE : si elle tombe → fallback polling 20s ;
+  /// si elle se rétablit → retour au temps réel.
+  static void _watchRealtime() {
+    client.realtime.onDisconnect = (subs) {
+      _setRealtime(false);
+    };
+    // PB_CONNECT est réémis à chaque reconnexion : on bascule en temps réel.
+    client.realtime.subscribe('PB_CONNECT', (e) {
+      _setRealtime(true);
+    });
+  }
+
+  static void _setRealtime(bool connected) {
+    if (_realtimeConnected == connected) return;
+    _realtimeConnected = connected;
+    onRealtimeStatusChanged?.call(connected);
+    if (connected) {
+      _fallbackTimer?.cancel();
+      _fallbackTimer = null;
+    } else {
+      _startFallbackPolling();
+    }
+  }
+
+  /// Polling de secours toutes les 20s si SSE est indisponible.
+  static void _startFallbackPolling() {
+    _fallbackTimer?.cancel();
+    _fallbackTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      fallbackRefresh.value++;
+    });
+  }
+
+  /// Désabonne toutes les subscriptions réaltime et arrête le fallback.
+  static Future<void> unsubscribeAll() async {
+    _fallbackTimer?.cancel();
+    _fallbackTimer = null;
+    for (final unsub in _unsubscribers) {
+      await unsub();
+    }
+    _unsubscribers.clear();
+  }
+
   /// Liste les medics, avec position et disponibilité.
   static Future<List<Map<String, dynamic>>> listMedics() async {
     final res = await client.collection('medics').getList(perPage: 200);
@@ -308,31 +380,5 @@ class PbService {
         'available': r.data['available'] == true,
       };
     }).where((m) => m['lat'] != null && m['lng'] != null).toList();
-  }
-
-  // ---------- Realtime (SSE) ----------
-
-  static final List<UnsubscribeFunc> _unsubscribers = [];
-
-  /// Abonne la carte aux changements de la collection `reports` (SOS).
-  static Future<void> subscribeReports(void Function(dynamic) callback) async {
-    _unsubscribers.add(
-      await client.realtime.subscribe('reports/*', (e) => callback(e)),
-    );
-  }
-
-  /// Abonne la carte aux changements de la collection `medics`.
-  static Future<void> subscribeMedics(void Function(dynamic) callback) async {
-    _unsubscribers.add(
-      await client.realtime.subscribe('medics/*', (e) => callback(e)),
-    );
-  }
-
-  /// Désabonne toutes les subscriptions réaltime.
-  static Future<void> unsubscribeAll() async {
-    for (final unsub in _unsubscribers) {
-      await unsub();
-    }
-    _unsubscribers.clear();
   }
 }

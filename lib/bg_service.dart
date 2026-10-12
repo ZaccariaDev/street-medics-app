@@ -46,6 +46,13 @@ class AppTaskHandler extends TaskHandler {
   /// Évite de notifier en boucle : une seule alerte par prise en charge.
   bool _patientAlerted = false;
 
+  /// Dernière position envoyée au serveur (mode medic) — on n'envoie une
+  /// mise à jour que si le déplacement dépasse 100 m pour réduire la charge.
+  Position? _lastSentPosition;
+
+  /// Distance minimale (m) avant d'envoyer une nouvelle position.
+  static const double _minMoveMeters = 100;
+
   /// SOS déjà signalés (évite de re-notifier en boucle).
   final Set<String> _alerted = {};
 
@@ -117,16 +124,22 @@ class AppTaskHandler extends TaskHandler {
             ),
           );
 
-      // Mode medic : met à jour sa position côté serveur.
+      // Mode medic : met à jour sa position côté serveur, MAIS seulement
+      // si le déplacement depasse 100 m depuis le dernier envoi. Réduit
+      // fortement la charge serveur quand le medic est immobile.
       if (_recordId.isNotEmpty && _base.isNotEmpty) {
-        await _client!.patch(
-          Uri.parse('$_base/api/collections/medics/records/$_recordId'),
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'position': {'lat': pos.latitude, 'lng': pos.longitude},
-            'deviceId': _deviceId,
-          }),
-        );
+        final last = _lastSentPosition;
+        if (last == null || _distanceMeters(last, pos) > _minMoveMeters) {
+          await _client!.patch(
+            Uri.parse('$_base/api/collections/medics/records/$_recordId'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'position': {'lat': pos.latitude, 'lng': pos.longitude},
+              'deviceId': _deviceId,
+            }),
+          );
+          _lastSentPosition = pos;
+        }
       }
 
       // Mode patient : surveille la prise en charge de SON SOS.
@@ -290,6 +303,10 @@ class AppTaskHandler extends TaskHandler {
             math.sin(dLon / 2);
     return r * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
   }
+
+  /// Distance en mètres entre deux positions.
+  double _distanceMeters(Position a, Position b) =>
+      _distanceKm(a.latitude, a.longitude, b.latitude, b.longitude) * 1000;
 
   double _rad(double d) => d * math.pi / 180.0;
 }

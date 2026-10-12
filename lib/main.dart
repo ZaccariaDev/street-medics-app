@@ -875,6 +875,8 @@ class _MapTabState extends State<MapTab> {
   void _subscribeRealtime() {
     PbService.subscribeReports((e) => _onRealtime(e, 'reports'));
     PbService.subscribeMedics((e) => _onRealtime(e, 'medics'));
+    // Fallback : si SSE tombe, PbService lance un polling toutes les 20s.
+    PbService.fallbackRefresh.addListener(_refresh);
   }
 
   /// Recoit un événement SSE (create/update/delete) et rafraîchit les
@@ -911,6 +913,7 @@ class _MapTabState extends State<MapTab> {
       t.cancel();
     }
     mapRefresh.removeListener(_refresh);
+    PbService.fallbackRefresh.removeListener(_refresh);
     FlutterForegroundTask.removeTaskDataCallback(_onTaskData);
     PbService.unsubscribeAll();
     _mapController.dispose();
