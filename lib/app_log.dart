@@ -127,6 +127,25 @@ class AppLog {
     _appendToDisk(entry);
   }
 
+  /// Raccourci pour journaliser une exception attrapée par l'app.
+  ///
+  /// Indispensable : les `catch` de l'application avalent leurs erreurs
+  /// (l'utilisateur voit un message, mais rien n'est conservé). Sans cet
+  /// appel, une erreur réseau gérée ne remonterait JAMAIS au serveur.
+  static void error(Object e, {StackTrace? stack, String context = ''}) {
+    log(
+      level: 'error',
+      message: e.toString(),
+      stack: stack?.toString() ?? '',
+      context: context,
+    );
+  }
+
+  /// Raccourci pour journaliser un avertissement.
+  static void warn(String message, {String context = ''}) {
+    log(level: 'warning', message: message, context: context);
+  }
+
   /// Envoie au serveur les entrées non encore transmises.
   ///
   /// Les entrées envoyées avec succès sont retirées du stockage local.

@@ -540,7 +540,8 @@ class _SosTabState extends State<SosTab> {
       await startBackgroundService();
       if (mounted) showSnack(context, t.positionShared);
       mapRefresh.value++;
-    } catch (e) {
+    } catch (e, st) {
+      AppLog.error(e, stack: st, context: 'sendSos');
       if (mounted) showSnack(context, '${t.errorSend} : $e');
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -562,7 +563,8 @@ class _SosTabState extends State<SosTab> {
       dutyChanged.value++;
       mapRefresh.value++;
       if (mounted) showSnack(context, t.sosCancelled);
-    } catch (e) {
+    } catch (e, st) {
+      AppLog.error(e, stack: st, context: 'cancelSos');
       if (mounted) showSnack(context, '${t.errorSend} : $e');
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -613,7 +615,8 @@ class _SosTabState extends State<SosTab> {
       dutyChanged.value++;
       if (mounted) showSnack(context, t.onDutyMsg);
       mapRefresh.value++;
-    } catch (e) {
+    } catch (e, st) {
+      AppLog.error(e, stack: st, context: 'goOnDuty');
       if (mounted) showSnack(context, '${t.errorSend} : $e');
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -678,7 +681,8 @@ class _SosTabState extends State<SosTab> {
       dutyChanged.value++;
       if (mounted) showSnack(context, t.offDutyMsg);
       mapRefresh.value++;
-    } catch (e) {
+    } catch (e, st) {
+      AppLog.error(e, stack: st, context: 'goOffDuty');
       if (mounted) showSnack(context, '${t.errorSend} : $e');
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -1002,8 +1006,13 @@ class _MapTabState extends State<MapTab> {
           _medics = medics;
         });
       }
-    } catch (e) {
+    } catch (e, st) {
       _refreshFailCount++;
+      // Remontée au serveur (uniquement au 1er échec de la série : évite de
+      // noyer le serveur quand la connexion est durablement coupée).
+      if (_refreshFailCount == 1) {
+        AppLog.error(e, stack: st, context: 'mapRefresh');
+      }
       // PAS de SnackBar ici : il recouvre le bouton "Terminer mon service"
       // et intercepte les taps. L'erreur est signalée par l'indicateur discret
       // dans le header de la carte (voir _buildHeader).
