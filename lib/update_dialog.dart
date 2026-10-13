@@ -51,7 +51,7 @@ class UpdateDialog {
                 final url = latest.url.isNotEmpty
                     ? latest.url
                     : 'https://play.google.com/store/apps/details'
-                        '?id=fr.streetmedics.street_medics_app';
+                        '?id=com.xpertise.smedics';
                 final uri = Uri.tryParse(url);
                 if (uri != null && await canLaunchUrl(uri)) {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);

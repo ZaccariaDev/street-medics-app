@@ -2,7 +2,7 @@
   "$schema_note": "Inventaire des interfaces de l'application Street Medics FR. Chaque ecran decrit : son identifiant, le fichier de capture, comment y acceder, la liste exhaustive de ses elements interactifs, et ou chacun mene. Les captures sont generees par le moteur Flutter (test/ui_inventory_test.dart), donc fideles a ce que voit l'utilisateur.",
   "application": {
     "nom": "Street Medics FR",
-    "package": "fr.streetmedics.street_medics_app",
+    "package": "com.xpertise.smedics",
     "version_documentee": "1.4.0+17",
     "plateforme": "Android (Flutter)",
     "langue": "francais",

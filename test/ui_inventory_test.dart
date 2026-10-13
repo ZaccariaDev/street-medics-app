@@ -56,7 +56,7 @@ void stubNativeChannels() {
           case 'getAll':
             return <String, dynamic>{
               'appName': 'Street Medics',
-              'packageName': 'fr.streetmedics.street_medics_app',
+              'packageName': 'com.xpertise.smedics',
               'version': '1.4.0',
               'buildNumber': '17',
             };

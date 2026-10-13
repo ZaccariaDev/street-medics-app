@@ -1,4 +1,4 @@
-package fr.streetmedics.street_medics_app
+package com.xpertise.smedics
 
 import io.flutter.embedding.android.FlutterActivity
 
