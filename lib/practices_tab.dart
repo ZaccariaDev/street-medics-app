@@ -31,6 +31,7 @@ class PracticesTab extends StatelessWidget {
             const SizedBox(height: 24),
             // Banderole « Coming Soon »
             Container(
+              alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
                 color: scheme.surfaceContainerHighest,
