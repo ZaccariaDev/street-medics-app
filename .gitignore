@@ -18,3 +18,10 @@ android/key.properties
 
 # Divers
 android/local.properties
+
+# Fichiers IDE (inutile dans le repo public)
+.idea/
+
+# Fichiers générés automatiquement par Flutter
+.flutter-plugins-dependencies
+.metadata
