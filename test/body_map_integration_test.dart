@@ -93,23 +93,23 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pumpAndSettle();
 
-      // Une pastille de type apparait (donc une zone a ete selectionnee).
+      // Le bouton Valider est actif (une zone est sélectionnée).
+      final validateBtn = find.widgetWithText(FilledButton, 'Valider (1)');
+      expect(validateBtn, findsOneWidget);
+
+      // On va à la page 2 (types de blessure).
+      await tester.tap(validateBtn);
+      await tester.pumpAndSettle();
+
+      // Les pastilles de type sont visibles sur la page 2.
       final chips = find.byType(ChoiceChip);
       expect(chips, findsWidgets);
-      // On verifie que la pastille porte bien un libelle de zone traduit,
-      // pas une cle brute : c'est ce qui prouve le branchement des 24 langues.
-      final labels = chips
-          .evaluate()
-          .map((e) => ((e.widget as ChoiceChip).label as Text).data ?? '')
-          .toList();
-      expect(labels.any((l) => l.contains('·')), isTrue,
-          reason: 'pastilles sans libelle de zone : $labels');
-      // La zone exacte depend du rendu de la feuille ; l'essentiel est qu'une
-      // zone du corps ait ete retenue et que son libelle soit traduit.
-      expect(labels.any((l) => l.startsWith(t.zoneChest) ||
-          l.startsWith(t.zoneArmL) || l.startsWith(t.zoneArmR) ||
-          l.startsWith(t.zoneAbdomen)), isTrue,
-          reason: 'zone inattendue, pastilles obtenues : $labels');
+      // On verifie que la zone est bien affichee sur la page 2,
+      // et que le branchement des 24 langues fonctionne.
+      expect(find.textContaining(t.zoneChest), findsWidgets,
+          reason: 'zone absente de la page 2');
+      expect(find.textContaining(t.injuryWound), findsWidgets,
+          reason: 'type de blessure absent de la page 2');
     });
   });
 

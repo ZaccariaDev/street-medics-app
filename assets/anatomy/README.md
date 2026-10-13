@@ -25,9 +25,9 @@ le teinter et de le rendre semi-transparent à la volée.
 
 ## Comment ils sont utilisés
 
-- Rendu par `flutter_svg` (à ajouter), teinté et semi-transparent.
+- Rendu par `flutter_svg`, teinté et semi-transparent.
 - Les **zones cliquables** restent des polygones invisibles définis dans
-  `body_map.dart`, superposés au SVG. Cette séparation permet d'avoir une
+  `lib/body_map.dart`, superposés au SVG. Cette séparation permet d'avoir une
   belle image *et* un hit-testing exact, sans dépendre du découpage du SVG.
 - Les **blessures** sont dessinées par-dessus, en couleur pleine — comme la
   lésion violette de l'illustration de référence.

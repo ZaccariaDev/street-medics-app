@@ -281,7 +281,7 @@ class BodyMapViewState extends State<BodyMapView>
                               BodyViewAsset.front.asset,
                               fit: BoxFit.fill,
                               colorFilter: ColorFilter.mode(
-                                scheme.onSurface.withValues(alpha: 0.22),
+                                scheme.onSurface.withValues(alpha: 0.85),
                                 BlendMode.srcIn,
                               ),
                             ),

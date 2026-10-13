@@ -600,6 +600,8 @@ class _SosTabState extends State<SosTab> {
     // serait recree a chaque reconstruction et la selection serait perdue
     // immediatement (bug attrape par le test d'integration).
     final pending = <String, String>{};
+    // Page 0 = silhouette, page 1 = types de blessure pour chaque zone.
+    final pageController = PageController();
 
     final ok = await showModalBottomSheet<bool>(
       context: context,
@@ -608,10 +610,8 @@ class _SosTabState extends State<SosTab> {
       showDragHandle: true,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheet) {
-          // Mise en page en trois blocs : en-tete fixe, silhouette qui prend
-          // TOUT l'espace restant (Expanded), commandes fixes en bas.
-          // Sans cela la colonne debordait et le haut du corps sortait du
-          // cadre — donc invisible et intouchable.
+          // Mise en page en deux etapes : silhouette d'abord, types ensuite.
+          // La transition se fait par slide (PageView).
           final media = MediaQuery.of(ctx).size;
 
           void onZone(BodyZone zone) {
@@ -629,98 +629,183 @@ class _SosTabState extends State<SosTab> {
               // Hauteur bornee : la silhouette occupe la place restante,
               // jamais plus que ce que la feuille peut offrir.
               height: media.height * 0.78,
-              child: Column(
+              child: PageView(
+                controller: pageController,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  Row(
+                  // ═══ PAGE 1 : SILHOUETTE ═══
+                  Column(
                     children: [
-                      Expanded(
-                        child: Text(t.bodyMapTitle,
-                            style: const TextStyle(
-                                fontSize: 17, fontWeight: FontWeight.bold)),
-                      ),
-                      // Bascule face / dos. Ce n'est PAS une rotation : le dos
-                      // apparaît derrière la silhouette, en retrait. L'icône
-                      // « flip » le dit mieux qu'une icône de personne.
-                      SegmentedButton<BodyView>(
-                        segments: [
-                          ButtonSegment(
-                            value: BodyView.front,
-                            icon: const Icon(Icons.person, size: 18),
-                            label: Text(t.bodyMapFront),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(t.bodyMapTitle,
+                                style: const TextStyle(
+                                    fontSize: 17, fontWeight: FontWeight.bold)),
                           ),
-                          ButtonSegment(
-                            value: BodyView.back,
-                            icon: const Icon(Icons.flip_to_back, size: 18),
-                            label: Text(t.bodyMapBack),
+                          // Bascule face / dos. Ce n'est PAS une rotation : le dos
+                          // apparaît derrière la silhouette, en retrait. L'icône
+                          // « flip » le dit mieux qu'une icône de personne.
+                          SegmentedButton<BodyView>(
+                            segments: [
+                              ButtonSegment(
+                                value: BodyView.front,
+                                icon: const Icon(Icons.person, size: 18),
+                                label: Text(t.bodyMapFront),
+                              ),
+                              ButtonSegment(
+                                value: BodyView.back,
+                                icon: const Icon(Icons.flip_to_back, size: 18),
+                                label: Text(t.bodyMapBack),
+                              ),
+                            ],
+                            selected: {view},
+                            onSelectionChanged: (s) =>
+                                setSheet(() => view = s.first),
                           ),
                         ],
-                        selected: {view},
-                        onSelectionChanged: (s) =>
-                            setSheet(() => view = s.first),
+                      ),
+                      const SizedBox(height: 8),
+                      // Expanded : la silhouette prend exactement la place libre.
+                      Expanded(
+                        child: BodyMapView(
+                          key: ValueKey(view),
+                          view: view,
+                          injuries: [
+                            for (final e in pending.entries)
+                              Injury(zoneId: e.key, typeId: e.value),
+                          ],
+                          onZoneTapped: onZone,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      // Indication : combien de zones sont sélectionnées.
+                      Text(
+                        pending.isEmpty
+                            ? t.bodyMapHint
+                            : '${pending.length} zone(s) sélectionnée(s)',
+                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => setSheet(pending.clear),
+                              child: Text(t.cancel),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: pending.isEmpty
+                                  ? null
+                                  : () {
+                                      pageController.animateToPage(
+                                        1,
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        curve: Curves.easeOutCubic,
+                                      );
+                                    },
+                              child: Text('${t.validate} (${pending.length})'),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  // Expanded : la silhouette prend exactement la place libre.
-                  Expanded(
-                    child: BodyMapView(
-                      key: ValueKey(view),
-                      view: view,
-                      injuries: [
-                        for (final e in pending.entries)
-                          Injury(zoneId: e.key, typeId: e.value),
-                      ],
-                      onZoneTapped: onZone,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Pastilles de type : elles s'appliquent a la zone
-                  // selectionnee, donc l'ordre de saisie reste libre.
-                  if (pending.isEmpty)
-                    Text(t.bodyMapHint,
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey))
-                  else
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: media.height * 0.16),
-                      child: SingleChildScrollView(
-                        child: Wrap(
-                          spacing: 8,
-                          children: [
-                            for (final entry in pending.entries)
-                              for (final type in kInjuryTypes)
-                                ChoiceChip(
-                                  label: Text(
-                                      '${_zoneLabel(t, view, entry.key)} · ${_typeLabel(t, type.id)}'),
-                                  selected: entry.value == type.id,
-                                  onSelected: (_) => setSheet(
-                                      () => pending[entry.key] = type.id),
-                                ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 8),
-                  Row(
+                  // ═══ PAGE 2 : TYPES DE BLESSURE ═══
+                  Column(
                     children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () {
+                              pageController.animateToPage(
+                                0,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOutCubic,
+                              );
+                            },
+                          ),
+                          Expanded(
+                            child: Text(
+                              'Type de blessure',
+                              style: const TextStyle(
+                                  fontSize: 17, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Liste des zones sélectionnées, chacune avec ses types.
                       Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => setSheet(pending.clear),
-                          child: Text(t.cancel),
+                        child: ListView.builder(
+                          itemCount: pending.length,
+                          itemBuilder: (ctx, i) {
+                            final entry = pending.entries.elementAt(i);
+                            final zoneLabel =
+                                _zoneLabel(t, view, entry.key);
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 4),
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                children: [
+                                  Text(zoneLabel,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 4),
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                    children: [
+                                      for (final type in kInjuryTypes)
+                                        ChoiceChip(
+                                          label: Text(
+                                              _typeLabel(t, type.id)),
+                                          selected:
+                                              entry.value == type.id,
+                                          onSelected: (_) => setSheet(
+                                              () => pending[entry.key] =
+                                                  type.id),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: FilledButton(
-                          onPressed: () {
-                            injuries
-                              ..clear()
-                              ..addAll(pending.entries.map((e) =>
-                                  Injury(zoneId: e.key, typeId: e.value)));
-                            Navigator.of(ctx).pop(true);
-                          },
-                          child: Text('${t.validate} (${pending.length})'),
-                        ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => setSheet(pending.clear),
+                              child: Text(t.cancel),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: () {
+                                injuries
+                                  ..clear()
+                                  ..addAll(pending.entries.map((e) =>
+                                      Injury(
+                                          zoneId: e.key,
+                                          typeId: e.value)));
+                                Navigator.of(ctx).pop(true);
+                              },
+                              child: Text('${t.validate} (${pending.length})'),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
