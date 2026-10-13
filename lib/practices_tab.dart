@@ -24,6 +24,7 @@ class PracticesTab extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Bonnes pratiques',
+              textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: scheme.onSurface.withValues(alpha: 0.5),
                   ),
@@ -31,13 +32,12 @@ class PracticesTab extends StatelessWidget {
             const SizedBox(height: 24),
             // Banderole « Coming Soon »
             Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(8),
+                color: Colors.orange.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
                 border: Border.all(
-                  color: scheme.outline.withValues(alpha: 0.3),
+                  color: Colors.orange.withValues(alpha: 0.5),
                 ),
               ),
               child: Row(
@@ -45,16 +45,16 @@ class PracticesTab extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.hourglass_empty,
-                    size: 20,
-                    color: scheme.onSurface.withValues(alpha: 0.6),
+                    size: 14,
+                    color: Colors.orange.shade700,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   Text(
                     'Coming Soon',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
-                      color: scheme.onSurface.withValues(alpha: 0.7),
+                      color: Colors.orange.shade700,
                     ),
                   ),
                 ],
@@ -63,6 +63,7 @@ class PracticesTab extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Conseils et gestes de premiers secours',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
                 color: scheme.onSurface.withValues(alpha: 0.4),

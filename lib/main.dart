@@ -279,7 +279,33 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
               icon: const Icon(Icons.settings), label: t.tabSettings),
           NavigationDestination(
-              icon: const Icon(Icons.menu_book),
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.menu_book),
+                  // Banderole « Coming Soon » sur l'icône
+                  Positioned(
+                    right: -14,
+                    top: -10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        'Bientôt',
+                        style: TextStyle(
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               label: t.tabPractices,
               enabled: false, // grisé : contenu pas encore prêt
           ),
