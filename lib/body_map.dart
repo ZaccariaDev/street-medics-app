@@ -7,22 +7,31 @@ import 'package:flutter/material.dart';
 /// **Image** : silhouette humaine asexuée, CC0 (domaine public), rendue par
 /// `flutter_svg` depuis `assets/anatomy/body_front.svg` et `body_back.svg`.
 ///
-/// **Zones** : polygones INVISIBLES superposés à l'image. Cette séparation
-/// permet d'avoir une belle illustration *et* un hit-testing exact, sans
-/// dépendre du découpage interne du SVG (qui compte 7 tracés avec des
-/// translations imbriquées — inexploitables directement).
+/// **Six parties du corps** : tête, épaules, buste, bras, jambes, dos. Les
+/// zones fines (avant-bras, main, cuisse, mollet, pied) ont été fusionnées :
+/// sur le terrain on désigne « le bras », pas « l'avant-bras gauche ».
 ///
-/// **Calibrage** : les polygones ne sont pas devinés. Ils sont mesurés sur le
-/// rendu réel des SVG (profil de largeur relevé tous les 5 % de hauteur), ce
-/// qui garantit que chaque zone tombe bien sur la partie du corps visée.
+/// **Le dos est un calque derrière la silhouette**, pas une seconde vue. Le
+/// bouton « Dos » ne fait donc pas pivoter le bonhomme : il révèle la
+/// silhouette de dos, en retrait (60 % d'opacité), par-dessus laquelle on
+/// marque la zone « dos ».
 ///
-/// **Zoom** : la géométrie vit en coordonnées normalisées (0..1) et ne bouge
-/// jamais ; le zoom n'est qu'une transformation de rendu, et les taps sont
-/// reconvertis par l'inverse de la matrice. Sans cela la détection se décale
-/// dès qu'on zoome.
+/// **Zones** : polygones INVISIBLES superposés à l'image, en coordonnées
+/// normalisées (0..1). Cette séparation permet d'avoir une belle illustration
+/// *et* un hit-testing exact, sans dépendre du découpage interne du SVG.
+///
+/// **Zoom** : la géométrie ne bouge jamais ; le zoom n'est qu'une
+/// transformation de rendu, et les taps sont reconvertis par l'inverse de la
+/// matrice. Sans cela la détection se décale dès qu'on zoome.
 
-/// Vue affichée.
-enum BodyView { front, back }
+/// Ce que l'on est en train de désigner.
+enum BodyView {
+  /// Parties visibles de face.
+  front,
+
+  /// Le dos, révélé derrière la silhouette (pas une rotation).
+  back,
+}
 
 /// Dimensions natives des SVG (viewBox) — différentes entre les deux vues !
 /// Les zones sont définies par vue pour cette raison.
@@ -51,7 +60,7 @@ class BodyZone {
     required this.points,
   });
 
-  /// Identifiant stable, stocké côté serveur (`head`, `arm_l`, ...).
+  /// Identifiant stable, stocké côté serveur (`head`, `back`, ...).
   final String id;
 
   /// Clé de traduction (les 24 langues de l'app).
@@ -115,98 +124,54 @@ List<Offset> _ellipse(double cx, double cy, double rx, double ry,
       return Offset(cx + rx * math.cos(a), cy + ry * math.sin(a));
     });
 
-/// Coordonnées mesurées sur le rendu réel (voir `/tmp/measure_render.py`).
+/// Les SIX parties du corps.
 ///
-/// Repères de la vue de FACE :
-///   y 0.00-0.14 tête | 0.14-0.20 cou | 0.18-0.42 torse
-///   0.42-0.56 bassin + mains | 0.56-0.92 jambes | 0.92-1.00 pieds
-///   bras : x 0.03-0.22 (gauche écran) et 0.78-0.97, y 0.20-0.56
+/// Cinq sont cliquables dans chaque vue ; le tronc change d'étiquette :
+/// **buste** de face, **dos** quand on désigne l'arrière. Ce sont la même
+/// surface, donc jamais les deux à la fois (sinon l'une masquerait l'autre).
 ///
-/// Les épaules s'arrêtent AVANT le haut des bras (0.25 vs 0.25) : sans cette
-/// séparation, le centre de l'épaule tombait dans le polygone du bras, qui est
-/// dessiné par-dessus — l'épaule devenait donc intouchable.
-List<BodyZone> _frontZones() => [
+/// Repères mesurés sur le rendu réel :
+///   tête    y 0.00-0.19 (crâne + cou)
+///   épaules y 0.19-0.30 (haut du torse, de part et d'autre du cou)
+///   buste   y 0.19-0.58 (tronc central, vue de face)
+///   dos     y 0.19-0.58 (le même tronc, vu de dos)
+///   bras    y 0.27-0.58 (membres latéraux, du haut du bras à la main)
+///   jambes  y 0.58-0.99 (cuisses, tibias, pieds)
+///
+/// Les épaules s'arrêtent AVANT le haut des bras : sans cette séparation, le
+/// centre de l'épaule tombait dans le polygone du bras, qui est dessiné
+/// par-dessus — l'épaule devenait intouchable.
+List<BodyZone> bodyZones(BodyView view) => [
+      // Tête : ellipse du crâne, descendue jusqu'au cou.
       BodyZone(id: 'head', labelKey: 'zoneHead',
-          points: _ellipse(0.5, 0.072, 0.076, 0.058)),
-      BodyZone(id: 'neck', labelKey: 'zoneNeck',
-          points: _rect(0.462, 0.138, 0.538, 0.196)),
-      BodyZone(id: 'shoulder_l', labelKey: 'zoneShoulderL',
-          points: _trap(0.300, 0.400, 0.215, 0.330, 0.196, 0.250)),
-      BodyZone(id: 'shoulder_r', labelKey: 'zoneShoulderR',
-          points: _trap(0.600, 0.700, 0.670, 0.785, 0.196, 0.250)),
-      BodyZone(id: 'chest', labelKey: 'zoneChest',
-          points: _rect(0.330, 0.196, 0.670, 0.400)),
-      BodyZone(id: 'abdomen', labelKey: 'zoneAbdomen',
-          points: _rect(0.330, 0.400, 0.670, 0.560)),
-      BodyZone(id: 'arm_l', labelKey: 'zoneArmL',
-          points: _trap(0.180, 0.330, 0.100, 0.200, 0.252, 0.378)),
-      BodyZone(id: 'arm_r', labelKey: 'zoneArmR',
-          points: _trap(0.670, 0.820, 0.800, 0.900, 0.252, 0.378)),
-      BodyZone(id: 'forearm_l', labelKey: 'zoneForearmL',
-          points: _trap(0.100, 0.200, 0.060, 0.155, 0.378, 0.490)),
-      BodyZone(id: 'forearm_r', labelKey: 'zoneForearmR',
-          points: _trap(0.800, 0.900, 0.845, 0.940, 0.378, 0.490)),
-      BodyZone(id: 'hand_l', labelKey: 'zoneHandL',
-          points: _ellipse(0.090, 0.525, 0.055, 0.040)),
-      BodyZone(id: 'hand_r', labelKey: 'zoneHandR',
-          points: _ellipse(0.910, 0.525, 0.055, 0.040)),
-      BodyZone(id: 'thigh_l', labelKey: 'zoneThighL',
-          points: _trap(0.300, 0.490, 0.295, 0.480, 0.560, 0.720)),
-      BodyZone(id: 'thigh_r', labelKey: 'zoneThighR',
-          points: _trap(0.510, 0.700, 0.520, 0.705, 0.560, 0.720)),
-      BodyZone(id: 'shin_l', labelKey: 'zoneShinL',
-          points: _trap(0.295, 0.480, 0.320, 0.460, 0.720, 0.920)),
-      BodyZone(id: 'shin_r', labelKey: 'zoneShinR',
-          points: _trap(0.520, 0.705, 0.540, 0.680, 0.720, 0.920)),
-      BodyZone(id: 'foot_l', labelKey: 'zoneFootL',
-          points: _rect(0.310, 0.920, 0.470, 0.985)),
-      BodyZone(id: 'foot_r', labelKey: 'zoneFootR',
-          points: _rect(0.530, 0.920, 0.690, 0.985)),
+          points: _ellipse(0.5, 0.080, 0.080, 0.075)),
+      // Épaules : deux trapèzes symétriques, de part et d'autre du cou.
+      // Assez larges et assez hauts pour être visés au doigt : un bandeau
+      // trop mince obligeait à viser au pixel et le tap tombait dans le bras.
+      BodyZone(id: 'shoulder_l', labelKey: 'zoneShoulders',
+          points: _trap(0.290, 0.430, 0.220, 0.360, 0.185, 0.330)),
+      BodyZone(id: 'shoulder_r', labelKey: 'zoneShoulders',
+          points: _trap(0.570, 0.710, 0.640, 0.780, 0.185, 0.330)),
+      // Tronc : « buste » de face, « dos » quand on désigne l'arrière.
+      // Jamais les deux : ils occupent la même surface.
+      if (view == BodyView.front)
+        BodyZone(id: 'chest', labelKey: 'zoneChest',
+            points: _rect(0.330, 0.190, 0.670, 0.580))
+      else
+        BodyZone(id: 'back', labelKey: 'zoneBack',
+            points: _rect(0.330, 0.190, 0.670, 0.580)),
+      // Bras : membre entier (haut du bras, avant-bras, main). Commence SOUS
+      // les épaules, sinon il les recouvrirait (il est dessiné après).
+      BodyZone(id: 'arm_l', labelKey: 'zoneArms',
+          points: _trap(0.180, 0.330, 0.060, 0.200, 0.325, 0.580)),
+      BodyZone(id: 'arm_r', labelKey: 'zoneArms',
+          points: _trap(0.670, 0.820, 0.800, 0.940, 0.325, 0.580)),
+      // Jambes : les deux membres inférieurs, cuisse à pied.
+      BodyZone(id: 'leg_l', labelKey: 'zoneLegs',
+          points: _trap(0.300, 0.490, 0.310, 0.470, 0.580, 0.990)),
+      BodyZone(id: 'leg_r', labelKey: 'zoneLegs',
+          points: _trap(0.510, 0.700, 0.530, 0.690, 0.580, 0.990)),
     ];
-
-/// Repères de la vue de DOS (mêmes proportions, tronc redécoupé).
-List<BodyZone> _backZones() => [
-      BodyZone(id: 'head', labelKey: 'zoneHead',
-          points: _ellipse(0.5, 0.072, 0.076, 0.058)),
-      BodyZone(id: 'nape', labelKey: 'zoneNape',
-          points: _rect(0.462, 0.138, 0.538, 0.196)),
-      BodyZone(id: 'shoulder_l', labelKey: 'zoneShoulderL',
-          points: _trap(0.300, 0.400, 0.215, 0.330, 0.196, 0.250)),
-      BodyZone(id: 'shoulder_r', labelKey: 'zoneShoulderR',
-          points: _trap(0.600, 0.700, 0.670, 0.785, 0.196, 0.250)),
-      BodyZone(id: 'back', labelKey: 'zoneBack',
-          points: _rect(0.330, 0.196, 0.670, 0.400)),
-      BodyZone(id: 'lower_back', labelKey: 'zoneLowerBack',
-          points: _rect(0.330, 0.400, 0.670, 0.560)),
-      BodyZone(id: 'arm_l', labelKey: 'zoneArmL',
-          points: _trap(0.180, 0.330, 0.100, 0.200, 0.252, 0.378)),
-      BodyZone(id: 'arm_r', labelKey: 'zoneArmR',
-          points: _trap(0.670, 0.820, 0.800, 0.900, 0.252, 0.378)),
-      BodyZone(id: 'forearm_l', labelKey: 'zoneForearmL',
-          points: _trap(0.100, 0.200, 0.060, 0.155, 0.378, 0.490)),
-      BodyZone(id: 'forearm_r', labelKey: 'zoneForearmR',
-          points: _trap(0.800, 0.900, 0.845, 0.940, 0.378, 0.490)),
-      BodyZone(id: 'hand_l', labelKey: 'zoneHandL',
-          points: _ellipse(0.090, 0.525, 0.055, 0.040)),
-      BodyZone(id: 'hand_r', labelKey: 'zoneHandR',
-          points: _ellipse(0.910, 0.525, 0.055, 0.040)),
-      BodyZone(id: 'thigh_l', labelKey: 'zoneThighL',
-          points: _trap(0.300, 0.490, 0.295, 0.480, 0.560, 0.720)),
-      BodyZone(id: 'thigh_r', labelKey: 'zoneThighR',
-          points: _trap(0.510, 0.700, 0.520, 0.705, 0.560, 0.720)),
-      BodyZone(id: 'shin_l', labelKey: 'zoneShinL',
-          points: _trap(0.295, 0.480, 0.320, 0.460, 0.720, 0.920)),
-      BodyZone(id: 'shin_r', labelKey: 'zoneShinR',
-          points: _trap(0.520, 0.705, 0.540, 0.680, 0.720, 0.920)),
-      BodyZone(id: 'foot_l', labelKey: 'zoneFootL',
-          points: _rect(0.310, 0.920, 0.470, 0.985)),
-      BodyZone(id: 'foot_r', labelKey: 'zoneFootR',
-          points: _rect(0.530, 0.920, 0.690, 0.985)),
-    ];
-
-/// Toutes les zones d'une vue.
-List<BodyZone> bodyZones(BodyView view) =>
-    view == BodyView.front ? _frontZones() : _backZones();
 
 /// Zone sous un point normalisé (null si hors du corps).
 BodyZone? zoneAt(BodyView view, Offset normalized) {

@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "নিশ্চিত করুন"
+  "validate": "নিশ্চিত করুন",
+  "zoneShoulders": "কাঁধ",
+  "zoneArms": "বাহু",
+  "zoneLegs": "পা"
 }

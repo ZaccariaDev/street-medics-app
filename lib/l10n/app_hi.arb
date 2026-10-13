@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "पुष्टि करें"
+  "validate": "पुष्टि करें",
+  "zoneShoulders": "कंधे",
+  "zoneArms": "भुजाएँ",
+  "zoneLegs": "टाँगें"
 }

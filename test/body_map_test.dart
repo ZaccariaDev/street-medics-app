@@ -45,25 +45,11 @@ void main() {
       final head =
           bodyZones(BodyView.front).firstWhere((z) => z.id == 'head');
       final foot =
-          bodyZones(BodyView.front).firstWhere((z) => z.id == 'foot_l');
+          bodyZones(BodyView.front).firstWhere((z) => z.id == 'leg_l');
       expect(head.normalizedBounds().center.dy,
           lessThan(foot.normalizedBounds().center.dy));
     });
 
-    test('les deux vues ont le même nombre de membres', () {
-      final front = bodyZones(BodyView.front);
-      final back = bodyZones(BodyView.back);
-      // Mêmes membres (bras, mains, jambes, pieds) : 2 vues == 4 membres chacune.
-      final frontLimbs = front.where((z) =>
-          !['head', 'neck', 'shoulder_l', 'shoulder_r', 'chest', 'abdomen']
-              .contains(z.id));
-      final backLimbs = back.where((z) =>
-          !['head', 'nape', 'shoulder_l', 'shoulder_r', 'back', 'lower_back']
-              .contains(z.id));
-      expect(frontLimbs.length, backLimbs.length);
-      expect(frontLimbs.map((z) => z.id).toSet(),
-          equals(backLimbs.map((z) => z.id).toSet()));
-    });
   });
 
   group('hit-testing', () {

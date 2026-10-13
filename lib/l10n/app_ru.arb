@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Подтвердить"
+  "validate": "Подтвердить",
+  "zoneShoulders": "Плечи",
+  "zoneArms": "Руки",
+  "zoneLegs": "Ноги"
 }

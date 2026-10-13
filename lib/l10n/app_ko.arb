@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "확인"
+  "validate": "확인",
+  "zoneShoulders": "어깨",
+  "zoneArms": "팔",
+  "zoneLegs": "다리"
 }

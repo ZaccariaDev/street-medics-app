@@ -631,7 +631,9 @@ class _SosTabState extends State<SosTab> {
                             style: const TextStyle(
                                 fontSize: 17, fontWeight: FontWeight.bold)),
                       ),
-                      // Bascule face / dos : deux vues du même corps.
+                      // Bascule face / dos. Ce n'est PAS une rotation : le dos
+                      // apparaît derrière la silhouette, en retrait. L'icône
+                      // « flip » le dit mieux qu'une icône de personne.
                       SegmentedButton<BodyView>(
                         segments: [
                           ButtonSegment(
@@ -641,7 +643,7 @@ class _SosTabState extends State<SosTab> {
                           ),
                           ButtonSegment(
                             value: BodyView.back,
-                            icon: const Icon(Icons.person_outline, size: 18),
+                            icon: const Icon(Icons.flip_to_back, size: 18),
                             label: Text(t.bodyMapBack),
                           ),
                         ],
@@ -734,9 +736,17 @@ class _SosTabState extends State<SosTab> {
   }
 
   /// Libellé traduit d'une zone du corps.
+  ///
+  /// Une zone peut appartenir aux deux vues (les 6 parties du corps sont
+  /// communes) ; on cherche donc dans la vue demandee puis dans l'autre.
   String _zoneLabel(AppLocalizations t, BodyView view, String zoneId) {
-    final zone =
-        bodyZones(view).where((z) => z.id == zoneId).firstOrNull;
+    var zone = bodyZones(view).where((z) => z.id == zoneId).firstOrNull;
+    zone ??= bodyZones(BodyView.front)
+        .where((z) => z.id == zoneId)
+        .firstOrNull;
+    zone ??= bodyZones(BodyView.back)
+        .where((z) => z.id == zoneId)
+        .firstOrNull;
     return _labelFor(t, zone?.labelKey ?? 'zoneHead');
   }
 
@@ -751,46 +761,16 @@ class _SosTabState extends State<SosTab> {
     switch (key) {
       case 'zoneHead':
         return t.zoneHead;
-      case 'zoneNeck':
-        return t.zoneNeck;
-      case 'zoneNape':
-        return t.zoneNape;
-      case 'zoneShoulderL':
-        return t.zoneShoulderL;
-      case 'zoneShoulderR':
-        return t.zoneShoulderR;
+      case 'zoneShoulders':
+        return t.zoneShoulders;
       case 'zoneChest':
         return t.zoneChest;
       case 'zoneBack':
         return t.zoneBack;
-      case 'zoneAbdomen':
-        return t.zoneAbdomen;
-      case 'zoneLowerBack':
-        return t.zoneLowerBack;
-      case 'zoneArmL':
-        return t.zoneArmL;
-      case 'zoneArmR':
-        return t.zoneArmR;
-      case 'zoneForearmL':
-        return t.zoneForearmL;
-      case 'zoneForearmR':
-        return t.zoneForearmR;
-      case 'zoneHandL':
-        return t.zoneHandL;
-      case 'zoneHandR':
-        return t.zoneHandR;
-      case 'zoneThighL':
-        return t.zoneThighL;
-      case 'zoneThighR':
-        return t.zoneThighR;
-      case 'zoneShinL':
-        return t.zoneShinL;
-      case 'zoneShinR':
-        return t.zoneShinR;
-      case 'zoneFootL':
-        return t.zoneFootL;
-      case 'zoneFootR':
-        return t.zoneFootR;
+      case 'zoneArms':
+        return t.zoneArms;
+      case 'zoneLegs':
+        return t.zoneLegs;
       case 'injuryWound':
         return t.injuryWound;
       case 'injuryFracture':

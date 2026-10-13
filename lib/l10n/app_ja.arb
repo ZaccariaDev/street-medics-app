@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "確定"
+  "validate": "確定",
+  "zoneShoulders": "肩",
+  "zoneArms": "腕",
+  "zoneLegs": "脚"
 }

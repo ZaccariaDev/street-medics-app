@@ -25,7 +25,9 @@ void main() {
           ? const [
               Injury(zoneId: 'head', typeId: 'wound'),
               Injury(zoneId: 'chest', typeId: 'fracture'),
-              Injury(zoneId: 'shin_l', typeId: 'burn'),
+              Injury(zoneId: 'leg_l', typeId: 'burn'),
+              Injury(zoneId: 'shoulder_l', typeId: 'wound'),
+              Injury(zoneId: 'arm_r', typeId: 'fracture'),
             ]
           : const [
               Injury(zoneId: 'back', typeId: 'wound'),

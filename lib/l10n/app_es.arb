@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Confirmar"
+  "validate": "Confirmar",
+  "zoneShoulders": "Hombros",
+  "zoneArms": "Brazos",
+  "zoneLegs": "Piernas"
 }

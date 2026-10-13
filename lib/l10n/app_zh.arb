@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "确认"
+  "validate": "确认",
+  "zoneShoulders": "肩部",
+  "zoneArms": "手臂",
+  "zoneLegs": "腿部"
 }

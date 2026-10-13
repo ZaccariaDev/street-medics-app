@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -56,6 +58,7 @@ class BodyMapViewState extends State<BodyMapView>
 
   @override
   void dispose() {
+    _zoomResetTimer?.cancel();
     _ctrl.dispose();
     super.dispose();
   }
@@ -108,11 +111,23 @@ class BodyMapViewState extends State<BodyMapView>
     });
     widget.onZoneTapped(zone);
     if (widget.zoomEnabled) zoomOn(zone);
+    // Dézoom automatique : sans lui, le tap suivant serait converti dans
+    // l'espace zoomé et viserait à côté. On laisse le temps de voir le
+    // grossissement (marquer une zone précise), puis on revient à l'ensemble.
+    _zoomResetTimer?.cancel();
+    _zoomResetTimer = Timer(const Duration(milliseconds: 900), () {
+      if (mounted) reset();
+    });
   }
+
+  Timer? _zoomResetTimer;
 
   @override
   Widget build(BuildContext context) {
-    final asset = BodyViewAsset.of(widget.view);
+    // La géométrie suit TOUJOURS la silhouette de face : le dos est un calque
+    // derrière elle, jamais une vue substituée. Les zones ne bougent donc pas
+    // quand on affiche le dos.
+    final asset = BodyViewAsset.front;
     final scheme = Theme.of(context).colorScheme;
 
     return LayoutBuilder(
@@ -165,16 +180,38 @@ class BodyMapViewState extends State<BodyMapView>
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            // 1. Silhouette translucide.
+                            // 1. Calque « dos » : la silhouette de dos reste
+                            //    DERRIERE, en retrait (60 % d'opacité). Elle
+                            //    n'est affichée que lorsqu'on désigne le dos —
+                            //    le bonhomme ne pivote jamais.
+                            //
+                            //    Teinte volontairement distincte (bleu ardoise,
+                            //    pas une couleur de thème) : les contours de
+                            //    face et de dos se superposent presque, donc
+                            //    sans couleur nettement différente le calque
+                            //    resterait invisible derrière la silhouette.
+                            if (widget.view == BodyView.back)
+                              Opacity(
+                                opacity: 0.6,
+                                child: SvgPicture.asset(
+                                  BodyViewAsset.back.asset,
+                                  fit: BoxFit.fill,
+                                  colorFilter: const ColorFilter.mode(
+                                    Color(0xFF4A6FA5),
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                            // 2. Silhouette de face, toujours visible.
                             SvgPicture.asset(
-                              asset.asset,
+                              BodyViewAsset.front.asset,
                               fit: BoxFit.fill,
                               colorFilter: ColorFilter.mode(
                                 scheme.onSurface.withValues(alpha: 0.22),
                                 BlendMode.srcIn,
                               ),
                             ),
-                            // 2. Zones + 3. blessures.
+                            // 3. Zones + 4. blessures.
                             CustomPaint(
                               painter: _ZonePainter(
                                 view: widget.view,

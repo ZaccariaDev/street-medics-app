@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Bevestigen"
+  "validate": "Bevestigen",
+  "zoneShoulders": "Schouders",
+  "zoneArms": "Armen",
+  "zoneLegs": "Benen"
 }

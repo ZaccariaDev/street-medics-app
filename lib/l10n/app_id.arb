@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Konfirmasi"
+  "validate": "Konfirmasi",
+  "zoneShoulders": "Bahu",
+  "zoneArms": "Lengan",
+  "zoneLegs": "Kaki"
 }

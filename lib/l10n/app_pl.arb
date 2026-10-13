@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Potwierdź"
+  "validate": "Potwierdź",
+  "zoneShoulders": "Barki",
+  "zoneArms": "Ramiona",
+  "zoneLegs": "Nogi"
 }

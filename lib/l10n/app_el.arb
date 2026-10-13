@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Επιβεβαίωση"
+  "validate": "Επιβεβαίωση",
+  "zoneShoulders": "Ώμοι",
+  "zoneArms": "Χέρια",
+  "zoneLegs": "Πόδια"
 }

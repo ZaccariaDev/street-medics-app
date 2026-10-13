@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Thibitisha"
+  "validate": "Thibitisha",
+  "zoneShoulders": "Mabega",
+  "zoneArms": "Mikono",
+  "zoneLegs": "Miguu"
 }

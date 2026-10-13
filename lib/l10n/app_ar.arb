@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "تأكيد"
+  "validate": "تأكيد",
+  "zoneShoulders": "الكتفان",
+  "zoneArms": "الذراعان",
+  "zoneLegs": "الساقان"
 }

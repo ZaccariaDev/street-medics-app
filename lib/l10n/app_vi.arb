@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Xác nhận"
+  "validate": "Xác nhận",
+  "zoneShoulders": "Vai",
+  "zoneArms": "Cánh tay",
+  "zoneLegs": "Chân"
 }

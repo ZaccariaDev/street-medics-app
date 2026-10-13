@@ -33,9 +33,12 @@ Future<(Rect, Rect)> _layout(WidgetTester tester, double w, double h,
     ),
   ));
   await tester.pump();
+  // La vue de dos affiche DEUX SVG (calque de dos + silhouette de face).
+  // La geometrie suit la silhouette de face : on prend le dernier.
+  final svgs = find.byType(SvgPicture).evaluate().toList();
   return (
     tester.getRect(find.byType(BodyMapView)),
-    tester.getRect(find.byType(SvgPicture)),
+    tester.getRect(find.byWidget(svgs.last.widget as SvgPicture)),
   );
 }
 

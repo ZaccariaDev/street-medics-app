@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Bestätigen"
+  "validate": "Bestätigen",
+  "zoneShoulders": "Schultern",
+  "zoneArms": "Arme",
+  "zoneLegs": "Beine"
 }

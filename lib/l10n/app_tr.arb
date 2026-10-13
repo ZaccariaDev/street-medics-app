@@ -150,5 +150,8 @@
       }
     }
   },
-  "validate": "Onayla"
+  "validate": "Onayla",
+  "zoneShoulders": "Omuzlar",
+  "zoneArms": "Kollar",
+  "zoneLegs": "Bacaklar"
 }
