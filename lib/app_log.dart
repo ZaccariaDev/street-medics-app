@@ -87,6 +87,9 @@ class AppLog {
       originalDebugPrint(message, wrapWidth: wrapWidth);
       if (message == null) return;
       final lower = message.toLowerCase();
+      // Filtrage réseau : ne pas capturer les erreurs réseau passagères
+      // (SocketException, échec DNS, timeout) qui ne sont pas des bugs.
+      if (_isNetworkError(lower)) return;
       if (lower.contains('error') ||
           lower.contains('warning') ||
           lower.contains('exception') ||
@@ -102,13 +105,43 @@ class AppLog {
     _flushTimer = Timer.periodic(const Duration(seconds: 60), (_) => flush());
   }
 
+  /// Motifs d'erreurs réseau passagères : elles ne sont PAS des bugs et ne
+  /// doivent jamais saturer le canal d'erreurs Discord. Une déconnexion,
+  /// un échec DNS ou une coupure mobile laisse le serveur injoignable,
+  /// mais l'app se rétablit toute seule dès que le réseau revient.
+  static const List<String> _networkPatterns = [
+    'SocketException',
+    'Failed host lookup',
+    'No address associated with hostname',
+    'isAbort: true',
+    'Connection refused',
+    'Connection reset',
+    'TimeoutException',
+    'HandshakeException',
+    'Network is unreachable',
+    'errno = 7',
+    'errno = 8',
+    'errno = 101',
+  ];
+
+  /// Vrai si le message correspond à une erreur réseau passagère.
+  static bool _isNetworkError(String message) {
+    final lower = message.toLowerCase();
+    return _networkPatterns.any((p) => lower.contains(p.toLowerCase()));
+  }
+
   /// Journalise une entrée. `level` : "error", "warning" ou "info".
+  ///
+  /// Les erreurs réseau passageres (SocketException, echec DNS, timeout)
+  /// sont ignorees : elles ne sont pas des bugs et saturent le canal
+  /// Discord sans apporter d'information utile.
   static void log({
     required String level,
     required String message,
     String stack = '',
     String context = '',
   }) {
+    if (level == 'error' && _isNetworkError(message)) return;
     final entry = <String, dynamic>{
       'level': level,
       'message': _truncate(message, _maxMessageLen),
