@@ -153,5 +153,14 @@
   "validate": "Thibitisha",
   "zoneShoulders": "Mabega",
   "zoneArms": "Mikono",
-  "zoneLegs": "Miguu"
+  "zoneLegs": "Miguu",
+  "sosSentTitle": "SOS imetumwa",
+  "sosSentBody": "Mahali ulipo pametumwa kwa street medics wa karibu.",
+  "whatToDo": "Cha kufanya",
+  "aidWound": "Funika jeraha kwa kitambaa safi\nBonyeza ikiwa inavuja damu\nUsiondoe kitu kilichochomekwa\nTafuta msaada ikiwa damu haikomi",
+  "aidFracture": "Usimsogeze mtu\nImarisha kiungo katika hali uliyoikuta\nUsirudishe kitu chochote\nPiga simu ya dharura",
+  "aidBurn": "Poa kwa maji vuguvugu dakika 15-20\nUsitoboe malengelenge\nUsiweke kitu kwenye moto\nFunika bila kukaza",
+  "aidOther": "Baki na mtu\nMtulize\nFuatilia hali yake\nTafuta msaada ikiwa inazidi",
+  "aidStubNote": "Maelekezo ya muda, yakisubiri toleo la chama.",
+  "close": "Funga"
 }

@@ -19,6 +19,7 @@ import 'bg_service.dart';
 import 'body_map.dart';
 import 'body_map_view.dart';
 import 'config.dart';
+import 'first_aid.dart';
 import 'l10n/app_localizations.dart';
 import 'notifs.dart';
 import 'pb_service.dart';
@@ -536,6 +537,9 @@ class _SosTabState extends State<SosTab> {
 
       final phone = _phoneController.text.trim();
       await AppConfig.setVictimPhone(phone);
+      // Les blessures du SOS sont copiees AVANT l'envoi : l'ecran de
+      // confirmation doit les afficher, et la saisie est videe juste apres.
+      final sentInjuries = List<Injury>.from(_injuries);
       final id = await PbService.sendReport(
         lat: pos.latitude,
         lng: pos.longitude,
@@ -566,6 +570,9 @@ class _SosTabState extends State<SosTab> {
       }
       mapRefresh.value++;
       dutyChanged.value++;
+      // Ecran de confirmation : rappelle que le SOS est parti, et donne les
+      // premiers gestes pour les blessures declarees (contenu provisoire).
+      await _showSosSent(sentInjuries);
     } catch (e, st) {
       AppLog.error(e, stack: st, context: 'sendSos');
       if (mounted) showSnack(context, '${t.errorSend} : $e');
@@ -755,6 +762,111 @@ class _SosTabState extends State<SosTab> {
     final type =
         kInjuryTypes.where((x) => x.id == typeId).firstOrNull;
     return _labelFor(t, type?.labelKey ?? 'injuryOther');
+  }
+
+  /// Liste des étapes de premiers gestes pour un type de blessure.
+  List<String> _aidSteps(AppLocalizations t, String typeId) {
+    final aid = firstAidFor(typeId);
+    final raw = _aidFor(t, aid.stepsKey);
+    return raw
+        .split('\n')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+  }
+
+  static String _aidFor(AppLocalizations t, String key) {
+    switch (key) {
+      case 'aidWound':
+        return t.aidWound;
+      case 'aidFracture':
+        return t.aidFracture;
+      case 'aidBurn':
+        return t.aidBurn;
+      case 'aidOther':
+        return t.aidOther;
+      default:
+        return t.aidOther;
+    }
+  }
+
+  /// Écran de confirmation après l'envoi d'un SOS.
+  ///
+  /// Il rappelle que le SOS est parti, puis donne les **premiers gestes** pour
+  /// chaque blessure déclarée. Le contenu des gestes est provisoire (stub) :
+  /// l'association des street medics doit fournir la version réelle, et la
+  /// mention le dit clairement plutôt que de faire passer du générique pour
+  /// une consigne médicale.
+  ///
+  /// Un SOS sans blessure déclarée affiche seulement la confirmation : rien
+  /// n'est inventé.
+  Future<void> _showSosSent(List<Injury> injuries) async {
+    if (!mounted) return;
+    final t = AppLocalizations.of(context);
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: const Icon(Icons.check_circle, color: Colors.green, size: 40),
+        title: Text(t.sosSentTitle, textAlign: TextAlign.center),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.sosSentBody),
+              if (injuries.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(t.whatToDo,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                for (final inj in injuries) ...[
+                  Row(
+                    children: [
+                      Icon(
+                        firstAidFor(inj.typeId).urgent
+                            ? Icons.priority_high
+                            : Icons.info_outline,
+                        size: 18,
+                        color: firstAidFor(inj.typeId).urgent
+                            ? Colors.red
+                            : Colors.grey,
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          '${_zoneLabel(t, BodyView.front, inj.zoneId)} · '
+                          '${_typeLabel(t, inj.typeId)}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  for (final step in _aidSteps(t, inj.typeId))
+                    Padding(
+                      padding: const EdgeInsets.only(left: 24, bottom: 2),
+                      child: Text('• $step'),
+                    ),
+                  const SizedBox(height: 10),
+                ],
+                if (kFirstAidIsStub)
+                  Text(t.aidStubNote,
+                      style: const TextStyle(
+                          fontSize: 11, color: Colors.grey)),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(t.close),
+          ),
+        ],
+      ),
+    );
   }
 
   static String _labelFor(AppLocalizations t, String key) {

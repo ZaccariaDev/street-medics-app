@@ -153,5 +153,14 @@
   "validate": "확인",
   "zoneShoulders": "어깨",
   "zoneArms": "팔",
-  "zoneLegs": "다리"
+  "zoneLegs": "다리",
+  "sosSentTitle": "SOS 전송됨",
+  "sosSentBody": "귀하의 위치가 근처 street medics에게 전송되었습니다.",
+  "whatToDo": "해야 할 일",
+  "aidWound": "깨끗한 천으로 상처를 덮으세요\n피가 나면 누르세요\n박힌 물체를 빼지 마세요\n출혈이 멈추지 않으면 도움을 요청하세요",
+  "aidFracture": "사람을 움직이지 마세요\n발견한 자세로 고정하세요\n아무것도 되돌리지 마세요\n구급차를 부르세요",
+  "aidBurn": "미지근한 물로 15-20분 식히세요\n물집을 터뜨리지 마세요\n화상에 아무것도 바르지 마세요\n느슨하게 덮으세요",
+  "aidOther": "곁에 있어 주세요\n안심시키세요\n상태를 지켜보세요\n악화되면 도움을 요청하세요",
+  "aidStubNote": "임시 지침이며, 협회 버전을 기다리고 있습니다.",
+  "close": "닫기"
 }

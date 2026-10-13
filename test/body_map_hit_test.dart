@@ -58,7 +58,8 @@ void main() {
             Offset(origin.dx + c.dx * w, origin.dy + c.dy * h));
         // Laisse s'ecouler le retour visuel (220 ms) : sans cela le test
         // echoue sur un timer en attente, pas sur la geometrie.
-        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 2));
         expect(touched, contains(z.id),
             reason: 'partie ${z.id} intouchable en $v '
                 '(obtenu: ${touched.isEmpty ? "rien" : touched.join(",")})');
@@ -98,7 +99,8 @@ void main() {
     await tester.pump();
     final r = tester.getRect(find.byType(BodyMapView));
     await tester.tapAt(Offset(r.left + 4, r.top + 4));
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump();
+        await tester.pump(const Duration(seconds: 2));
     expect(touched, isEmpty);
   });
 

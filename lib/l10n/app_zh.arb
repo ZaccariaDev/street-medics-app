@@ -153,5 +153,14 @@
   "validate": "确认",
   "zoneShoulders": "肩部",
   "zoneArms": "手臂",
-  "zoneLegs": "腿部"
+  "zoneLegs": "腿部",
+  "sosSentTitle": "SOS 已发送",
+  "sosSentBody": "您的位置已发送给附近的 street medics。",
+  "whatToDo": "该怎么做",
+  "aidWound": "用干净的布覆盖伤口\n出血时按压\n不要拔出插入的物体\n出血不止时呼救",
+  "aidFracture": "不要移动伤者\n让肢体保持在发现时的姿势\n不要复位任何东西\n呼叫急救",
+  "aidBurn": "用温水冷却 15-20 分钟\n不要挑破水泡\n不要在烧伤处涂抹任何东西\n松松地覆盖",
+  "aidOther": "陪伴伤者\n安抚对方\n观察状况\n恶化时呼救",
+  "aidStubNote": "临时指引，等待协会的正式版本。",
+  "close": "关闭"
 }

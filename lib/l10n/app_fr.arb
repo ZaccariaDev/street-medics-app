@@ -153,5 +153,14 @@
   "validate": "Valider",
   "zoneShoulders": "Épaules",
   "zoneArms": "Bras",
-  "zoneLegs": "Jambes"
+  "zoneLegs": "Jambes",
+  "sosSentTitle": "SOS envoyé",
+  "sosSentBody": "Votre position a été transmise aux street medics à proximité.",
+  "whatToDo": "Ce qu'il faut faire",
+  "aidWound": "Protéger la plaie avec un tissu propre\nAppuyer si ça saigne\nNe pas retirer un objet planté\nAlerter si le saignement ne s'arrête pas",
+  "aidFracture": "Ne pas déplacer la personne\nImmobiliser le membre dans la position trouvée\nNe rien remettre en place\nAlerter les secours",
+  "aidBurn": "Refroidir à l'eau tiède 15 à 20 minutes\nNe pas percer les cloques\nNe rien appliquer sur la brûlure\nCouvrir sans serrer",
+  "aidOther": "Rester auprès de la personne\nLa rassurer\nSurveiller son état\nAlerter si ça s'aggrave",
+  "aidStubNote": "Consignes provisoires, en attente de celles de l'association.",
+  "close": "Fermer"
 }

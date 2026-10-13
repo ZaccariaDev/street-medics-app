@@ -43,7 +43,6 @@
     {
       "id": "popup_autorisations",
       "titre": "Autorisations necessaires",
-      "fichier": "screenshots/00_popup_autorisations.png",
       "type": "dialogue bloquant (AlertDialog)",
       "apparait": "au premier lancement, tant que les autorisations ne sont pas accordees",
       "elements": [
@@ -63,6 +62,12 @@
         "Localisation — pour envoyer votre SOS et vous localiser",
         "Localisation « toujours » — pour suivre la position app fermee",
         "Desactiver l'optimisation batterie — pour ne pas etre coupe"
+      ],
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/00_popup_autorisations.png"
+        }
       ]
     },
     {
@@ -126,12 +131,12 @@
           "mene_a": "dialogue_engagement_medic",
           "note": "situé en bas de l'onglet SOS, sous un separateur ; absent de l'onglet Carte"
         }
-      ]
+      ],
+      "feuilles": []
     },
     {
       "id": "feuille_appeler_urgences",
       "titre": "Appeler les urgences",
-      "fichier": "screenshots/03_appeler_urgences.png",
       "type": "feuille modale (bottom sheet), glisser vers le bas pour fermer",
       "acces": "bouton « Appeler les urgences » de l'ecran SOS",
       "elements": [
@@ -152,6 +157,12 @@
           "numero": "112",
           "libelle": "Tous services",
           "note": "numero europeen, toujours propose"
+        }
+      ],
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/03_appeler_urgences.png"
         }
       ]
     },
@@ -203,12 +214,12 @@
           "mene_a": "feuille_appeler_urgences"
         }
       ],
-      "note_capture": "la capture 05 montre la carte vide (grise) : les tuiles OpenStreetMap ne se telechargent pas dans l'environnement de test. La mise en page des boutons est en revanche exacte."
+      "note_capture": "la capture 05 montre la carte vide (grise) : les tuiles OpenStreetMap ne se telechargent pas dans l'environnement de test. La mise en page des boutons est en revanche exacte.",
+      "feuilles": []
     },
     {
       "id": "dialogue_engagement_medic",
       "titre": "Engagement du street medic",
-      "fichier": "screenshots/06_engagement_medic.png",
       "type": "dialogue (AlertDialog)",
       "acces": "bouton « Devenir street medic » (bas de l'onglet SOS, hors service)",
       "elements": [
@@ -228,12 +239,17 @@
           "mene_a": "ecran_carte (déverrouillée)",
           "actif_si": "la case est cochée"
         }
+      ],
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/06_engagement_medic.png"
+        }
       ]
     },
     {
       "id": "liste_mes_sos",
       "titre": "Mes SOS en cours",
-      "fichier": "screenshots/12_liste_mes_sos.png",
       "type": "feuille modale (bottom sheet)",
       "acces": "compteur « N SOS en cours » (ecran SOS)",
       "sous_titre": "Appuyez sur Annuler pour retirer un signalement precis.",
@@ -260,12 +276,17 @@
           "mene_a": "reste sur la liste mise a jour",
           "note": "le service d'arriere-plan ne s'arrete que si la liste devient vide"
         }
+      ],
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/12_liste_mes_sos.png"
+        }
       ]
     },
     {
       "id": "feuille_detail_sos",
       "titre": "SOS",
-      "fichier": "screenshots/13_detail_sos.png",
       "capture_disponible": true,
       "type": "feuille modale (bottom sheet)",
       "acces": "appui sur un blip SOS de la carte (medic en service)",
@@ -326,12 +347,17 @@
           "actif_si": "statut != resolved"
         }
       ],
-      "note_capture": "capture reproduite depuis le code (memes widgets, memes libelles) : la feuille reelle s'ouvre depuis un blip de la carte, inatteignable en test faute de tuiles OSM"
+      "note_capture": "capture reproduite depuis le code (memes widgets, memes libelles) : la feuille reelle s'ouvre depuis un blip de la carte, inatteignable en test faute de tuiles OSM",
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/13_detail_sos.png"
+        }
+      ]
     },
     {
       "id": "feuille_detail_medic",
       "titre": "Street medic",
-      "fichier": "screenshots/14_detail_medic.png",
       "capture_disponible": true,
       "type": "feuille modale (bottom sheet)",
       "acces": "appui sur un blip medic de la carte (medic en service)",
@@ -347,12 +373,17 @@
           "mene_a": null
         }
       ],
-      "note_capture": "capture reproduite depuis le code (memes widgets, memes libelles) : inatteignable en test faute de tuiles OSM"
+      "note_capture": "capture reproduite depuis le code (memes widgets, memes libelles) : inatteignable en test faute de tuiles OSM",
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/14_detail_medic.png"
+        }
+      ]
     },
     {
       "id": "selecteur_blessures_face",
       "titre": "Blessures (vue de face)",
-      "fichier": "screenshots/09_selecteur_blessures_face.png",
       "type": "feuille modale plein ecran (bottom sheet)",
       "acces": "carte « Blessures » (ecran SOS)",
       "elements": [
@@ -411,21 +442,31 @@
           "action": "attache les N blessures au prochain SOS",
           "mene_a": "ecran_sos (la carte Blessures affiche alors « N blessure(s) localisee(s) »)"
         }
+      ],
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/09_selecteur_blessures_face.png"
+        }
       ]
     },
     {
       "id": "selecteur_blessures_dos",
       "titre": "Blessures (vue de dos)",
-      "fichier": "screenshots/10_selecteur_blessures_dos.png",
       "type": "feuille modale plein ecran (bottom sheet)",
       "acces": "segment « Dos » dans le selecteur de blessures",
       "difference_avec_face": "la silhouette de dos apparait DERRIERE la silhouette de face, en retrait (opacite 60 %, teinte bleu ardoise). Le tronc s'appelle « Dos » au lieu de « Buste ». Les 5 autres parties sont identiques.",
-      "elements": "identiques a selecteur_blessures_face"
+      "elements": "identiques a selecteur_blessures_face",
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/10_selecteur_blessures_dos.png"
+        }
+      ]
     },
     {
       "id": "selecteur_blessure_marquee",
       "titre": "Blessures (avec une zone marquee)",
-      "fichier": "screenshots/11_selecteur_blessure_marquee.png",
       "type": "etat du selecteur de blessures",
       "acces": "un appui sur une partie du corps dans le selecteur",
       "elements": [
@@ -438,6 +479,12 @@
           "element": "Pastilles du type pour cette zone",
           "action": "change le type, ce qui change la couleur de la zone",
           "mene_a": null
+        }
+      ],
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/11_selecteur_blessure_marquee.png"
         }
       ]
     },
@@ -484,7 +531,57 @@
           "action": "interroge app_release sur le serveur et propose la mise a jour si une version plus recente existe",
           "mene_a": null
         }
-      ]
+      ],
+      "feuilles": []
+    },
+    {
+      "id": "confirmation_sos",
+      "titre": "SOS envoyé",
+      "type": "dialogue (AlertDialog)",
+      "acces": "affichage automatique apres l'envoi d'un SOS (position partagee)",
+      "elements": [
+        {
+          "element": "Icône vérifié (vert)",
+          "action": "affichage seul",
+          "mene_a": null
+        },
+        {
+          "element": "Texte confirmation",
+          "action": "informatif : l'ecran apparait automatiquement, le SOS est deja envoye",
+          "mene_a": null,
+          "contenu": [
+            "titre : « SOS envoyé »",
+            "corps : « Votre position a été transmise aux street medics à proximité. »"
+          ]
+        },
+        {
+          "element": "Section « Ce qu'il faut faire » (pour chaque blessure)",
+          "action": "liste des premiers gestes, style bullet points",
+          "note": "le contenu des gestes est PROVISOIRE : l'association des street medics doit fournir les consignes reelles"
+        },
+        {
+          "element": "Mention contenu provisoire",
+          "action": "texte en gris italique en bas",
+          "contenu": "« Consignes provisoires, en attente de celles de l'association. »"
+        },
+        {
+          "element": "Bouton « Fermer »",
+          "action": "ferme l'ecran de confirmation",
+          "mene_a": "reste sur ecran SOS"
+        }
+      ],
+      "feuilles": [
+        {
+          "id": "principal",
+          "capture": "screenshots/15_confirmation_sos_envoye.png"
+        },
+        {
+          "id": "avec_blessures",
+          "capture": "screenshots/15_confirmation_sos_envoye.png",
+          "note": "meme capture : les blessures declarees changent le contenu (et les bullet points), pas le layout"
+        }
+      ],
+      "note": "cet ecran n'est qu'un AlertDialog : les captures s'affichent de la meme facon, le contenu dynamique depend des blessures declarees"
     }
   ],
   "parcours_principaux": {
@@ -528,6 +625,28 @@
     "Les captures sont produites par le moteur Flutter, pas par une capture d'ecran du telephone : la mise en page et le texte sont exacts, le rendu des polices peut differer legerement.",
     "Les tuiles OpenStreetMap ne se telechargent pas dans l'environnement de test : la carte apparait grise. La position des boutons est exacte, le fond cartographique ne l'est pas.",
     "Les feuilles « detail d'un SOS » et « detail d'un medic » (captures 13 et 14) sont reproduites depuis le code : elles s'ouvrent normalement depuis un blip de la carte, inatteignable en test faute de tuiles. Leur contenu est identique (memes widgets, memes libelles), mais ce ne sont pas des captures d'un parcours reel.",
-    "Les messages temporaires (SnackBar : confirmation d'envoi, erreur reseau) ne sont pas captures : ils durent quelques secondes. Leur texte est documente dans lib/l10n/app_fr.arb."
-  ]
+    "Les messages temporaires (SnackBar : confirmation d'envoi, erreur reseau) ne sont pas captures : ils durent quelques secondes. Leur texte est documente dans lib/l10n/app_fr.arb.",
+    "captures présentées : 16"
+  ],
+  "meta": {
+    "captures_listees": [
+      "screenshots/00_popup_autorisations.png",
+      "screenshots/01_onglet_sos_haut.png",
+      "screenshots/02_onglet_sos_bas.png",
+      "screenshots/03_appeler_urgences.png",
+      "screenshots/04_onglet_carte_verrouille.png",
+      "screenshots/05_onglet_carte_medic.png",
+      "screenshots/06_engagement_medic.png",
+      "screenshots/12_liste_mes_sos.png",
+      "screenshots/13_detail_sos.png",
+      "screenshots/14_detail_medic.png",
+      "screenshots/09_selecteur_blessures_face.png",
+      "screenshots/10_selecteur_blessures_dos.png",
+      "screenshots/11_selecteur_blessure_marquee.png",
+      "screenshots/07_onglet_reglages_haut.png",
+      "screenshots/08_onglet_reglages_bas.png",
+      "screenshots/15_confirmation_sos_envoye.png"
+    ],
+    "captures_totales": 16
+  }
 }

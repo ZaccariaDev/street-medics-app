@@ -286,6 +286,9 @@ void main() {
     final box = tester.getRect(find.byType(BodyMapView));
     // Tape sur le buste (centre haut de la silhouette).
     await tester.tapAt(Offset(box.center.dx, box.top + box.height * 0.30));
+    // Le double-tap retarde le tap simple : on laisse le delai s'ecouler.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 500));
     await shoot(tester, '11_selecteur_blessure_marquee');
   });

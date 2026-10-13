@@ -153,5 +153,14 @@
   "validate": "Confirm",
   "zoneShoulders": "Shoulders",
   "zoneArms": "Arms",
-  "zoneLegs": "Legs"
+  "zoneLegs": "Legs",
+  "sosSentTitle": "SOS sent",
+  "sosSentBody": "Your location has been sent to nearby street medics.",
+  "whatToDo": "What to do",
+  "aidWound": "Cover the wound with a clean cloth\nPress if it bleeds\nDo not remove an embedded object\nGet help if bleeding does not stop",
+  "aidFracture": "Do not move the person\nKeep the limb in the position found\nDo not put anything back in place\nCall emergency services",
+  "aidBurn": "Cool with lukewarm water for 15-20 minutes\nDo not burst blisters\nDo not apply anything on the burn\nCover loosely",
+  "aidOther": "Stay with the person\nReassure them\nWatch their condition\nGet help if it worsens",
+  "aidStubNote": "Provisional guidance, pending the association's version.",
+  "close": "Close"
 }

@@ -153,5 +153,14 @@
   "validate": "Potwierdź",
   "zoneShoulders": "Barki",
   "zoneArms": "Ramiona",
-  "zoneLegs": "Nogi"
+  "zoneLegs": "Nogi",
+  "sosSentTitle": "SOS wysłany",
+  "sosSentBody": "Twoja pozycja została wysłana do pobliskich street medics.",
+  "whatToDo": "Co robić",
+  "aidWound": "Przykryj ranę czystą tkaniną\nUciskaj, jeśli krwawi\nNie usuwaj wbitego przedmiotu\nWezwij pomoc, jeśli krwawienie nie ustaje",
+  "aidFracture": "Nie przenoś poszkodowanego\nUnieruchom kończynę w zastanej pozycji\nNic nie nastawiaj\nWezwij pogotowie",
+  "aidBurn": "Chłodź letnią wodą 15-20 minut\nNie przekłuwaj pęcherzy\nNic nie nakładaj na oparzenie\nPrzykryj luźno",
+  "aidOther": "Zostań z poszkodowanym\nUspokój go\nObserwuj jego stan\nWezwij pomoc, jeśli się pogorszy",
+  "aidStubNote": "Zalecenia tymczasowe, do czasu wersji stowarzyszenia.",
+  "close": "Zamknij"
 }

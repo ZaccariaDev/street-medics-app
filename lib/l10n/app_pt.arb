@@ -153,5 +153,14 @@
   "validate": "Confirmar",
   "zoneShoulders": "Ombros",
   "zoneArms": "Braços",
-  "zoneLegs": "Pernas"
+  "zoneLegs": "Pernas",
+  "sosSentTitle": "SOS enviado",
+  "sosSentBody": "A sua posição foi enviada aos street medics próximos.",
+  "whatToDo": "O que fazer",
+  "aidWound": "Cobrir a ferida com um pano limpo\nPressionar se sangrar\nNão retirar um objeto encravado\nPedir ajuda se o sangramento não parar",
+  "aidFracture": "Não mover a pessoa\nImobilizar o membro na posição encontrada\nNão recolocar nada no lugar\nChamar o socorro",
+  "aidBurn": "Arrefecer com água morna 15-20 minutos\nNão rebentar as bolhas\nNão aplicar nada na queimadura\nCobrir sem apertar",
+  "aidOther": "Ficar com a pessoa\nTranquilizá-la\nVigiar o seu estado\nPedir ajuda se piorar",
+  "aidStubNote": "Indicações provisórias, a aguardar as da associação.",
+  "close": "Fechar"
 }

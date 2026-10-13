@@ -153,5 +153,14 @@
   "validate": "Confirmă",
   "zoneShoulders": "Umeri",
   "zoneArms": "Brațe",
-  "zoneLegs": "Picioare"
+  "zoneLegs": "Picioare",
+  "sosSentTitle": "SOS trimis",
+  "sosSentBody": "Poziția ta a fost trimisă street medicilor din apropiere.",
+  "whatToDo": "Ce trebuie făcut",
+  "aidWound": "Acoperă rana cu o cârpă curată\nApasă dacă sângerează\nNu scoate un obiect înfipt\nCheamă ajutor dacă sângerarea nu se oprește",
+  "aidFracture": "Nu mișca persoana\nImobilizează membrul în poziția găsită\nNu pune nimic la loc\nCheamă ambulanța",
+  "aidBurn": "Răcește cu apă călduță 15-20 de minute\nNu sparge bășicile\nNu aplica nimic pe arsură\nAcoperă fără să strângi",
+  "aidOther": "Rămâi lângă persoană\nLiniștește-o\nUrmărește-i starea\nCheamă ajutor dacă se agravează",
+  "aidStubNote": "Indicații provizorii, în așteptarea celor ale asociației.",
+  "close": "Închide"
 }

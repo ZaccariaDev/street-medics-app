@@ -153,5 +153,14 @@
   "validate": "Onayla",
   "zoneShoulders": "Omuzlar",
   "zoneArms": "Kollar",
-  "zoneLegs": "Bacaklar"
+  "zoneLegs": "Bacaklar",
+  "sosSentTitle": "SOS gönderildi",
+  "sosSentBody": "Konumunuz yakındaki street medics'e iletildi.",
+  "whatToDo": "Ne yapmalı",
+  "aidWound": "Yarayı temiz bir bezle ört\nKanıyorsa bastır\nSaplanmış cismi çıkarma\nKanama durmuyorsa yardım çağır",
+  "aidFracture": "Kişiyi hareket ettirme\nUzvu bulunduğu pozisyonda sabitle\nHiçbir şeyi yerine koyma\nAcil servisi ara",
+  "aidBurn": "15-20 dakika ılık suyla soğut\nKabarcıkları patlatma\nYanığa hiçbir şey sürme\nGevşek ört",
+  "aidOther": "Kişinin yanında kal\nOnu sakinleştir\nDurumunu izle\nKötüleşirse yardım çağır",
+  "aidStubNote": "Geçici talimatlar, derneğin sürümü bekleniyor.",
+  "close": "Kapat"
 }

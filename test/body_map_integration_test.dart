@@ -86,6 +86,11 @@ void main() {
       final origin =
           Offset(box.left + (box.width - w) / 2, box.top + (box.height - h) / 2);
       await tester.tapAt(Offset(origin.dx + 0.5 * w, origin.dy + 0.30 * h));
+      // Avec le double-tap actif, Flutter retarde le tap simple (~300 ms) le
+      // temps de savoir si un 2e tap arrive. Il faut donc laisser ce delai
+      // s'ecouler AVANT de chercher les pastilles.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
       await tester.pumpAndSettle();
 
       // Une pastille de type apparait (donc une zone a ete selectionnee).

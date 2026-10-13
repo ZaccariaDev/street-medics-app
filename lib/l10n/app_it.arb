@@ -153,5 +153,14 @@
   "validate": "Conferma",
   "zoneShoulders": "Spalle",
   "zoneArms": "Braccia",
-  "zoneLegs": "Gambe"
+  "zoneLegs": "Gambe",
+  "sosSentTitle": "SOS inviato",
+  "sosSentBody": "La tua posizione è stata inviata agli street medics vicini.",
+  "whatToDo": "Cosa fare",
+  "aidWound": "Coprire la ferita con un panno pulito\nPremere se sanguina\nNon togliere un oggetto conficcato\nChiedere aiuto se il sangue non si ferma",
+  "aidFracture": "Non spostare la persona\nImmobilizzare l'arto nella posizione trovata\nNon rimettere nulla a posto\nChiamare i soccorsi",
+  "aidBurn": "Raffreddare con acqua tiepida 15-20 minuti\nNon bucare le vesciche\nNon applicare nulla sulla bruciatura\nCoprire senza stringere",
+  "aidOther": "Restare con la persona\nRassicurarla\nControllare le sue condizioni\nChiedere aiuto se peggiora",
+  "aidStubNote": "Indicazioni provvisorie, in attesa di quelle dell'associazione.",
+  "close": "Chiudi"
 }

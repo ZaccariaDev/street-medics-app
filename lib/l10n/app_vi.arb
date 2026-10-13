@@ -153,5 +153,14 @@
   "validate": "Xác nhận",
   "zoneShoulders": "Vai",
   "zoneArms": "Cánh tay",
-  "zoneLegs": "Chân"
+  "zoneLegs": "Chân",
+  "sosSentTitle": "Đã gửi SOS",
+  "sosSentBody": "Vị trí của bạn đã được gửi tới street medics gần đây.",
+  "whatToDo": "Cần làm gì",
+  "aidWound": "Che vết thương bằng vải sạch\nẤn nếu chảy máu\nKhông rút vật cắm vào\nGọi trợ giúp nếu máu không ngừng",
+  "aidFracture": "Không di chuyển người bị nạn\nCố định chi ở tư thế tìm thấy\nKhông đặt lại bất cứ thứ gì\nGọi cấp cứu",
+  "aidBurn": "Làm mát bằng nước ấm 15-20 phút\nKhông chọc vỡ mụn nước\nKhông bôi gì lên vết bỏng\nChe lỏng",
+  "aidOther": "Ở bên người bị nạn\nTrấn an họ\nTheo dõi tình trạng\nGọi trợ giúp nếu nặng hơn",
+  "aidStubNote": "Hướng dẫn tạm thời, chờ bản của hiệp hội.",
+  "close": "Đóng"
 }

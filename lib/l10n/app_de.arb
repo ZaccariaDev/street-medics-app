@@ -153,5 +153,14 @@
   "validate": "Bestätigen",
   "zoneShoulders": "Schultern",
   "zoneArms": "Arme",
-  "zoneLegs": "Beine"
+  "zoneLegs": "Beine",
+  "sosSentTitle": "SOS gesendet",
+  "sosSentBody": "Ihre Position wurde an Street Medics in der Nähe gesendet.",
+  "whatToDo": "Was zu tun ist",
+  "aidWound": "Wunde mit sauberem Tuch abdecken\nBei Blutung drücken\nSteckenden Gegenstand nicht entfernen\nBei anhaltender Blutung Hilfe holen",
+  "aidFracture": "Person nicht bewegen\nGlied in gefundener Stellung ruhigstellen\nNichts wieder einrenken\nNotdienst rufen",
+  "aidBurn": "15-20 Minuten mit lauwarmem Wasser kühlen\nBlasen nicht aufstechen\nNichts auf die Verbrennung auftragen\nLocker abdecken",
+  "aidOther": "Bei der Person bleiben\nSie beruhigen\nZustand beobachten\nBei Verschlechterung Hilfe holen",
+  "aidStubNote": "Vorläufige Hinweise, bis die Fassung des Vereins vorliegt.",
+  "close": "Schließen"
 }

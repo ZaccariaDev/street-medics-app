@@ -47,6 +47,9 @@ class BodyMapViewState extends State<BodyMapView>
   bool _zoomed = false;
   String? _flashZone;
 
+  /// Facteur de zoom au debut du pincement (le geste est relatif a ce point).
+  double _pinchStart = 1.0;
+
   static const double _maxScale = 3.0;
 
   @override
@@ -65,14 +68,25 @@ class BodyMapViewState extends State<BodyMapView>
 
   bool get isZoomed => _zoomed;
 
+  /// Facteur de zoom courant — expose pour les tests de gestes.
+  @visibleForTesting
+  double get debugScale => _anim.value;
+
   /// Retour à la vue d'ensemble.
   void reset() {
+    _cancelAutoReset();
     if (!_zoomed) return;
     _zoomed = false;
     _anim = Tween<double>(begin: _anim.value, end: 1.0)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     _ctrl.forward(from: 0);
     setState(() {});
+  }
+
+  /// Annule le dezoom automatique (pendant un pincement, l'utilisateur pilote).
+  void _cancelAutoReset() {
+    _zoomResetTimer?.cancel();
+    _zoomResetTimer = null;
   }
 
   /// Zoome sur une zone ; le facteur dépend de sa taille (une tête demande
@@ -87,6 +101,42 @@ class BodyMapViewState extends State<BodyMapView>
     _anim = Tween<double>(begin: _anim.value, end: target)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     _ctrl.forward(from: 0);
+    setState(() {});
+  }
+
+  /// Zoome sur un point précis (double-tap) : le point touche devient le
+  /// centre de la vue. `scale` est le facteur visé.
+  void _zoomAt(Offset local, Size size, double scale) {
+    if (!widget.zoomEnabled) return;
+    _cancelAutoReset();
+    final s = _anim.value;
+    // Le point touche, ramene en coordonnees normalisees AVANT zoom.
+    final c = Offset(size.width * _focus.dx, size.height * _focus.dy);
+    final origin = c - c * s;
+    _focus = Offset(
+      ((local.dx - origin.dx) / (size.width * s)).clamp(0.0, 1.0),
+      ((local.dy - origin.dy) / (size.height * s)).clamp(0.0, 1.0),
+    );
+    _zoomed = true;
+    _anim = Tween<double>(begin: _anim.value, end: scale.clamp(1.0, _maxScale))
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+    _ctrl.forward(from: 0);
+    setState(() {});
+  }
+
+  /// Applique un pincement : le facteur suit l'ecartement des doigts, et le
+  /// foyer suit leur milieu. Le zoom est borne.
+  void _applyPinch(ScaleUpdateDetails d, Size size) {
+    if (!widget.zoomEnabled) return;
+    final target = (_pinchStart * d.scale).clamp(1.0, _maxScale);
+    // Le foyer : on part du foyer du pincement, dans l'espace normalise.
+    final f = d.focalPoint;
+    _focus = Offset(
+      (f.dx / size.width).clamp(0.0, 1.0),
+      (f.dy / size.height).clamp(0.0, 1.0),
+    );
+    _zoomed = target > 1.02;
+    _anim = AlwaysStoppedAnimation(target);
     setState(() {});
   }
 
@@ -110,10 +160,13 @@ class BodyMapViewState extends State<BodyMapView>
       if (mounted) setState(() => _flashZone = null);
     });
     widget.onZoneTapped(zone);
-    if (widget.zoomEnabled) zoomOn(zone);
-    // Dézoom automatique : sans lui, le tap suivant serait converti dans
-    // l'espace zoomé et viserait à côté. On laisse le temps de voir le
-    // grossissement (marquer une zone précise), puis on revient à l'ensemble.
+    if (!widget.zoomEnabled) return;
+    // Un appui ZOOME sur la zone, puis on revient tout seul a l'ensemble.
+    //
+    // Le retour est differe par un Timer : si on appelait `reset()` juste
+    // apres `zoomOn()`, `reset()` annulerait ce Timer (il commence par
+    // `_cancelAutoReset()`), et le dezoom automatique ne se produirait jamais.
+    zoomOn(zone);
     _zoomResetTimer?.cancel();
     _zoomResetTimer = Timer(const Duration(milliseconds: 900), () {
       if (mounted) reset();
@@ -144,6 +197,8 @@ class BodyMapViewState extends State<BodyMapView>
 
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
+          // Un tap selectionne une partie du corps. Un DOUBLE tap zoome sur
+          // le point touche ; un pincement zoome librement (voir onScale*).
           onTapUp: (d) {
             final local = d.localPosition - origin;
             if (local.dx < 0 || local.dy < 0 ||
@@ -152,6 +207,25 @@ class BodyMapViewState extends State<BodyMapView>
               return;
             }
             _handleTap(local, size);
+          },
+          // Pincement (et double-tap, via onDoubleTapDown) : zoom libre.
+          // On garde les deux dans le meme GestureDetector pour que Flutter
+          // arbitre entre le tap simple et les gestes de zoom.
+          onDoubleTapDown: (d) {
+            _pinchStart = 1.0;
+            _zoomAt(d.localPosition - origin, size, _maxScale * 0.6);
+          },
+          onDoubleTap: () {},
+          onScaleStart: (d) {
+            _pinchStart = _anim.value;
+            _cancelAutoReset();
+          },
+          onScaleUpdate: (d) {
+            if (d.pointerCount < 2) return; // un doigt = pas un pincement
+            _applyPinch(d, size);
+          },
+          onScaleEnd: (_) {
+            if (_anim.value <= 1.02) reset();
           },
           // SizedBox.expand : le widget occupe TOUTE la place offerte, quelle
           // que soit la mise en page du parent.

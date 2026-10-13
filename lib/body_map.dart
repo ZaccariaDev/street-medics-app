@@ -107,10 +107,6 @@ class BodyZone {
   }
 }
 
-/// Polygone rectangulaire (la plupart des zones sont des blocs simples).
-List<Offset> _rect(double l, double t, double r, double b) =>
-    [Offset(l, t), Offset(r, t), Offset(r, b), Offset(l, b)];
-
 /// Polygone trapézoïdal (membres qui s'affinent, épaules obliques).
 List<Offset> _trap(double tl, double tr, double bl, double br, double t,
         double b) =>
@@ -124,53 +120,54 @@ List<Offset> _ellipse(double cx, double cy, double rx, double ry,
       return Offset(cx + rx * math.cos(a), cy + ry * math.sin(a));
     });
 
-/// Les SIX parties du corps.
+/// Les SIX parties du corps, calibrées sur la silhouette RÉELLE.
 ///
-/// Cinq sont cliquables dans chaque vue ; le tronc change d'étiquette :
-/// **buste** de face, **dos** quand on désigne l'arrière. Ce sont la même
-/// surface, donc jamais les deux à la fois (sinon l'une masquerait l'autre).
+/// Mesures relevées sur le rendu nu (`/tmp/nude_front.png`), segments de corps
+/// par hauteur. Repères :
+///   tête       y 0.00-0.14   x 0.40-0.60 (plus large à 0.05)
+///   épaules    y 0.155-0.32  x 0.20-0.42 (G) et 0.58-0.80 (D)
+///   tronc      y 0.155-0.58  x 0.31-0.69 en haut, 0.26-0.74 en bas
+///   bras       y 0.32-0.58   x 0.115-0.28 (G), 0.72-0.885 (D) — DÉTACHÉS du
+///                            tronc (il y a un vide entre les deux)
+///   jambes     y 0.58-0.98   x 0.26-0.48 (G), 0.52-0.74 (D)
 ///
-/// Repères mesurés sur le rendu réel :
-///   tête    y 0.00-0.19 (crâne + cou)
-///   épaules y 0.19-0.30 (haut du torse, de part et d'autre du cou)
-///   buste   y 0.19-0.58 (tronc central, vue de face)
-///   dos     y 0.19-0.58 (le même tronc, vu de dos)
-///   bras    y 0.27-0.58 (membres latéraux, du haut du bras à la main)
-///   jambes  y 0.58-0.99 (cuisses, tibias, pieds)
+/// **Pourquoi les épaules étaient imprenables** : elles formaient un mince
+/// bandeau (0.145 de haut) placé SOUS le haut des bras, lequel était dessiné
+/// par-dessus. Le centre de l'épaule tombait donc dans la zone bras. Elles
+/// couvrent maintenant tout le haut du corps (y 0.155-0.32) et les bras
+/// commencent EN DESSOUS.
 ///
-/// Les épaules s'arrêtent AVANT le haut des bras : sans cette séparation, le
-/// centre de l'épaule tombait dans le polygone du bras, qui est dessiné
-/// par-dessus — l'épaule devenait intouchable.
+/// **Pourquoi le bras gauche était « non superposé »** : sa zone
+/// (x 0.18-0.33 en haut) était décalée vers le tronc, alors que le bras réel
+/// est à x 0.115-0.28. Mesuré : le centre de la zone tombait HORS du corps.
 List<BodyZone> bodyZones(BodyView view) => [
-      // Tête : ellipse du crâne, descendue jusqu'au cou.
+      // Tête : ellipse du crâne (mesuré x 0.40-0.60 à y 0.05).
       BodyZone(id: 'head', labelKey: 'zoneHead',
-          points: _ellipse(0.5, 0.080, 0.080, 0.075)),
-      // Épaules : deux trapèzes symétriques, de part et d'autre du cou.
-      // Assez larges et assez hauts pour être visés au doigt : un bandeau
-      // trop mince obligeait à viser au pixel et le tap tombait dans le bras.
+          points: _ellipse(0.5, 0.078, 0.090, 0.072)),
+      // Épaules : larges, tout le haut du corps, de part et d'autre du cou.
       BodyZone(id: 'shoulder_l', labelKey: 'zoneShoulders',
-          points: _trap(0.290, 0.430, 0.220, 0.360, 0.185, 0.330)),
+          points: _trap(0.200, 0.420, 0.230, 0.350, 0.155, 0.320)),
       BodyZone(id: 'shoulder_r', labelKey: 'zoneShoulders',
-          points: _trap(0.570, 0.710, 0.640, 0.780, 0.185, 0.330)),
+          points: _trap(0.580, 0.800, 0.650, 0.770, 0.155, 0.320)),
       // Tronc : « buste » de face, « dos » quand on désigne l'arrière.
       // Jamais les deux : ils occupent la même surface.
       if (view == BodyView.front)
         BodyZone(id: 'chest', labelKey: 'zoneChest',
-            points: _rect(0.330, 0.190, 0.670, 0.580))
+            points: _trap(0.325, 0.675, 0.270, 0.730, 0.155, 0.580))
       else
         BodyZone(id: 'back', labelKey: 'zoneBack',
-            points: _rect(0.330, 0.190, 0.670, 0.580)),
+            points: _trap(0.325, 0.675, 0.270, 0.730, 0.155, 0.580)),
       // Bras : membre entier (haut du bras, avant-bras, main). Commence SOUS
-      // les épaules, sinon il les recouvrirait (il est dessiné après).
+      // les épaules, et suit le vide réel entre le bras et le tronc.
       BodyZone(id: 'arm_l', labelKey: 'zoneArms',
-          points: _trap(0.180, 0.330, 0.060, 0.200, 0.325, 0.580)),
+          points: _trap(0.115, 0.280, 0.030, 0.175, 0.320, 0.580)),
       BodyZone(id: 'arm_r', labelKey: 'zoneArms',
-          points: _trap(0.670, 0.820, 0.800, 0.940, 0.325, 0.580)),
+          points: _trap(0.720, 0.885, 0.825, 0.970, 0.320, 0.580)),
       // Jambes : les deux membres inférieurs, cuisse à pied.
       BodyZone(id: 'leg_l', labelKey: 'zoneLegs',
-          points: _trap(0.300, 0.490, 0.310, 0.470, 0.580, 0.990)),
+          points: _trap(0.259, 0.478, 0.310, 0.415, 0.580, 0.980)),
       BodyZone(id: 'leg_r', labelKey: 'zoneLegs',
-          points: _trap(0.510, 0.700, 0.530, 0.690, 0.580, 0.990)),
+          points: _trap(0.522, 0.741, 0.585, 0.690, 0.580, 0.980)),
     ];
 
 /// Zone sous un point normalisé (null si hors du corps).

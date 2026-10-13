@@ -153,5 +153,14 @@
   "validate": "Bevestigen",
   "zoneShoulders": "Schouders",
   "zoneArms": "Armen",
-  "zoneLegs": "Benen"
+  "zoneLegs": "Benen",
+  "sosSentTitle": "SOS verzonden",
+  "sosSentBody": "Uw positie is naar nabije street medics gestuurd.",
+  "whatToDo": "Wat te doen",
+  "aidWound": "Bedek de wond met een schone doek\nDruk als het bloedt\nVerwijder geen vastzittend voorwerp\nHulp zoeken als het bloeden niet stopt",
+  "aidFracture": "Verplaats de persoon niet\nHoud het lid in de gevonden stand\nNiets terugzetten\nBel de hulpdiensten",
+  "aidBurn": "15-20 minuten koelen met lauw water\nDoorprik blaren niet\nBreng niets op de brandwond aan\nDek losjes af",
+  "aidOther": "Blijf bij de persoon\nStel gerust\nLet op de toestand\nHulp zoeken als het verslechtert",
+  "aidStubNote": "Voorlopige richtlijnen, in afwachting van die van de vereniging.",
+  "close": "Sluiten"
 }

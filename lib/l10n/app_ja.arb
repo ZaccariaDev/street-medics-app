@@ -153,5 +153,14 @@
   "validate": "確定",
   "zoneShoulders": "肩",
   "zoneArms": "腕",
-  "zoneLegs": "脚"
+  "zoneLegs": "脚",
+  "sosSentTitle": "SOS を送信しました",
+  "sosSentBody": "あなたの位置が近くの street medics に送信されました。",
+  "whatToDo": "すべきこと",
+  "aidWound": "清潔な布で傷を覆う\n出血していれば押さえる\n刺さった物は抜かない\n止血しなければ助けを呼ぶ",
+  "aidFracture": "傷病者を動かさない\n見つけた姿勢のまま固定する\n何も戻さない\n救急を呼ぶ",
+  "aidBurn": "ぬるま湯で15〜20分冷やす\n水ぶくれをつぶさない\nやけどに何も塗らない\nゆるく覆う",
+  "aidOther": "そばにいる\n安心させる\n状態を見守る\n悪化したら助けを呼ぶ",
+  "aidStubNote": "暫定的な指示です。協会の版を待っています。",
+  "close": "閉じる"
 }

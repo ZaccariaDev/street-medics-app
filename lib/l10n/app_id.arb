@@ -153,5 +153,14 @@
   "validate": "Konfirmasi",
   "zoneShoulders": "Bahu",
   "zoneArms": "Lengan",
-  "zoneLegs": "Kaki"
+  "zoneLegs": "Kaki",
+  "sosSentTitle": "SOS terkirim",
+  "sosSentBody": "Lokasi Anda telah dikirim ke street medics terdekat.",
+  "whatToDo": "Apa yang harus dilakukan",
+  "aidWound": "Tutup luka dengan kain bersih\nTekan jika berdarah\nJangan cabut benda yang tertancap\nMinta bantuan jika darah tidak berhenti",
+  "aidFracture": "Jangan memindahkan korban\nImobilisasi anggota tubuh pada posisi ditemukan\nJangan mengembalikan apa pun\nPanggil ambulans",
+  "aidBurn": "Dinginkan dengan air hangat 15-20 menit\nJangan memecahkan lepuhan\nJangan mengoleskan apa pun pada luka bakar\nTutup longgar",
+  "aidOther": "Tetap bersama korban\nTenangkan\nPantau kondisinya\nMinta bantuan jika memburuk",
+  "aidStubNote": "Panduan sementara, menunggu versi asosiasi.",
+  "close": "Tutup"
 }
