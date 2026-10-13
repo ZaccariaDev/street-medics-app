@@ -279,7 +279,10 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
               icon: const Icon(Icons.settings), label: t.tabSettings),
           NavigationDestination(
-              icon: const Icon(Icons.menu_book), label: t.tabPractices),
+              icon: const Icon(Icons.menu_book),
+              label: t.tabPractices,
+              enabled: false, // grisé : contenu pas encore prêt
+          ),
         ],
       ),
     );
