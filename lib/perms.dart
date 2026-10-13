@@ -14,13 +14,13 @@ import 'notifs.dart';
 ///    batterie : pour que le suivi continue quand le medic ferme l'app.
 class Perms {
   /// Notifications (Android 13+).
+  ///
+  /// La demande est sérialisée dans Notifs.requestPermissions() : deux
+  /// demandes concurrentes font planter Android
+  /// (permissionRequestInProgress).
   static Future<bool> notifications() async {
-    var s = await FlutterForegroundTask.checkNotificationPermission();
-    if (s != NotificationPermission.granted) {
-      await Notifs.requestPermissions();
-      await FlutterForegroundTask.requestNotificationPermission();
-      s = await FlutterForegroundTask.checkNotificationPermission();
-    }
+    await Notifs.requestPermissions();
+    final s = await FlutterForegroundTask.checkNotificationPermission();
     return s == NotificationPermission.granted;
   }
 
@@ -40,15 +40,14 @@ class Perms {
 
   /// Localisation « toujours » (arrière-plan).
   ///
-  /// Sur Android 11+, ce choix n'existe que dans les réglages de l'app :
-  /// on ouvre directement l'écran concerné si ce n'est pas encore accordé.
+  /// Sur Android 11+, le Foreground Service (type location) prend le relais
+  /// sans exiger le réglage « Toujours autoriser » du système : la permission
+  /// normale (whileInUse) suffit pour que la position continue quand l'app
+  /// est minimisée ou l'écran verrouillé. Google Play refuse
+  /// ACCESS_BACKGROUND_LOCATION sans formulaire + vidéo ; on s'en passe.
   static Future<bool> locationBackground({bool openSettings = true}) async {
     final p = await Geolocator.checkPermission();
-    if (p == LocationPermission.always) return true;
-    if (openSettings && p == LocationPermission.whileInUse) {
-      await Geolocator.openAppSettings();
-    }
-    return false;
+    return p == LocationPermission.always || p == LocationPermission.whileInUse;
   }
 
   /// Exemption d'optimisation de batterie (le service survit mieux).

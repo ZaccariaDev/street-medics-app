@@ -1478,10 +1478,9 @@ Future<void> startBackgroundService() async {
   });
   await FlutterForegroundTask.saveData(key: 'cfg', value: cfg);
 
-  final notifPerm = await FlutterForegroundTask.checkNotificationPermission();
-  if (notifPerm != NotificationPermission.granted) {
-    await FlutterForegroundTask.requestNotificationPermission();
-  }
+  // Une seule demande de permission notification (sérialisée dans Notifs).
+  // Demander via FlutterForegroundTask PUIS Notifs en parallèle fait
+  // planter Android : "Another permission request is already in progress".
   await Notifs.requestPermissions();
 
   if (await FlutterForegroundTask.isRunningService) {
@@ -1491,7 +1490,6 @@ Future<void> startBackgroundService() async {
       serviceId: 101,
       serviceTypes: [
         ForegroundServiceTypes.location,
-        ForegroundServiceTypes.dataSync,
       ],
       notificationTitle: 'Street Medics',
       notificationText: 'Suivi de position actif',

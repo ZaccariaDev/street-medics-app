@@ -46,10 +46,25 @@ class Notifs {
     _inited = true;
   }
 
+  static bool _requesting = false;
+
+  /// Demande la permission de notification (Android 13+).
+  ///
+  /// Sur Android, `requestNotificationsPermission()` ne peut pas être appelé
+  /// en parallèle : une deuxième demande lève `permissionRequestInProgress`.
+  /// On sérialise avec un mutex pour éviter ce crash.
   static Future<void> requestPermissions() async {
-    final impl = _plugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
-    await impl?.requestNotificationsPermission();
+    if (_requesting) return;
+    _requesting = true;
+    try {
+      final impl = _plugin.resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>();
+      await impl?.requestNotificationsPermission();
+    } catch (_) {
+      // Permission refusée ou déjà demandée : pas grave.
+    } finally {
+      _requesting = false;
+    }
   }
 
   /// Affiche l'alerte de proximité avec le son distinctif.

@@ -6,8 +6,6 @@
     <!-- Géolocalisation : SOS, prise de service, suivi en arrière-plan. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <!-- Suivi de la position quand l'app est fermée (medic en service). -->
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 
     <!-- Lecture du numéro de téléphone (bouton « Préremplir » dans SOS). -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
@@ -15,7 +13,6 @@
     <!-- Service d'arrière-plan. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION"/>
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 
     <!-- Notifications (Android 13+). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
@@ -53,7 +50,7 @@
         <!-- Service d'arrière-plan (nom imposé par flutter_foreground_task). -->
         <service
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
-            android:foregroundServiceType="location|dataSync"
+            android:foregroundServiceType="location"
             android:exported="false" />
 
         <meta-data
