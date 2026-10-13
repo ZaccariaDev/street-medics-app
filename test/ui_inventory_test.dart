@@ -118,10 +118,10 @@ Future<void> shoot(WidgetTester tester, String name) async {
   });
 }
 
-/// Ouvre un onglet par son index (contourne le hit-test du NavigationBar).
+/// Ouvre un onglet par son index.
 Future<void> tab(WidgetTester tester, int i) async {
-  final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
-  nav.onDestinationSelected!(i);
+  final nav = tester.widget<BottomNavigationBar>(find.byType(BottomNavigationBar));
+  nav.onTap!(i);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 500));
 }

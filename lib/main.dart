@@ -258,56 +258,43 @@ class _MainScreenState extends State<MainScreen> {
           SettingsTab(),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (i) {
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: (i) {
           // Onglet Plan réservé aux street medics en service ET aux patients
           // dont le SOS est pris en charge.
           if (i == 1 && !_mapAllowed) {
             showSnack(context, AppLocalizations.of(context).medicsOnly);
             return;
           }
+          // L'onglet Bonnes pratiques est grisé : inutile d'aller plus loin.
+          if (i == 2) return;
           setState(() => _selectedIndex = i);
         },
-        destinations: [
-          NavigationDestination(icon: const Icon(Icons.sos), label: t.tabSos),
-          NavigationDestination(
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.sos),
+            label: t.tabSos,
+          ),
+          BottomNavigationBarItem(
             icon: Icon(_mapAllowed ? Icons.map : Icons.lock_outline),
-            enabled: _mapAllowed,
             label: t.tabMap,
           ),
-          NavigationDestination(
-              icon: const Icon(Icons.settings), label: t.tabSettings),
-          NavigationDestination(
-              icon: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Icons.menu_book),
-                  // Banderole « Coming Soon » sur l'icône
-                  Positioned(
-                    right: -14,
-                    top: -10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        'Bientôt',
-                        style: TextStyle(
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+          BottomNavigationBarItem(
+            icon: Badge(
+              label: Text(
+                'Bientôt',
+                style: const TextStyle(fontSize: 8, color: Colors.white),
               ),
-              label: t.tabPractices,
-              enabled: false, // grisé : contenu pas encore prêt
+              backgroundColor: Colors.orange,
+              child: const Icon(Icons.menu_book),
+            ),
+            label: t.tabPractices,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.settings),
+            label: t.tabSettings,
           ),
         ],
       ),

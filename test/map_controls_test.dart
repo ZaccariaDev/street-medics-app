@@ -18,8 +18,16 @@ import 'package:street_medics_app/main.dart';
 /// indéfiniment et le test n'aboutit pas. `pump()` avance d'une frame, ce qui
 /// suffit à construire l'onglet.
 Future<void> selectTab(WidgetTester tester, int index) async {
-  final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
-  nav.onDestinationSelected!(index);
+  // Fermer la popup « Autorisations nécessaires » si elle est ouverte :
+  // elle masque la barre de navigation et empêche de taper sur les onglets.
+  final later = find.text('Plus tard');
+  if (later.evaluate().isNotEmpty) {
+    await tester.tap(later.first, warnIfMissed: false);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+  final nav = tester.widget<BottomNavigationBar>(find.byType(BottomNavigationBar));
+  nav.onTap!(index);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }

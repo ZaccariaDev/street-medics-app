@@ -28,12 +28,18 @@ void main() {
     await tester.pumpWidget(const StreetMedicsApp());
     await tester.pump(const Duration(milliseconds: 100));
 
+    // Fermer la popup « Autorisations nécessaire » si elle est ouverte.
+    final later = find.text('Plus tard');
+    if (later.evaluate().isNotEmpty) {
+      await tester.tap(later.first, warnIfMissed: false);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
     // Aller sur l'onglet Carte via la barre de navigation.
-    // `pump()` et non `pumpAndSettle()` : la carte arme un `Timer.periodic`
     // de rafraîchissement qui ne s'arrête jamais, et `pumpAndSettle()` attend
     // qu'aucun timer ne soit actif — il boucle alors indéfiniment.
-    final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
-    nav.onDestinationSelected!(1);
+    final nav = tester.widget<BottomNavigationBar>(find.byType(BottomNavigationBar));
+    nav.onTap!(1);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
