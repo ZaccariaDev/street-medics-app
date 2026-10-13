@@ -1,0 +1,533 @@
+{
+  "$schema_note": "Inventaire des interfaces de l'application Street Medics FR. Chaque ecran decrit : son identifiant, le fichier de capture, comment y acceder, la liste exhaustive de ses elements interactifs, et ou chacun mene. Les captures sont generees par le moteur Flutter (test/ui_inventory_test.dart), donc fideles a ce que voit l'utilisateur.",
+  "application": {
+    "nom": "Street Medics FR",
+    "package": "fr.streetmedics.street_medics_app",
+    "version_documentee": "1.4.0+17",
+    "plateforme": "Android (Flutter)",
+    "langue": "francais",
+    "serveur": "https://api.xpertise.quest",
+    "captures_generees_par": "flutter test test/ui_inventory_test.dart",
+    "date_inventaire": "2026-10-13"
+  },
+  "navigation_principale": {
+    "type": "NavigationBar (barre basse, 3 onglets)",
+    "onglets": [
+      {
+        "index": 0,
+        "libelle": "SOS",
+        "icone": "Icons.sos",
+        "toujours_accessible": true,
+        "mene_a": "ecran_sos"
+      },
+      {
+        "index": 1,
+        "libelle": "Carte",
+        "icone_active": "Icons.map",
+        "icone_inactive": "Icons.lock_outline",
+        "toujours_accessible": false,
+        "condition": "accessible seulement si AppConfig.onDuty == true (medic en service)",
+        "si_verrouille": "un appui affiche un message (medicsOnly) et ne change pas d'onglet",
+        "mene_a": "ecran_carte"
+      },
+      {
+        "index": 2,
+        "libelle": "Reglages",
+        "icone": "Icons.settings",
+        "toujours_accessible": true,
+        "mene_a": "ecran_reglages"
+      }
+    ]
+  },
+  "ecrans": [
+    {
+      "id": "popup_autorisations",
+      "titre": "Autorisations necessaires",
+      "fichier": "screenshots/00_popup_autorisations.png",
+      "type": "dialogue bloquant (AlertDialog)",
+      "apparait": "au premier lancement, tant que les autorisations ne sont pas accordees",
+      "elements": [
+        {
+          "element": "Bouton « Plus tard »",
+          "action": "ferme le dialogue sans demander les autorisations",
+          "mene_a": "ecran_sos (l'app reste utilisable, mais sans alertes)"
+        },
+        {
+          "element": "Bouton « Autoriser »",
+          "action": "declenche la demande systeme des 4 autorisations",
+          "mene_a": "ecran_sos"
+        }
+      ],
+      "autorisations_demandees": [
+        "Notifications — pour vous alerter d'un SOS proche",
+        "Localisation — pour envoyer votre SOS et vous localiser",
+        "Localisation « toujours » — pour suivre la position app fermee",
+        "Desactiver l'optimisation batterie — pour ne pas etre coupe"
+      ]
+    },
+    {
+      "id": "ecran_sos",
+      "titre": "Besoin d'aide ?",
+      "fichiers": [
+        "screenshots/01_onglet_sos_haut.png",
+        "screenshots/02_onglet_sos_bas.png"
+      ],
+      "type": "onglet (index 0), defilable",
+      "acces": "appui sur l'onglet « SOS »",
+      "elements": [
+        {
+          "element": "Champ « Description (optionnel) »",
+          "action": "saisie libre, attachee au SOS envoye",
+          "mene_a": null
+        },
+        {
+          "element": "Champ « Votre numero de telephone (optionnel) »",
+          "action": "saisie du numero rappelable",
+          "mene_a": null,
+          "note": "prerempli automatiquement avec le numero de l'appareil si disponible"
+        },
+        {
+          "element": "Bouton « Pre-remplir mon numero »",
+          "action": "lit le numero SIM de l'appareil et remplit le champ",
+          "mene_a": null
+        },
+        {
+          "element": "Carte « Blessures » (sous-titre « Ajouter les blessures (optionnel) »)",
+          "action": "ouvre le selecteur de blessures sur silhouette",
+          "mene_a": "selecteur_blessures_face",
+          "note": "avec le bouton « + » a droite ; une fois des blessures saisies, un bouton « x » permet de les effacer"
+        },
+        {
+          "element": "Bouton principal « SOS ENVOYER MA POSITION » (rouge plein)",
+          "action": "envoie un SOS avec la position GPS (1 seul appui, inchange)",
+          "mene_a": "reste sur ecran_sos, affiche un message de confirmation",
+          "note": "si AppConfig.onDuty, repasse OBLIGATOIREMENT hors service (un temoin qui envoie un SOS est victime)"
+        },
+        {
+          "element": "Compteur « N SOS en cours » (orange, cliquable)",
+          "action": "ouvre la liste des SOS envoyes par cet appareil",
+          "mene_a": "liste_mes_sos",
+          "apparait": "seulement a partir du 1er SOS envoye"
+        },
+        {
+          "element": "Bouton « Annuler le dernier »",
+          "action": "annule le dernier SOS envoye",
+          "mene_a": "reste sur ecran_sos",
+          "apparait": "seulement a partir du 1er SOS envoye"
+        },
+        {
+          "element": "Bouton « Appeler les urgences » (contour rouge)",
+          "action": "ouvre la feuille des numeros d'urgence du pays",
+          "mene_a": "feuille_appeler_urgences"
+        },
+        {
+          "element": "Bouton « Devenir street medic » (vert) / « Terminer mon service » (rouge)",
+          "action": "hors service : ouvre le dialogue d'engagement ; en service : termine le service",
+          "mene_a": "dialogue_engagement_medic",
+          "note": "situé en bas de l'onglet SOS, sous un separateur ; absent de l'onglet Carte"
+        }
+      ]
+    },
+    {
+      "id": "feuille_appeler_urgences",
+      "titre": "Appeler les urgences",
+      "fichier": "screenshots/03_appeler_urgences.png",
+      "type": "feuille modale (bottom sheet), glisser vers le bas pour fermer",
+      "acces": "bouton « Appeler les urgences » de l'ecran SOS",
+      "elements": [
+        {
+          "element": "Chaque ligne de numero d'urgence",
+          "action": "lance un appel telephonique via tel:",
+          "mene_a": "application Telephone du systeme",
+          "note": "la liste depend du pays detecte depuis la position (numero du pays + 112)"
+        }
+      ],
+      "numeros_affiches_exemple": [
+        {
+          "numero": "911",
+          "libelle": "Tous services",
+          "note": "pays detecte = USA dans le test"
+        },
+        {
+          "numero": "112",
+          "libelle": "Tous services",
+          "note": "numero europeen, toujours propose"
+        }
+      ]
+    },
+    {
+      "id": "ecran_carte",
+      "titre": "Carte (OpenStreetMap)",
+      "fichiers": [
+        "screenshots/04_onglet_carte_verrouille.png",
+        "screenshots/05_onglet_carte_medic.png"
+      ],
+      "type": "onglet (index 1)",
+      "acces": "appui sur l'onglet « Carte »",
+      "conditions": {
+        "hors_service": "l'onglet affiche un cadenas ; un appui affiche un message temporaire (« Carte réservée aux street medics en service ») et ne change pas d'onglet",
+        "en_service": "la carte s'affiche avec les blips SOS et les autres medics"
+      },
+      "elements": [
+        {
+          "element": "Blip SOS (marqueur rouge)",
+          "action": "ouvre le detail du signalement",
+          "mene_a": "feuille_detail_sos",
+          "note": "les signalements resolus disparaissent de la carte"
+        },
+        {
+          "element": "Blip medic (marqueur vert)",
+          "action": "ouvre le detail du medic",
+          "mene_a": "feuille_detail_medic"
+        },
+        {
+          "element": "Bouton de recentrage (cible, bas droite)",
+          "action": "recentre la carte sur la position de l'utilisateur",
+          "mene_a": null,
+          "tooltip": "Ma position"
+        },
+        {
+          "element": "Bouton de rafraichissement (fleche circulaire, bas droite)",
+          "action": "recharge les signalements et les medics",
+          "mene_a": null,
+          "tooltip": "Rafraichir"
+        },
+        {
+          "element": "Compteur « N SOS / N medics » (haut gauche)",
+          "action": "affichage seul",
+          "mene_a": null
+        },
+        {
+          "element": "Bouton d'urgence (astérisque rouge, haut droite)",
+          "action": "ouvre la feuille des numéros d'urgence",
+          "mene_a": "feuille_appeler_urgences"
+        }
+      ],
+      "note_capture": "la capture 05 montre la carte vide (grise) : les tuiles OpenStreetMap ne se telechargent pas dans l'environnement de test. La mise en page des boutons est en revanche exacte."
+    },
+    {
+      "id": "dialogue_engagement_medic",
+      "titre": "Engagement du street medic",
+      "fichier": "screenshots/06_engagement_medic.png",
+      "type": "dialogue (AlertDialog)",
+      "acces": "bouton « Devenir street medic » (bas de l'onglet SOS, hors service)",
+      "elements": [
+        {
+          "element": "Case à cocher « J'ai lu et je m'engage »",
+          "action": "obligatoire : sans elle, le bouton de validation reste inactif",
+          "mene_a": null
+        },
+        {
+          "element": "Bouton « Annuler »",
+          "action": "ferme le dialogue sans engagement",
+          "mene_a": "ecran_sos"
+        },
+        {
+          "element": "Bouton « M'engager et prendre le service »",
+          "action": "passe le medic en service : publie sa fiche et démarre le suivi d'arrière-plan",
+          "mene_a": "ecran_carte (déverrouillée)",
+          "actif_si": "la case est cochée"
+        }
+      ]
+    },
+    {
+      "id": "liste_mes_sos",
+      "titre": "Mes SOS en cours",
+      "fichier": "screenshots/12_liste_mes_sos.png",
+      "type": "feuille modale (bottom sheet)",
+      "acces": "compteur « N SOS en cours » (ecran SOS)",
+      "sous_titre": "Appuyez sur Annuler pour retirer un signalement precis.",
+      "elements": [
+        {
+          "element": "Chaque ligne de SOS (icone d'alerte, description ou « Sans description », statut)",
+          "action": "affichage seul",
+          "mene_a": null,
+          "statuts_possibles": [
+            "En attente d'un secouriste",
+            "Un street medic arrive",
+            "Resolu"
+          ]
+        },
+        {
+          "element": "Pastilles de blessures (une par zone marquee, colorees par type)",
+          "action": "affichage seul",
+          "mene_a": null,
+          "exemple": "« Tete · Plaie » (rouge), « Jambes · Fracture » (bleu), « Dos · Plaie » (rouge)"
+        },
+        {
+          "element": "Bouton « Annuler » (par ligne)",
+          "action": "annule CE signalement precis (pas seulement le dernier)",
+          "mene_a": "reste sur la liste mise a jour",
+          "note": "le service d'arriere-plan ne s'arrete que si la liste devient vide"
+        }
+      ]
+    },
+    {
+      "id": "feuille_detail_sos",
+      "titre": "SOS",
+      "fichier": "screenshots/13_detail_sos.png",
+      "capture_disponible": true,
+      "type": "feuille modale (bottom sheet)",
+      "acces": "appui sur un blip SOS de la carte (medic en service)",
+      "elements": [
+        {
+          "element": "Description du SOS",
+          "action": "affichage seul",
+          "mene_a": null
+        },
+        {
+          "element": "Coordonnees (lat, lng)",
+          "action": "affichage seul",
+          "mene_a": null
+        },
+        {
+          "element": "Statut",
+          "action": "affichage seul",
+          "mene_a": null,
+          "valeurs": [
+            "SOS en attente",
+            "Pris en charge",
+            "Resolu"
+          ]
+        },
+        {
+          "element": "Distance approximative",
+          "action": "affichage seul",
+          "mene_a": null,
+          "note": "affichee seulement si la position du medic est connue"
+        },
+        {
+          "element": "Bouton « Itineraire le plus court » (bleu)",
+          "action": "ouvre une app de navigation externe avec la destination pre-remplie",
+          "mene_a": "app externe (Maps / Waze / autre)"
+        },
+        {
+          "element": "Bouton « Appeler la victime » (vert)",
+          "action": "lance un appel vers la victime",
+          "mene_a": "application Telephone du systeme",
+          "note": "le numero n'est JAMAIS affiche ; il sert uniquement au bouton d'appel"
+        },
+        {
+          "element": "Texte « Aucun numero »",
+          "action": "affichage seul",
+          "apparait": "quand le SOS n'a pas de numero de rappel",
+          "mene_a": null
+        },
+        {
+          "element": "Bouton « Prendre en charge »",
+          "action": "le medic prend en charge le SOS",
+          "mene_a": "reste sur la carte, le blip passe en pris en charge",
+          "actif_si": "statut == open"
+        },
+        {
+          "element": "Bouton « Resolu »",
+          "action": "cloture le SOS",
+          "mene_a": "reste sur la carte, le blip disparait",
+          "actif_si": "statut != resolved"
+        }
+      ],
+      "note_capture": "capture reproduite depuis le code (memes widgets, memes libelles) : la feuille reelle s'ouvre depuis un blip de la carte, inatteignable en test faute de tuiles OSM"
+    },
+    {
+      "id": "feuille_detail_medic",
+      "titre": "Street medic",
+      "fichier": "screenshots/14_detail_medic.png",
+      "capture_disponible": true,
+      "type": "feuille modale (bottom sheet)",
+      "acces": "appui sur un blip medic de la carte (medic en service)",
+      "elements": [
+        {
+          "element": "Nom / pseudo du medic",
+          "action": "affichage seul",
+          "mene_a": null
+        },
+        {
+          "element": "Coordonnees (lat, lng)",
+          "action": "affichage seul",
+          "mene_a": null
+        }
+      ],
+      "note_capture": "capture reproduite depuis le code (memes widgets, memes libelles) : inatteignable en test faute de tuiles OSM"
+    },
+    {
+      "id": "selecteur_blessures_face",
+      "titre": "Blessures (vue de face)",
+      "fichier": "screenshots/09_selecteur_blessures_face.png",
+      "type": "feuille modale plein ecran (bottom sheet)",
+      "acces": "carte « Blessures » (ecran SOS)",
+      "elements": [
+        {
+          "element": "Selecteur « Face » / « Dos »",
+          "action": "« Face » : parties avant ; « Dos » : affiche la silhouette de dos DERRIERE, en retrait (60 %) — le bonhomme ne pivote pas",
+          "mene_a": "selecteur_blessures_dos (si « Dos »)"
+        },
+        {
+          "element": "Silhouette humaine (6 parties cliquables)",
+          "action": "un appui marque la partie touchee et zoome dessus ; dezoom automatique apres 900 ms",
+          "mene_a": "meme feuille, avec la zone marquee",
+          "parties": [
+            {
+              "id": "head",
+              "libelle": "Tete"
+            },
+            {
+              "id": "shoulder_l / shoulder_r",
+              "libelle": "Epaules"
+            },
+            {
+              "id": "chest",
+              "libelle": "Buste",
+              "vue": "face"
+            },
+            {
+              "id": "back",
+              "libelle": "Dos",
+              "vue": "dos"
+            },
+            {
+              "id": "arm_l / arm_r",
+              "libelle": "Bras"
+            },
+            {
+              "id": "leg_l / leg_r",
+              "libelle": "Jambes"
+            }
+          ],
+          "note": "un appui sur une partie deja marquee la retire"
+        },
+        {
+          "element": "Pastilles de type de blessure (4 par zone marquee)",
+          "action": "choisit le type : Plaie (rouge), Fracture (bleu), Brulure (orange), Autre (gris)",
+          "mene_a": "meme feuille",
+          "note": "la couleur de la zone sur la silhouette suit le type choisi"
+        },
+        {
+          "element": "Bouton « Annuler »",
+          "action": "ferme la feuille sans enregistrer les marquages de cette session",
+          "mene_a": "ecran_sos"
+        },
+        {
+          "element": "Bouton « Valider (N) »",
+          "action": "attache les N blessures au prochain SOS",
+          "mene_a": "ecran_sos (la carte Blessures affiche alors « N blessure(s) localisee(s) »)"
+        }
+      ]
+    },
+    {
+      "id": "selecteur_blessures_dos",
+      "titre": "Blessures (vue de dos)",
+      "fichier": "screenshots/10_selecteur_blessures_dos.png",
+      "type": "feuille modale plein ecran (bottom sheet)",
+      "acces": "segment « Dos » dans le selecteur de blessures",
+      "difference_avec_face": "la silhouette de dos apparait DERRIERE la silhouette de face, en retrait (opacite 60 %, teinte bleu ardoise). Le tronc s'appelle « Dos » au lieu de « Buste ». Les 5 autres parties sont identiques.",
+      "elements": "identiques a selecteur_blessures_face"
+    },
+    {
+      "id": "selecteur_blessure_marquee",
+      "titre": "Blessures (avec une zone marquee)",
+      "fichier": "screenshots/11_selecteur_blessure_marquee.png",
+      "type": "etat du selecteur de blessures",
+      "acces": "un appui sur une partie du corps dans le selecteur",
+      "elements": [
+        {
+          "element": "Zone coloree sur la silhouette",
+          "action": "affichage : la couleur reflete le type (rouge = plaie, bleu = fracture, orange = brulure)",
+          "mene_a": null
+        },
+        {
+          "element": "Pastilles du type pour cette zone",
+          "action": "change le type, ce qui change la couleur de la zone",
+          "mene_a": null
+        }
+      ]
+    },
+    {
+      "id": "ecran_reglages",
+      "titre": "Reglages",
+      "fichiers": [
+        "screenshots/07_onglet_reglages_haut.png",
+        "screenshots/08_onglet_reglages_bas.png"
+      ],
+      "type": "onglet (index 2), defilable",
+      "acces": "appui sur l'onglet « Reglages »",
+      "elements": [
+        {
+          "element": "Selecteur « Langue »",
+          "action": "change la langue de toute l'app (24 langues disponibles)",
+          "mene_a": null,
+          "note": "« Systeme » suit la langue du telephone"
+        },
+        {
+          "element": "Curseur « Rayon d'alerte » (100 m a 2 km)",
+          "action": "regle la distance en dessous de laquelle un SOS declenche une alerte",
+          "mene_a": null,
+          "texte": "Vous recevez une alerte quand un SOS apparait dans ce rayon."
+        },
+        {
+          "element": "Champ « Nom / pseudo de medic »",
+          "action": "saisie du nom affiche aux patients",
+          "mene_a": null
+        },
+        {
+          "element": "Bouton « Enregistrer »",
+          "action": "enregistre le nom de medic",
+          "mene_a": null
+        },
+        {
+          "element": "Bouton « Verifier / accorder les autorisations »",
+          "action": "verifie et redemande les autorisations systeme",
+          "mene_a": null,
+          "reponse": "affiche « Toutes les autorisations sont accordees » ou « Certaines autorisations manquent »"
+        },
+        {
+          "element": "Bouton « Verifier les mises a jour »",
+          "action": "interroge app_release sur le serveur et propose la mise a jour si une version plus recente existe",
+          "mene_a": null
+        }
+      ]
+    }
+  ],
+  "parcours_principaux": {
+    "envoyer_un_sos_simple": [
+      "ecran_sos -> bouton « SOS ENVOYER MA POSITION » (1 seul appui)",
+      "=> confirmation « Votre position a ete partagee, tenez bon ! »",
+      "=> le compteur « 1 SOS en cours » apparait"
+    ],
+    "envoyer_un_sos_detaille": [
+      "ecran_sos -> carte « Blessures »",
+      "-> selecteur_blessures_face : appui sur une ou plusieurs parties du corps",
+      "-> choix du type pour chaque zone",
+      "-> bouton « Valider (N) »",
+      "-> retour a ecran_sos, la carte indique « N blessure(s) localisee(s) »",
+      "-> bouton « SOS ENVOYER MA POSITION »"
+    ],
+    "envoyer_plusieurs_sos": [
+      "repeter « envoyer_un_sos_detaille » : chaque appui sur le bouton SOS cree un signalement independant",
+      "-> le compteur « N SOS en cours » ouvre la liste",
+      "-> chaque ligne peut etre annulee individuellement"
+    ],
+    "devenir_street_medic": [
+      "onglet « Carte » (verrouille) -> bouton « Devenir street medic »",
+      "-> dialogue_engagement_medic : cocher l'engagement",
+      "-> « M'engager et prendre le service »",
+      "-> la carte se deverrouille et affiche les blips"
+    ],
+    "prendre_en_charge_un_sos": [
+      "ecran_carte -> appui sur un blip SOS rouge",
+      "-> feuille_detail_sos -> « Prendre en charge »",
+      "-> le patient est notifie que le medic arrive",
+      "-> une fois sur place : « Resolu » cloture le SOS"
+    ],
+    "appeler_les_urgences": [
+      "ecran_sos -> bouton « Appeler les urgences »",
+      "-> feuille_appeler_urgences -> appui sur un numero",
+      "-> lance l'app Telephone du systeme"
+    ]
+  },
+  "limites_de_cet_inventaire": [
+    "Les captures sont produites par le moteur Flutter, pas par une capture d'ecran du telephone : la mise en page et le texte sont exacts, le rendu des polices peut differer legerement.",
+    "Les tuiles OpenStreetMap ne se telechargent pas dans l'environnement de test : la carte apparait grise. La position des boutons est exacte, le fond cartographique ne l'est pas.",
+    "Les feuilles « detail d'un SOS » et « detail d'un medic » (captures 13 et 14) sont reproduites depuis le code : elles s'ouvrent normalement depuis un blip de la carte, inatteignable en test faute de tuiles. Leur contenu est identique (memes widgets, memes libelles), mais ce ne sont pas des captures d'un parcours reel.",
+    "Les messages temporaires (SnackBar : confirmation d'envoi, erreur reseau) ne sont pas captures : ils durent quelques secondes. Leur texte est documente dans lib/l10n/app_fr.arb."
+  ]
+}
