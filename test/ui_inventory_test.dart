@@ -229,15 +229,21 @@ void main() {
 
   testWidgets('07 onglet Reglages (haut)', (tester) async {
     await mountApp(tester);
-    await tab(tester, 2);
+    await tab(tester, 3);
     await shoot(tester, '07_onglet_reglages_haut');
   });
 
   testWidgets('08 onglet Reglages (bas)', (tester) async {
     await mountApp(tester);
-    await tab(tester, 2);
+    await tab(tester, 3);
     await scrollDown(tester, -400);
     await shoot(tester, '08_onglet_reglages_bas');
+  });
+
+  testWidgets('16 onglet Bonnes pratiques (coming soon)', (tester) async {
+    await mountApp(tester);
+    await tab(tester, 2);
+    await shoot(tester, '16_onglet_bonnes_pratiques');
   });
 
   testWidgets('09 selecteur de blessures (face)', (tester) async {

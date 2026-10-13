@@ -4,6 +4,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'practices_tab.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -252,6 +254,7 @@ class _MainScreenState extends State<MainScreen> {
         children: const [
           SosTab(),
           MapTab(),
+          PracticesTab(),
           SettingsTab(),
         ],
       ),
@@ -275,6 +278,8 @@ class _MainScreenState extends State<MainScreen> {
           ),
           NavigationDestination(
               icon: const Icon(Icons.settings), label: t.tabSettings),
+          NavigationDestination(
+              icon: const Icon(Icons.menu_book), label: t.tabPractices),
         ],
       ),
     );
