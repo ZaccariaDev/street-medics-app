@@ -20,8 +20,7 @@ class Perms {
   /// (permissionRequestInProgress).
   static Future<bool> notifications() async {
     await Notifs.requestPermissions();
-    final s = await FlutterForegroundTask.checkNotificationPermission();
-    return s == NotificationPermission.granted;
+    return true;
   }
 
   /// Localisation « pendant l'utilisation ».

@@ -19,6 +19,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'app_log.dart';
 import 'bg_service.dart';
 import 'body_map.dart';
+import 'mobilisation_service.dart';
 import 'body_map_view.dart';
 import 'config.dart';
 import 'first_aid.dart';
@@ -1517,6 +1518,8 @@ class _MapTabState extends State<MapTab> {
   final MapController _mapController = MapController();
   List<Map<String, dynamic>> _reports = [];
   List<Map<String, dynamic>> _medics = [];
+  List<Mobilisation> _mobilisations = [];
+  bool _mobilisationsVisible = true;
   LatLng? _myPosition;
   LatLng? _medicPosition;
   bool _loading = false;
@@ -1655,11 +1658,13 @@ class _MapTabState extends State<MapTab> {
     try {
       final reports = await PbService.listReports();
       final medics = await PbService.listMedics();
-      _refreshFailCount = 0; // reset on success
+      final mobilisations = await MobilisationService.fetchLieux();
+      _refreshFailCount = 0;
       if (mounted) {
         setState(() {
           _reports = reports;
           _medics = medics;
+          _mobilisations = mobilisations;
         });
       }
     } catch (e, st) {
@@ -1964,6 +1969,35 @@ class _MapTabState extends State<MapTab> {
     }
   }
 
+  void _showMobilisationDetail(Mobilisation mob) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Icon(Icons.campaign, color: Colors.orange),
+              const SizedBox(width: 8),
+              Text(mob.type.toUpperCase(),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
+            ]),
+            const SizedBox(height: 12),
+            Text(mob.label, style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 8),
+            Text(
+              '${mob.lat.toStringAsFixed(5)}, ${mob.lng.toStringAsFixed(5)}',
+              style: const TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showMedicDetail(Map<String, dynamic> m) {
     showModalBottomSheet<void>(
       context: context,
@@ -2033,6 +2067,18 @@ class _MapTabState extends State<MapTab> {
             child: _badge(Icons.medical_services, Colors.green),
           ),
         ),
+      // Marqueurs de mobilisation (lieux à risque de blessés)
+      if (_mobilisationsVisible)
+        for (final mob in _mobilisations)
+          Marker(
+            point: LatLng(mob.lat, mob.lng),
+            width: 40,
+            height: 40,
+            child: GestureDetector(
+              onTap: () => _showMobilisationDetail(mob),
+              child: _badge(Icons.campaign, Colors.orange),
+            ),
+          ),
       // Marker spécial : le medecin qui arrive (mode patient).
       if (_medicPosition != null)
         Marker(
@@ -2069,7 +2115,7 @@ class _MapTabState extends State<MapTab> {
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'fr.streetmedics.app',
+              userAgentPackageName: 'com.xpertise.smedics',
             ),
             MarkerLayer(markers: markers),
           ],
@@ -2108,6 +2154,17 @@ class _MapTabState extends State<MapTab> {
                 child: _loading
                     ? const CircularProgressIndicator(strokeWidth: 2)
                     : const Icon(Icons.refresh),
+              ),
+              const SizedBox(height: 12),
+              FloatingActionButton(
+                heroTag: 'mobilisations',
+                onPressed: () {
+                  setState(() => _mobilisationsVisible = !_mobilisationsVisible);
+                },
+                tooltip: 'Mobilisations',
+                backgroundColor:
+                    _mobilisationsVisible ? Colors.orange : Colors.grey,
+                child: const Icon(Icons.campaign, color: Colors.white),
               ),
               const SizedBox(height: 12),
               FloatingActionButton(
