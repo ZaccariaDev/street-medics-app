@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import 'body_map.dart';
@@ -357,7 +358,138 @@ class PbService {
       AppConfig.clearLegacyDeviceId();
     } catch (_) {
       // Réseau indisponible : on réessaiera au prochain démarrage (l'ancien
-      // identifiant n'est pas oublié tant que l'opération n'a pas réussi).
+      // identifiant reste en mémoire pour un nouvel essai).
+    }
+  }
+
+  // ---------- Escouades ----------
+
+  /// Crée une escouade avec le leader (deviceId).
+  ///
+  /// Retourne l'id de l'escouade créée, ou vide en cas d'erreur.
+  static Future<String> createSquad(String leaderId, String role) async {
+    try {
+      final rec = await client.collection('squads').create(body: {
+        'leader': leaderId,
+        'role': role,
+        'active': true,
+      });
+      return rec.id;
+    } catch (_) {
+      return '';
+    }
+  }
+
+  /// Rejoint une escouade incomplète.
+  ///
+  /// Retourne true si l'escouade a été rejointe, false sinon (escouade
+  /// complète, inexistante, ou erreur réseau).
+  static Future<bool> joinSquad(String squadId, String memberId, String role) async {
+    try {
+      final squad = await client.collection('squads').getOne(squadId);
+      final data = squad.data;
+      // Vérifie que l'escouade est incomplète
+      if (data['member2'] != null && data['member2'].toString().isNotEmpty) {
+        if (data['member3'] != null && data['member3'].toString().isNotEmpty) {
+          return false; // Escouade complète
+        }
+        // Rejoint en tant que 3e membre
+        await client.collection('squads').update(squadId, body: {
+          'member3': memberId,
+          'role3': role,
+        });
+      } else {
+        // Rejoint en tant que 2e membre
+        await client.collection('squads').update(squadId, body: {
+          'member2': memberId,
+          'role2': role,
+        });
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Quitte une escouade.
+  ///
+  /// Si le leader quitte, l'escouade est dissous. Si un membre quitte,
+  /// l'escouade reste active avec les membres restants.
+  static Future<void> leaveSquad(String squadId, String memberId) async {
+    try {
+      final squad = await client.collection('squads').getOne(squadId);
+      final data = squad.data;
+      if (data['leader'] == memberId) {
+        // Le leader quitte : dissout l'escouade
+        await client.collection('squads').update(squadId, body: {
+          'active': false,
+        });
+      } else if (data['member2'] == memberId) {
+        // Le 2e membre quitte : le 3e devient 2e
+        await client.collection('squads').update(squadId, body: {
+          'member2': data['member3'] ?? '',
+          'role2': data['role3'] ?? '',
+          'member3': '',
+          'role3': '',
+        });
+      } else if (data['member3'] == memberId) {
+        // Le 3e membre quitte
+        await client.collection('squads').update(squadId, body: {
+          'member3': '',
+          'role3': '',
+        });
+      }
+    } catch (_) {
+      // Réseau indisponible : on réessaiera plus tard
+    }
+  }
+
+  /// Trouve une escouade incomplète à proximité.
+  ///
+  /// Retourne l'id de l'escouade trouvée, ou vide si aucune n'est disponible.
+  static Future<String> findOpenSquad(double lat, double lng, double radiusKm) async {
+    try {
+      final squads = await client.collection('squads').getFullList(
+        filter: 'active = true',
+      );
+      for (final s in squads) {
+        final data = s.data;
+        // Vérifie que l'escouade est incomplète
+        final hasMember2 = data['member2'] != null && data['member2'].toString().isNotEmpty;
+        final hasMember3 = data['member3'] != null && data['member3'].toString().isNotEmpty;
+        if (!hasMember2 || !hasMember3) {
+          // Vérifie la distance
+          final pos = data['position'];
+          if (pos is Map) {
+            final squadLat = (pos['lat'] as num?)?.toDouble();
+            final squadLng = (pos['lng'] as num?)?.toDouble();
+            if (squadLat != null && squadLng != null) {
+              final dist = const Distance().as(
+                LengthUnit.Kilometer,
+                LatLng(lat, lng),
+                LatLng(squadLat, squadLng),
+              );
+              if (dist <= radiusKm) {
+                return s.id;
+              }
+            }
+          }
+        }
+      }
+      return '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  /// Met à jour la position de l'escouade (position du leader).
+  static Future<void> updateSquadPosition(String squadId, double lat, double lng) async {
+    try {
+      await client.collection('squads').update(squadId, body: {
+        'position': {'lat': lat, 'lng': lng},
+      });
+    } catch (_) {
+      // Réseau indisponible : on réessaiera plus tard
     }
   }
 

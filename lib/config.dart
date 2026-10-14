@@ -17,6 +17,7 @@ class AppConfig {
   static const String _kLang = 'app_lang';
   static const String _kOnDuty = 'on_duty';
   static const String _kMedicRecordId = 'medic_record_id';
+  static const String _kSquadId = 'squad_id';
   static const String _kPermsAsked = 'perms_asked';
   static const String _kVictimPhone = 'victim_phone';
   static const String _kMyReportId = 'my_report_id';
@@ -39,6 +40,7 @@ class AppConfig {
   static String _lang = '';
   static bool _onDuty = false;
   static String _medicRecordId = '';
+  static String _squadId = '';
 
   /// Ancien `deviceId` (format horodatage) remplacé lors de la migration.
   static String _legacyDeviceId = '';
@@ -69,6 +71,12 @@ class AppConfig {
   /// Identifiant de la fiche `medics` de cet appareil (utilisé par le service
   /// d'arrière-plan pour mettre à jour la position).
   static String get medicRecordId => _medicRecordId;
+
+  /// Identifiant de l'escouade courante (collection `squads`).
+  ///
+  /// Vide = solo. Présent = membre d'une escouade de 2-3 medics. Utilisé
+  /// pour rejoindre une escouade incomplète ou créer la sienne.
+  static String get squadId => _squadId;
 
   /// Ancien `deviceId` (format horodatage) remplacé par l'ANDROID_ID stable.
   ///
@@ -154,6 +162,7 @@ class AppConfig {
     _lang = prefs.getString(_kLang) ?? '';
     _onDuty = prefs.getBool(_kOnDuty) ?? false;
     _medicRecordId = prefs.getString(_kMedicRecordId) ?? '';
+    _squadId = prefs.getString(_kSquadId) ?? '';
     _permsAsked = prefs.getBool(_kPermsAsked) ?? false;
     _victimPhone = prefs.getString(_kVictimPhone) ?? '';
     // SOS envoyés par cet appareil. On lit la nouvelle clé (liste) et, si elle
@@ -199,6 +208,11 @@ class AppConfig {
     _medicRecordId = id;
     (await SharedPreferences.getInstance())
         .setString(_kMedicRecordId, _medicRecordId);
+  }
+
+  static Future<void> setSquadId(String id) async {
+    _squadId = id;
+    (await SharedPreferences.getInstance()).setString(_kSquadId, _squadId);
   }
 
   static Future<void> setPermsAsked() async {

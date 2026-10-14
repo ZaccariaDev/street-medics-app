@@ -76,6 +76,20 @@ void main() {
           reason: 'un timeout réseau ne doit pas être journalisé');
     });
 
+    test('les erreurs HTTP 504 ne sont pas journalisées', () async {
+      const msg = 'ClientException: {url: https://api.xpertise.quest, statusCode: 504}';
+      AppLog.log(level: 'error', message: msg, context: 'test');
+      await Future.delayed(const Duration(milliseconds: 100));
+      expect(await readLogs(), isEmpty);
+    });
+
+    test('les erreurs de décodage image ne sont pas journalisées', () async {
+      const msg = 'Exception: Invalid image data';
+      AppLog.log(level: 'error', message: msg, context: 'test');
+      await Future.delayed(const Duration(milliseconds: 100));
+      expect(await readLogs(), isEmpty);
+    });
+
     test('une vraie erreur est bien journalisée', () async {
       const message = 'ArgumentError: Invalid argument: null';
       AppLog.log(level: 'error', message: message, context: 'test');

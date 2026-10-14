@@ -164,7 +164,7 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _selectedIndex = 0;
   bool _askedPerms = false;
   bool _checkedUpdate = false;
@@ -174,6 +174,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _onDuty = AppConfig.onDuty;
     // Le patient suit le medecin qui arrive uniquement quand son SOS est
     // pris en charge (pas quand il est encore ouvert).
@@ -195,10 +196,64 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     dutyChanged.removeListener(_syncDuty);
     settingsChanged.removeListener(_syncDuty);
     FlutterForegroundTask.removeTaskDataCallback(_onMedicOnTheWay);
     super.dispose();
+  }
+
+  /// Timer de détection de fermeture : si l'app reste en arrière-plan plus
+  /// de 30 secondes sans repasser au premier plan, on considère qu'elle est
+  /// fermée. Plus fiable que `detached` seul (souvent trop tard pour le
+  /// réseau).
+  Timer? _closeTimer;
+
+  /// Détection de la fermeture complète de l'app.
+  ///
+  /// Stratégie :
+  ///  1. `paused` → lance un timer de 30 s
+  ///  2. Si `active` revient avant → annule le timer
+  ///  3. Si le timer expire → log de déconnexion + `setMedicOffDuty`
+  ///  4. `detached` → log + `setMedicOffDuty` immédiat (au cas où)
+  ///
+  /// Le log part vers la collection `logs` (hook serveur → Discord) pour
+  /// faire une statistique des déconnexions.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (!_onDuty) return;
+    switch (state) {
+      case AppLifecycleState.paused:
+        // L'app passe en arrière-plan : on lance le timer de fermeture.
+        _closeTimer?.cancel();
+        _closeTimer = Timer(const Duration(seconds: 30), _handleAppClosed);
+        break;
+      case AppLifecycleState.resumed:
+        // L'app revient au premier plan : on annule la fermeture.
+        _closeTimer?.cancel();
+        _closeTimer = null;
+        break;
+      case AppLifecycleState.detached:
+        // L'app se termine : on tente un dernier envoi (fire-and-forget).
+        _closeTimer?.cancel();
+        _handleAppClosed();
+        break;
+      default:
+        break;
+    }
+  }
+
+  /// Log de déconnexion + mise hors service (fire-and-forget).
+  void _handleAppClosed() {
+    AppLog.log(
+      level: 'info',
+      context: 'app_closed',
+      message: 'Fermeture de l\'app — déconnexion du service',
+    );
+    // Flush immédiat pour que le log parte avant la mort de l'app.
+    AppLog.flush();
+    PbService.setMedicOffDuty(AppConfig.deviceId).catchError((_) {});
   }
 
   void _syncDuty() {
@@ -1155,7 +1210,7 @@ class _SosTabState extends State<SosTab> {
     }
   }
 
-  Future<void> _goOnDuty() async {
+  Future<void> _goOnDuty({bool squadMode = false}) async {
     setState(() => _busy = true);
     final t = AppLocalizations.of(context);
 
@@ -1194,6 +1249,20 @@ class _SosTabState extends State<SosTab> {
         name: name,
       );
       await AppConfig.setMedicRecordId(id);
+      if (squadMode) {
+        var squadId = await PbService.findOpenSquad(
+          pos.latitude,
+          pos.longitude,
+          AppConfig.radiusKm,
+        );
+        if (squadId.isEmpty) {
+          squadId = await PbService.createSquad(AppConfig.deviceId, 'soignant');
+        }
+        if (squadId.isNotEmpty) {
+          await PbService.updateSquadPosition(squadId, pos.latitude, pos.longitude);
+          await AppConfig.setSquadId(squadId);
+        }
+      }
       await AppConfig.setOnDuty(true);
       await startBackgroundService();
       dutyChanged.value++;
@@ -1212,6 +1281,7 @@ class _SosTabState extends State<SosTab> {
   Future<void> _confirmAndGoOnDuty() async {
     final t = AppLocalizations.of(context);
     var accepted = false;
+    var squadMode = false; // false = solo, true = escouade
     await showDialog<void>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -1232,6 +1302,24 @@ class _SosTabState extends State<SosTab> {
                   title: Text(t.certCheck),
                   onChanged: (v) => setLocal(() => accepted = v ?? false),
                 ),
+                const Divider(),
+                Text('Mode d\'intervention',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                RadioListTile<bool>(
+                  value: false,
+                  groupValue: squadMode,
+                  title: const Text('Solo'),
+                  subtitle: const Text('Je travaille seul'),
+                  onChanged: (v) => setLocal(() => squadMode = v ?? false),
+                ),
+                RadioListTile<bool>(
+                  value: true,
+                  groupValue: squadMode,
+                  title: const Text('En escouade (2-3)'),
+                  subtitle: const Text(
+                      'Rejoindre ou créer une escouade de 2-3 medics'),
+                  onChanged: (v) => setLocal(() => squadMode = v ?? true),
+                ),
               ],
             ),
           ),
@@ -1244,7 +1332,7 @@ class _SosTabState extends State<SosTab> {
               onPressed: accepted
                   ? () {
                       Navigator.pop(ctx);
-                      _goOnDuty();
+                      _goOnDuty(squadMode: squadMode);
                     }
                   : null,
               child: Text(t.certAccept),
@@ -1259,6 +1347,11 @@ class _SosTabState extends State<SosTab> {
     setState(() => _busy = true);
     final t = AppLocalizations.of(context);
     try {
+      final squadId = AppConfig.squadId;
+      if (squadId.isNotEmpty) {
+        await PbService.leaveSquad(squadId, AppConfig.deviceId);
+        await AppConfig.setSquadId('');
+      }
       await PbService.setMedicOffDuty(AppConfig.deviceId);
       await AppConfig.setOnDuty(false);
       await stopBackgroundService();

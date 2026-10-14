@@ -122,6 +122,12 @@ class AppLog {
     'errno = 7',
     'errno = 8',
     'errno = 101',
+    // Erreurs HTTP 504 (Gateway Timeout) — serveur ou tuiles OSM
+    'statusCode: 504',
+    'HTTP request failed',
+    // Erreurs de décodage d'image (tuiles OSM corrompues)
+    'Invalid image data',
+    'Could not decompress image',
   ];
 
   /// Vrai si le message correspond à une erreur réseau passagère.
