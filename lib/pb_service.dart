@@ -631,8 +631,16 @@ class PbService {
     if (_watching) return;
     _watching = true;
 
+    // Les erreurs SSE sont transitoires (timeout Cloudflare ~100s, veille
+    // téléphone, changement réseau 4G ↔ WiFi). Le SDK gère déjà la
+    // reconnexion automatique. Les erreurs sont filtrées dans AppLog
+    // (pattern 'errno = 103' + '/api/realtime').
+
     client.realtime.onDisconnect = (subs) {
       _setRealtime(false);
+      // Le SSE est tombé : on invalide le cache pour que le prochain
+      // subscribe reteste le serveur (sinon on reste bloqué sur l'ancien état).
+      resetServerReachable();
     };
 
     // PB_CONNECT est réémis à chaque reconnexion : on bascule en temps réel.
